@@ -1,0 +1,997 @@
+{
+  "name": "lotion",
+  "displayName": "Lotion",
+  "description": "Notion-like editing for Markdown — slash commands, databases, backlinks, and more",
+  "version": "0.0.2",
+  "license": "GPL-3.0",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onLanguage:markdown",
+    "onView:lotion.backlinks",
+    "onView:lotion.outline",
+    "onView:lotion.bookmarks"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "markdown.previewStyles": [
+      "./media/lotion-preview.css"
+    ],
+    "markdown.markdownItPlugins": true,
+    "views": {
+      "explorer": [
+        {
+          "id": "lotion.backlinks",
+          "name": "Backlinks"
+        },
+        {
+          "id": "lotion.outline",
+          "name": "Document Outline"
+        },
+        {
+          "id": "lotion.bookmarks",
+          "name": "Bookmarks"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "lotion.exportToPdf",
+        "title": "Lotion: Export to PDF / HTML",
+        "icon": "$(desktop-download)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.addComment",
+        "title": "Lotion: Add Comment",
+        "icon": "$(comment)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.showCommentPanel",
+        "title": "Lotion: Show Comment Panel",
+        "icon": "$(comment-discussion)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.gitCommit",
+        "title": "Lotion: Git Commit & Push",
+        "icon": "$(git-commit)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.dictate",
+        "title": "Lotion: Dictate (Speech to Text)",
+        "icon": "$(record)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.createPage",
+        "title": "Lotion: Create Child Page",
+        "icon": "$(new-file)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.insertImage",
+        "title": "Lotion: Insert Image",
+        "icon": "$(file-media)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.insertCarousel",
+        "title": "Lotion: Insert Image Carousel",
+        "icon": "$(preview)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.insertCodeBlock",
+        "title": "Lotion: Insert Code Block",
+        "icon": "$(code)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.insertToggle",
+        "title": "Lotion: Insert Toggle",
+        "icon": "$(chevron-right)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.insertToggleH1",
+        "title": "Lotion: Insert Toggle H1",
+        "icon": "$(chevron-right)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.insertToggleH2",
+        "title": "Lotion: Insert Toggle H2",
+        "icon": "$(chevron-right)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.insertToggleH3",
+        "title": "Lotion: Insert Toggle H3",
+        "icon": "$(chevron-right)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.insertCallout",
+        "title": "Lotion: Insert Callout",
+        "icon": "$(quote)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.insertTable",
+        "title": "Lotion: Insert Table",
+        "icon": "$(symbol-array)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.insertToc",
+        "title": "Lotion: Insert Table of Contents",
+        "icon": "$(list-tree)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.insertToday",
+        "title": "Lotion: Insert Today's Date",
+        "icon": "$(calendar)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.insertDate",
+        "title": "Lotion: Insert Date",
+        "icon": "$(calendar)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.createDatabase",
+        "title": "Lotion: Create Database",
+        "icon": "$(database)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.lockBlock",
+        "title": "Lotion: Lock Block",
+        "icon": "$(lock)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.unlockBlock",
+        "title": "Lotion: Unlock Block",
+        "icon": "$(unlock)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.insertSecretbox",
+        "title": "Lotion: Insert Secret Box",
+        "icon": "$(shield)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.insertGraph",
+        "title": "Lotion: Insert Graph",
+        "icon": "$(graph)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.renderGraph",
+        "title": "Lotion: Render Graph",
+        "icon": "$(play)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.moveBlock",
+        "title": "Lotion: Move Block to Page",
+        "icon": "$(arrow-right)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.insertEmoji",
+        "title": "Lotion: Insert Emoji",
+        "icon": "$(smiley)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.insertGif",
+        "title": "Lotion: Insert GIF",
+        "icon": "$(file-media)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.smartPaste",
+        "title": "Lotion: Smart Paste",
+        "icon": "$(clippy)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.toggleBold",
+        "title": "Lotion: Toggle Bold",
+        "icon": "$(bold)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.toggleItalic",
+        "title": "Lotion: Toggle Italic",
+        "icon": "$(italic)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.toggleStrikethrough",
+        "title": "Lotion: Toggle Strikethrough",
+        "icon": "$(text-size)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.toggleInlineCode",
+        "title": "Lotion: Toggle Inline Code",
+        "icon": "$(code)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.toggleHighlight",
+        "title": "Lotion: Toggle Highlight",
+        "icon": "$(paintcan)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.tableAddRowsBelow",
+        "title": "Lotion: Table — Add Rows Below",
+        "icon": "$(diff-added)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.tableAddRowsAbove",
+        "title": "Lotion: Table — Add Rows Above",
+        "icon": "$(diff-added)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.tableAddColsRight",
+        "title": "Lotion: Table — Add Columns Right",
+        "icon": "$(diff-added)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.tableAddColsLeft",
+        "title": "Lotion: Table — Add Columns Left",
+        "icon": "$(diff-added)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.tableDeleteRow",
+        "title": "Lotion: Table — Delete Row",
+        "icon": "$(trash)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.tableDeleteCol",
+        "title": "Lotion: Table — Delete Column",
+        "icon": "$(trash)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.tableTabForward",
+        "title": "Lotion: Table — Next Cell",
+        "icon": "$(arrow-right)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.tableTabBackward",
+        "title": "Lotion: Table — Previous Cell",
+        "icon": "$(arrow-left)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.tableJumpRowStart",
+        "title": "Lotion: Table — First Cell in Row",
+        "icon": "$(arrow-left)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.tableJumpRowEnd",
+        "title": "Lotion: Table — Last Cell in Row",
+        "icon": "$(arrow-right)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.tableJumpColStart",
+        "title": "Lotion: Table — First Cell in Column",
+        "icon": "$(arrow-up)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.tableJumpColEnd",
+        "title": "Lotion: Table — Last Cell in Column",
+        "icon": "$(arrow-down)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.tableAlign",
+        "title": "Lotion: Table — Align",
+        "icon": "$(symbol-ruler)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.tableSort",
+        "title": "Lotion: Table — Sort by Column",
+        "icon": "$(sort-precedence)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.tableTranspose",
+        "title": "Lotion: Table — Transpose",
+        "icon": "$(arrow-swap)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.listContinue",
+        "title": "Lotion: Continue List",
+        "icon": "$(list-ordered)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.renumberList",
+        "title": "Lotion: Renumber Ordered List",
+        "icon": "$(list-ordered)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.olToUl",
+        "title": "Lotion: Convert Ordered List to Bullet List",
+        "icon": "$(list-unordered)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.ulToOl",
+        "title": "Lotion: Convert Bullet List to Numbered List",
+        "icon": "$(list-ordered)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.turnInto",
+        "title": "Lotion: Turn Into…",
+        "icon": "$(replace)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.jumpToNextHeading",
+        "title": "Lotion: Jump to Next Heading",
+        "icon": "$(arrow-down)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.jumpToPrevHeading",
+        "title": "Lotion: Jump to Previous Heading",
+        "icon": "$(arrow-up)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.jumpToHeading",
+        "title": "Lotion: Jump to Heading…",
+        "icon": "$(go-to-file)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.duplicateBlock",
+        "title": "Lotion: Duplicate Block",
+        "icon": "$(copy)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.findOrphanPages",
+        "title": "Lotion: Find Orphan Pages",
+        "icon": "$(search)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.insertFootnote",
+        "title": "Lotion: Insert Footnote",
+        "icon": "$(references)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.insertTemplate",
+        "title": "Lotion: Insert Page Template",
+        "icon": "$(file-symlink-file)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.extractToSubpage",
+        "title": "Lotion: Extract to Subpage",
+        "icon": "$(split-vertical)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.toggleFocusMode",
+        "title": "Lotion: Toggle Focus Mode",
+        "icon": "$(eye)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.insertLink",
+        "title": "Lotion: Insert Internal Link",
+        "icon": "$(link)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.openLink",
+        "title": "Lotion: Open Nearest Link",
+        "icon": "$(link-external)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.toggleCheckbox",
+        "title": "Lotion: Toggle Checkbox",
+        "icon": "$(checklist)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.refreshOutline",
+        "title": "Lotion: Refresh Outline",
+        "icon": "$(refresh)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.revealHeading",
+        "title": "Lotion: Reveal Heading",
+        "icon": "$(go-to-file)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.showTagIndex",
+        "title": "Lotion: Browse by Tag",
+        "icon": "$(tag)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.indentList",
+        "title": "Lotion: Indent List Item",
+        "icon": "$(indent)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.outdentList",
+        "title": "Lotion: Outdent List Item",
+        "icon": "$(indent)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.toggleListType",
+        "title": "Lotion: Toggle List Type",
+        "icon": "$(list-unordered)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.openDailyNote",
+        "title": "Lotion: Open Daily Note",
+        "icon": "$(calendar)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.promoteHeading",
+        "title": "Lotion: Promote Heading",
+        "icon": "$(arrow-up)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.demoteHeading",
+        "title": "Lotion: Demote Heading",
+        "icon": "$(arrow-down)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.findUnusedImages",
+        "title": "Lotion: Find Unused Images",
+        "icon": "$(search)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.selectBlock",
+        "title": "Lotion: Select Block",
+        "icon": "$(whole-word)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.swapBlockUp",
+        "title": "Lotion: Swap Block Up",
+        "icon": "$(arrow-up)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.swapBlockDown",
+        "title": "Lotion: Swap Block Down",
+        "icon": "$(arrow-down)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.wrapWith",
+        "title": "Lotion: Wrap With…",
+        "icon": "$(symbol-string)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.linksToReference",
+        "title": "Lotion: Convert Links to Reference Style",
+        "icon": "$(references)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.linksToInline",
+        "title": "Lotion: Convert Links to Inline Style",
+        "icon": "$(link)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.renamePage",
+        "title": "Lotion: Rename Page",
+        "icon": "$(edit)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.quickSwitch",
+        "title": "Lotion: Quick Switch Page",
+        "icon": "$(go-to-file)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.refreshBacklinks",
+        "title": "Lotion: Refresh Backlinks",
+        "icon": "$(refresh)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.dbAddEntry",
+        "title": "Lotion: New Database Entry",
+        "icon": "$(add)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.dbNewView",
+        "title": "Lotion: New Database View",
+        "icon": "$(open-preview)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.dbNewField",
+        "title": "Lotion: Add Database Field",
+        "icon": "$(add)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.dbDeleteField",
+        "title": "Lotion: Delete Database Field",
+        "icon": "$(trash)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.openDbWebview",
+        "title": "Lotion: Open Database View",
+        "icon": "$(database)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.recentPages",
+        "title": "Lotion: Recent Pages",
+        "icon": "$(history)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.setPageIcon",
+        "title": "Lotion: Set Page Icon",
+        "icon": "$(smiley)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.bookmarkPage",
+        "title": "Lotion: Bookmark Page",
+        "icon": "$(bookmark)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.removeBookmark",
+        "title": "Lotion: Remove Bookmark",
+        "icon": "$(close)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.openBookmark",
+        "title": "Lotion: Open Bookmark",
+        "icon": "$(bookmark)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.wikiSearch",
+        "title": "Lotion: Search All Pages",
+        "icon": "$(search)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.pomodoroStart",
+        "title": "Lotion: Start Pomodoro",
+        "icon": "$(play)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.pomodoroBreak",
+        "title": "Lotion: Start Break",
+        "icon": "$(watch)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.pomodoroStop",
+        "title": "Lotion: Stop Pomodoro",
+        "icon": "$(debug-stop)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.pasteFromHistory",
+        "title": "Lotion: Paste from Clipboard History",
+        "icon": "$(history)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.copyToClipboard",
+        "title": "Lotion: Copy (with history)",
+        "icon": "$(copy)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.cutToClipboard",
+        "title": "Lotion: Cut (with history)",
+        "icon": "$(clippy)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.editFrontmatter",
+        "title": "Lotion: Edit Front Matter",
+        "icon": "$(edit)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.expandSnippet",
+        "title": "Lotion: Expand Snippet",
+        "icon": "$(symbol-snippet)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.fireInto",
+        "title": "Lotion: Fire Into",
+        "icon": "$(output)",
+        "category": "Lotion"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "lotion.refreshBacklinks",
+          "when": "view == lotion.backlinks",
+          "group": "navigation"
+        },
+        {
+          "command": "lotion.refreshOutline",
+          "when": "view == lotion.outline",
+          "group": "navigation"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "lotion.fireInto",
+        "key": "ctrl+alt+f",
+        "mac": "cmd+alt+f"
+      },
+      {
+        "command": "lotion.smartPaste",
+        "key": "ctrl+v",
+        "mac": "cmd+v",
+        "when": "editorTextFocus && editorLangId == markdown"
+      },
+      {
+        "command": "lotion.toggleBold",
+        "key": "ctrl+b",
+        "mac": "cmd+b",
+        "when": "editorTextFocus && editorLangId == markdown && lotion.cursorOnNonEmptyLine"
+      },
+      {
+        "command": "lotion.toggleItalic",
+        "key": "ctrl+i",
+        "mac": "cmd+i",
+        "when": "editorTextFocus && editorLangId == markdown"
+      },
+      {
+        "command": "lotion.toggleStrikethrough",
+        "key": "alt+s",
+        "mac": "alt+s",
+        "when": "editorTextFocus && editorLangId == markdown"
+      },
+      {
+        "command": "lotion.toggleInlineCode",
+        "key": "alt+`",
+        "mac": "alt+`",
+        "when": "editorTextFocus && editorLangId == markdown"
+      },
+      {
+        "command": "lotion.toggleHighlight",
+        "key": "alt+h",
+        "mac": "alt+h",
+        "when": "editorTextFocus && editorLangId == markdown"
+      },
+      {
+        "command": "lotion.listContinue",
+        "key": "enter",
+        "mac": "enter",
+        "when": "editorTextFocus && editorLangId == markdown && !suggestWidgetVisible && !editorHasMultipleSelections && !inSnippetMode"
+      },
+      {
+        "command": "lotion.tableTabForward",
+        "key": "alt+right",
+        "mac": "alt+right",
+        "when": "editorTextFocus && editorLangId == markdown && lotion.cursorInTable"
+      },
+      {
+        "command": "lotion.tableTabBackward",
+        "key": "alt+left",
+        "mac": "alt+left",
+        "when": "editorTextFocus && editorLangId == markdown && lotion.cursorInTable"
+      },
+      {
+        "command": "cursorDown",
+        "key": "alt+down",
+        "mac": "alt+down",
+        "when": "editorTextFocus && editorLangId == markdown && lotion.cursorInTable"
+      },
+      {
+        "command": "cursorUp",
+        "key": "alt+up",
+        "mac": "alt+up",
+        "when": "editorTextFocus && editorLangId == markdown && lotion.cursorInTable"
+      },
+      {
+        "command": "lotion.tableJumpRowStart",
+        "key": "alt+home",
+        "mac": "alt+home",
+        "when": "editorTextFocus && editorLangId == markdown && lotion.cursorInTable"
+      },
+      {
+        "command": "lotion.tableJumpRowEnd",
+        "key": "alt+end",
+        "mac": "alt+end",
+        "when": "editorTextFocus && editorLangId == markdown && lotion.cursorInTable"
+      },
+      {
+        "command": "lotion.tableJumpColStart",
+        "key": "alt+pageup",
+        "mac": "alt+pageup",
+        "when": "editorTextFocus && editorLangId == markdown && lotion.cursorInTable"
+      },
+      {
+        "command": "lotion.tableJumpColEnd",
+        "key": "alt+pagedown",
+        "mac": "alt+pagedown",
+        "when": "editorTextFocus && editorLangId == markdown && lotion.cursorInTable"
+      },
+      {
+        "command": "lotion.jumpToNextHeading",
+        "key": "alt+down",
+        "mac": "alt+down",
+        "when": "editorTextFocus && editorLangId == markdown && !lotion.cursorInTable"
+      },
+      {
+        "command": "lotion.jumpToPrevHeading",
+        "key": "alt+up",
+        "mac": "alt+up",
+        "when": "editorTextFocus && editorLangId == markdown && !lotion.cursorInTable"
+      },
+      {
+        "command": "lotion.jumpToHeading",
+        "key": "ctrl+shift+h",
+        "mac": "cmd+shift+h",
+        "when": "editorTextFocus && editorLangId == markdown"
+      },
+      {
+        "command": "lotion.duplicateBlock",
+        "key": "ctrl+shift+d",
+        "mac": "cmd+shift+d",
+        "when": "editorTextFocus && editorLangId == markdown"
+      },
+
+      {
+        "command": "lotion.toggleCheckbox",
+        "key": "alt+d",
+        "mac": "alt+d",
+        "when": "editorTextFocus && editorLangId == markdown"
+      },
+      {
+        "command": "lotion.indentList",
+        "key": "tab",
+        "when": "editorTextFocus && editorLangId == markdown && !editorHasSelection && !inSnippetMode && !suggestWidgetVisible"
+      },
+      {
+        "command": "lotion.outdentList",
+        "key": "shift+tab",
+        "when": "editorTextFocus && editorLangId == markdown && !inSnippetMode && !suggestWidgetVisible"
+      },
+      {
+        "command": "lotion.toggleListType",
+        "key": "",
+        "mac": "",
+        "when": "false"
+      },
+      {
+        "command": "lotion.promoteHeading",
+        "key": "alt+shift+left",
+        "mac": "alt+shift+left",
+        "when": "editorTextFocus && editorLangId == markdown"
+      },
+      {
+        "command": "lotion.demoteHeading",
+        "key": "alt+shift+right",
+        "mac": "alt+shift+right",
+        "when": "editorTextFocus && editorLangId == markdown"
+      },
+      {
+        "command": "lotion.selectBlock",
+        "key": "ctrl+shift+b",
+        "mac": "cmd+shift+b",
+        "when": "editorTextFocus && editorLangId == markdown"
+      },
+      {
+        "command": "lotion.quickSwitch",
+        "key": "alt+p",
+        "mac": "alt+p",
+        "when": "editorLangId == markdown"
+      },
+      {
+        "command": "lotion.swapBlockUp",
+        "key": "alt+shift+up",
+        "mac": "alt+shift+up",
+        "when": "editorTextFocus && editorLangId == markdown"
+      },
+      {
+        "command": "lotion.swapBlockDown",
+        "key": "alt+shift+down",
+        "mac": "alt+shift+down",
+        "when": "editorTextFocus && editorLangId == markdown"
+      },
+      {
+        "command": "lotion.wrapWith",
+        "key": "ctrl+shift+w",
+        "mac": "cmd+shift+w",
+        "when": "editorTextFocus && editorLangId == markdown"
+      },
+      {
+        "command": "lotion.recentPages",
+        "key": "alt+r",
+        "mac": "alt+r",
+        "when": "editorLangId == markdown"
+      },
+      {
+        "command": "lotion.copyToClipboard",
+        "key": "ctrl+c",
+        "mac": "cmd+c",
+        "when": "editorTextFocus && editorLangId == markdown"
+      },
+      {
+        "command": "lotion.cutToClipboard",
+        "key": "ctrl+x",
+        "mac": "cmd+x",
+        "when": "editorTextFocus && editorLangId == markdown"
+      }
+    ],
+    "configuration": {
+      "title": "Lotion",
+      "properties": {
+        "lotion.dailyNotePath": {
+          "type": "string",
+          "default": "journal",
+          "description": "Folder (relative to workspace root) where daily notes are created."
+        },
+        "lotion.imageDir": {
+          "type": "string",
+          "default": ".rsrc",
+          "description": "Folder name used to store images alongside each page."
+        },
+        "lotion.readingSpeed": {
+          "type": "number",
+          "default": 230,
+          "description": "Words per minute used to estimate reading time."
+        },
+        "lotion.focusModeOpacity": {
+          "type": "number",
+          "default": 0.35,
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Opacity for unfocused blocks in focus mode (0 = invisible, 1 = fully visible)."
+        },
+        "lotion.smartTypography": {
+          "type": "boolean",
+          "default": false,
+          "description": "Auto-replace straight quotes, dashes, and ellipses with typographic equivalents."
+        },
+        "lotion.autoRenumberLists": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically renumber ordered lists on save."
+        },
+        "lotion.trailingNewline": {
+          "type": "boolean",
+          "default": true,
+          "description": "Ensure files end with exactly one trailing newline on save."
+        },
+        "lotion.dateFormat": {
+          "type": "string",
+          "default": "YYYY-MM-DD",
+          "description": "Date format used for daily notes and date insertion (YYYY, MM, DD, ddd, etc.)."
+        },
+        "lotion.gifProvider": {
+          "type": "string",
+          "enum": ["giphy", "klipy"],
+          "default": "",
+          "description": "GIF search provider: 'giphy' or 'klipy'."
+        },
+        "lotion.giphyApiKey": {
+          "type": "string",
+          "default": "",
+          "description": "Giphy API key for GIF search. Get a free key at https://developers.giphy.com/"
+        },
+        "lotion.klipyApiKey": {
+          "type": "string",
+          "default": "",
+          "description": "Klipy API key for GIF search. Get a key at https://developer.klipy.com/"
+        },
+        "lotion.git.neverPush": {
+          "type": "boolean",
+          "default": false,
+          "description": "When true, the /commit slash command will never push to a remote after committing."
+        },
+        "lotion.git.remoteUrl": {
+          "type": "string",
+          "default": "",
+          "description": "Git remote URL to add when no remote is configured."
+        },
+        "lotion.commentUsername": {
+          "type": "string",
+          "default": "",
+          "description": "Your name for comments. Set automatically on first comment."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./ && node esbuild.webview.mjs",
+    "compile:webview": "node esbuild.webview.mjs",
+    "watch": "tsc -watch -p ./",
+    "watch:webview": "node esbuild.webview.mjs --watch",
+    "test": "jest --verbose",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "@types/leaflet": "^1.9.21",
+    "@types/node": "^25.2.3",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@types/vscode": "^1.80.0",
+    "esbuild": "^0.27.3",
+    "jest": "^30.2.0",
+    "prettier": "^3.8.1",
+    "ts-jest": "^29.4.6",
+    "typescript": "^5.3.0"
+  },
+  "dependencies": {
+    "@types/d3-force": "^3.0.10",
+    "@viz-js/viz": "^3.24.0",
+    "d3-force": "^3.0.0",
+    "leaflet": "^1.9.4",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "sherpa-onnx-node": "^1.12.25",
+    "unicode-emoji-json": "^0.8.0"
+  }
+}

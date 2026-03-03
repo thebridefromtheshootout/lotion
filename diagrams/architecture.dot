@@ -1,0 +1,54 @@
+digraph Architecture {
+  rankdir=LR;
+  node [shape=box, style=rounded, fontname="Segoe UI"];
+  edge [fontname="Segoe UI", fontsize=10];
+
+  subgraph cluster_vscode {
+    label="VS Code";
+    style=dashed;
+
+    subgraph cluster_ext {
+      label="Extension Host (Node.js)";
+      bgcolor="#e8f4e8";
+
+      HostEditor [label="HostEditor\n(VS Code API Abstraction)"];
+      Extension [label="extension.ts\n(Entry Point)"];
+      
+      subgraph cluster_modules {
+        label="Feature Modules";
+        Database [label="database/"];
+        Editor [label="editor/"];
+        Links [label="links/"];
+        Lists [label="lists/"];
+        Views [label="views/"];
+        Media [label="media/"];
+        Navigation [label="navigation/"];
+        Blocks [label="blocks/"];
+        Formatting [label="formatting/"];
+        Productivity [label="productivity/"];
+      }
+    }
+
+    subgraph cluster_webviews {
+      label="Webview Processes (Browser Sandboxes)";
+      bgcolor="#e8e8f4";
+      
+      dbApp [label="dbApp\n(Database UI)\nReact"];
+      commentApp [label="commentApp\n(Comments Panel)\nReact"];
+      dateApp [label="dateApp\n(Date Picker)\nReact"];
+      dictateApp [label="dictateApp\n(Speech-to-Text)\nReact"];
+      gifApp [label="gifApp\n(GIF Search)\nReact"];
+    }
+  }
+
+  Extension -> HostEditor [label="uses"];
+  Extension -> Database;
+  Extension -> Editor;
+  Extension -> Links;
+  
+  Database -> dbApp [label="postMessage", style=dashed, color=blue];
+  Editor -> commentApp [label="postMessage", style=dashed, color=blue];
+  Editor -> dateApp [label="postMessage", style=dashed, color=blue];
+  Editor -> dictateApp [label="postMessage", style=dashed, color=blue];
+  Media -> gifApp [label="postMessage", style=dashed, color=blue];
+}

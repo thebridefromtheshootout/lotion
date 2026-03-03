@@ -1,0 +1,190 @@
+/* ── Lotion preview styles ───────────────────────────────────────── */
+
+/* Callout blocks: > [!NOTE], > [!TIP], > [!WARNING], > [!IMPORTANT], > [!CAUTION] */
+.callout {
+  border-left: 4px solid #448aff;
+  background: rgba(68, 138, 255, 0.08);
+  padding: 12px 16px;
+  margin: 12px 0;
+  border-radius: 4px;
+}
+.callout-title {
+  font-weight: 600;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.callout.callout-note {
+  border-left-color: #448aff;
+  background: rgba(68, 138, 255, 0.08);
+}
+.callout.callout-tip {
+  border-left-color: #00c853;
+  background: rgba(0, 200, 83, 0.08);
+}
+.callout.callout-warning {
+  border-left-color: #ff9100;
+  background: rgba(255, 145, 0, 0.08);
+}
+.callout.callout-important {
+  border-left-color: #aa00ff;
+  background: rgba(170, 0, 255, 0.08);
+}
+.callout.callout-caution {
+  border-left-color: #ff1744;
+  background: rgba(255, 23, 68, 0.08);
+}
+
+/* Highlight ==text== */
+mark,
+.highlight {
+  background-color: rgba(255, 235, 59, 0.4);
+  padding: 1px 3px;
+  border-radius: 2px;
+}
+
+/* Details/summary toggle blocks */
+details {
+  border: 1px solid var(--vscode-panel-border, #ddd);
+  border-radius: 4px;
+  padding: 8px 12px;
+  margin: 8px 0;
+}
+details > summary {
+  cursor: pointer;
+  font-weight: 600;
+  outline: none;
+  user-select: none;
+}
+details[open] > summary {
+  margin-bottom: 8px;
+  border-bottom: 1px solid var(--vscode-panel-border, #eee);
+  padding-bottom: 6px;
+}
+
+/* ── Carousel component ─────────────────────────────────────── */
+.lotion-carousel {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 8px 0;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+.lotion-carousel img {
+  flex: 0 0 auto;
+  max-height: 180px;
+  width: auto;
+  border-radius: 4px;
+  scroll-snap-align: start;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+.lotion-carousel img:hover {
+  transform: scale(1.03);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+.carousel-title {
+  display: block;
+  font-size: 1.1em;
+  margin-bottom: 4px;
+}
+
+/* Task list checkboxes */
+.task-list-item {
+  list-style: none;
+  margin-left: -24px;
+}
+.task-list-item input[type="checkbox"] {
+  margin-right: 6px;
+}
+
+/* Completed tasks */
+.task-list-item.checked {
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+
+/* Footnote references */
+sup a.footnote-ref {
+  color: #448aff;
+  text-decoration: none;
+  font-weight: 600;
+}
+.footnotes {
+  border-top: 1px solid var(--vscode-panel-border, #ddd);
+  margin-top: 24px;
+  padding-top: 12px;
+  font-size: 0.9em;
+}
+
+/* Table styling */
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 12px 0;
+}
+th,
+td {
+  border: 1px solid var(--vscode-panel-border, #ddd);
+  padding: 6px 12px;
+  text-align: left;
+}
+th {
+  background: rgba(128, 128, 128, 0.1);
+  font-weight: 600;
+}
+tr:nth-child(even) {
+  background: rgba(128, 128, 128, 0.04);
+}
+
+/* Blockquote */
+blockquote {
+  border-left: 4px solid var(--vscode-panel-border, #ccc);
+  padding: 4px 16px;
+  margin: 12px 0;
+  color: var(--vscode-descriptionForeground, #666);
+}
+
+/* ── Smooth transitions ─────────────────────────────────────── */
+.callout,
+details,
+th,
+td,
+blockquote,
+mark {
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+/* ── Dark theme adjustments (vscode-dark body class) ─────────── */
+body.vscode-dark mark,
+body.vscode-dark .highlight {
+  background-color: rgba(255, 235, 59, 0.22);
+}
+
+body.vscode-dark .callout.callout-note {
+  border-left-color: #5c9aff;
+  background: rgba(92, 154, 255, 0.1);
+}
+body.vscode-dark .callout.callout-tip {
+  border-left-color: #33d17a;
+  background: rgba(51, 209, 122, 0.1);
+}
+body.vscode-dark .callout.callout-warning {
+  border-left-color: #ffb347;
+  background: rgba(255, 179, 71, 0.1);
+}
+body.vscode-dark .callout.callout-important {
+  border-left-color: #c56cff;
+  background: rgba(197, 108, 255, 0.1);
+}
+body.vscode-dark .callout.callout-caution {
+  border-left-color: #ff5c6c;
+  background: rgba(255, 92, 108, 0.1);
+}

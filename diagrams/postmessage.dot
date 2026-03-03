@@ -1,0 +1,19 @@
+digraph PostMessage {
+  rankdir=LR;
+  node [shape=box, fontname="Segoe UI"];
+  
+  subgraph cluster_host {
+    label="Extension Host";
+    bgcolor="#e8f4e8";
+    dbWebview [label="dbWebview.ts"];
+  }
+  
+  subgraph cluster_webview {
+    label="Webview (dbApp)";
+    bgcolor="#e8e8f4";
+    App [label="App.tsx"];
+  }
+  
+  dbWebview -> App [label="init\nupdateEntries", color=blue, fontcolor=blue];
+  App -> dbWebview [label="ready\nopenEntry\naddEntry\nrefresh\nupdateEntryProperty\npromptSaveView", color=green, fontcolor=green];
+}

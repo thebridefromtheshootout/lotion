@@ -1,0 +1,103 @@
+:root {
+  --bg: var(--vscode-editor-background);
+  --fg: var(--vscode-editor-foreground);
+  --accent: var(--vscode-button-background, #007acc);
+  --accent-fg: var(--vscode-button-foreground, #fff);
+  --input-bg: var(--vscode-input-background);
+  --input-border: var(--vscode-input-border, #3c3c3c);
+  --card-bg: var(--vscode-editorWidget-background, #252526);
+  --danger: #d32f2f;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--vscode-font-family, system-ui);
+  background: var(--bg);
+  color: var(--fg);
+  padding: 16px;
+}
+
+h2 {
+  font-size: 16px;
+  margin-bottom: 16px;
+}
+
+.empty {
+  text-align: center;
+  padding: 32px;
+  opacity: 0.5;
+}
+
+.comment-card {
+  background: var(--card-bg);
+  border: 1px solid var(--input-border);
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 10px;
+}
+.comment-card.resolved {
+  opacity: 0.5;
+}
+
+.comment-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  opacity: 0.7;
+  margin-bottom: 6px;
+}
+
+.comment-line {
+  cursor: pointer;
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+.comment-author {
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.comment-anchor {
+  font-size: 12px;
+  font-style: italic;
+  opacity: 0.6;
+  margin-bottom: 6px;
+  padding: 4px 8px;
+  background: rgba(128, 128, 128, 0.1);
+  border-radius: 3px;
+}
+
+.comment-body {
+  font-size: 13px;
+  line-height: 1.5;
+  margin-bottom: 8px;
+}
+
+.comment-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.comment-actions button {
+  background: var(--input-bg);
+  color: var(--fg);
+  border: 1px solid var(--input-border);
+  border-radius: 3px;
+  padding: 3px 8px;
+  cursor: pointer;
+  font-size: 11px;
+  font-family: var(--vscode-font-family);
+}
+.comment-actions button:hover {
+  filter: brightness(1.2);
+}
+.comment-actions button.danger:hover {
+  background: var(--danger);
+  color: #fff;
+}

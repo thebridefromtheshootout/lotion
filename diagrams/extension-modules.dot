@@ -1,0 +1,48 @@
+digraph ExtensionModules {
+  rankdir=TB;
+  node [shape=box, style=rounded, fontname="Segoe UI", fontsize=11];
+  
+  subgraph cluster_core {
+    label="Core";
+    bgcolor="#fff3e0";
+    cwd [label="cwd.ts"];
+    webviewShell [label="webviewShell.ts"];
+    slashCommands [label="slashCommands.ts"];
+    structureLint [label="structureLint.ts"];
+  }
+  
+  subgraph cluster_database {
+    label="Database";
+    bgcolor="#e3f2fd";
+    database [label="database.ts\n(Schema/Entry parsing)"];
+    dbWebview [label="dbWebview.ts\n(Panel management)"];
+    dbCodeLens [label="dbCodeLens.ts"];
+  }
+  
+  subgraph cluster_editor {
+    label="Editor";
+    bgcolor="#f3e5f5";
+    comments [label="comments.ts"];
+    date [label="date.ts"];
+    frontmatter [label="frontmatterEditor.ts"];
+    callout [label="callout.ts"];
+    table [label="table.ts"];
+  }
+  
+  subgraph cluster_links {
+    label="Links";
+    bgcolor="#e8f5e9";
+    backlinks [label="backlinks.ts"];
+    linkComplete [label="linkComplete.ts"];
+    linkHover [label="linkHover.ts"];
+    linkValidator [label="linkValidator.ts"];
+  }
+  
+  subgraph cluster_views {
+    label="Views";
+    bgcolor="#fce4ec";
+    outline [label="outline.ts\n(TreeDataProvider)"];
+    wordCount [label="wordCount.ts"];
+    pageIcon [label="pageIcon.ts"];
+  }
+}

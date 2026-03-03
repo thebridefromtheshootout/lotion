@@ -1,0 +1,41 @@
+digraph WebviewApps {
+  rankdir=LR;
+  node [shape=box, style=rounded, fontname="Segoe UI"];
+  
+  esbuild [label="esbuild.webview.mjs", shape=ellipse];
+  
+  subgraph cluster_webview {
+    label="src/webview/";
+    bgcolor="#e8f4fc";
+    
+    dbApp [label="dbApp.tsx"];
+    commentApp [label="commentApp.tsx"];
+    dateApp [label="dateApp.tsx"];
+    dictateApp [label="dictateApp.tsx"];
+    gifApp [label="gifApp.tsx"];
+    
+    subgraph cluster_components {
+      label="components/";
+      TableView [label="TableView.tsx"];
+      KanbanView [label="KanbanView.tsx"];
+      CalendarView [label="CalendarView.tsx"];
+      FilterBar [label="FilterBar.tsx"];
+      CommentPanel [label="CommentPanel.tsx"];
+      DatePicker [label="DatePicker.tsx"];
+    }
+    
+    helpers [label="helpers.tsx\n(postMessage wrapper)"];
+    types [label="types.ts"];
+  }
+  
+  esbuild -> dbApp [label="bundles"];
+  esbuild -> commentApp;
+  esbuild -> dateApp;
+  esbuild -> dictateApp;
+  esbuild -> gifApp;
+  
+  dbApp -> TableView;
+  dbApp -> KanbanView;
+  dbApp -> CalendarView;
+  dbApp -> FilterBar;
+}

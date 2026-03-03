@@ -1,0 +1,39 @@
+digraph DataFlow {
+  rankdir=TB;
+  node [shape=box, style=rounded, fontname="Segoe UI"];
+  
+  subgraph cluster_filesystem {
+    label="Filesystem";
+    bgcolor="#fff8e1";
+    indexMd [label="database/index.md\n(schema + views)"];
+    entryMd [label="entry/index.md\n(frontmatter + content)"];
+    rsrc [label=".rsrc/\n(images, comments.json)"];
+  }
+  
+  subgraph cluster_ext {
+    label="Extension Host";
+    bgcolor="#e8f4e8";
+    database [label="database.ts\n(parseSchema, readEntries)"];
+    dbWebview [label="dbWebview.ts"];
+  }
+  
+  subgraph cluster_web {
+    label="Webview";
+    bgcolor="#e8e8f4";
+    App [label="App.tsx\n(React state)"];
+    TableView [label="TableView"];
+    KanbanView [label="KanbanView"];
+    CalendarView [label="CalendarView"];
+  }
+  
+  indexMd -> database [label="read"];
+  entryMd -> database [label="read"];
+  database -> dbWebview;
+  dbWebview -> App [label="postMessage"];
+  App -> TableView;
+  App -> KanbanView;
+  App -> CalendarView;
+  
+  App -> dbWebview [label="postMessage", style=dashed];
+  dbWebview -> entryMd [label="write", style=dashed];
+}

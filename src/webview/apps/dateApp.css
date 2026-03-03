@@ -1,0 +1,146 @@
+:root {
+  --bg: var(--vscode-editor-background);
+  --fg: var(--vscode-editor-foreground);
+  --accent: var(--vscode-button-background, #007acc);
+  --accent-fg: var(--vscode-button-foreground, #fff);
+  --input-bg: var(--vscode-input-background);
+  --input-border: var(--vscode-input-border, #3c3c3c);
+  --hover: var(--vscode-list-hoverBackground, rgba(255, 255, 255, 0.05));
+  --today-bg: var(--vscode-editorInfo-foreground, #3794ff);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--vscode-font-family, system-ui);
+  background: var(--bg);
+  color: var(--fg);
+  padding: 16px;
+}
+
+h2 {
+  font-size: 16px;
+  margin-bottom: 12px;
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.nav button {
+  background: var(--input-bg);
+  color: var(--fg);
+  border: 1px solid var(--input-border);
+  border-radius: 3px;
+  padding: 4px 10px;
+  cursor: pointer;
+  font-size: 13px;
+}
+.nav button:hover {
+  background: var(--hover);
+}
+
+.month-label {
+  font-weight: 600;
+  font-size: 14px;
+  min-width: 160px;
+  text-align: center;
+}
+
+.format-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.format-bar label {
+  font-size: 12px;
+  opacity: 0.8;
+}
+.format-bar select {
+  background: var(--input-bg);
+  color: var(--fg);
+  border: 1px solid var(--input-border);
+  border-radius: 3px;
+  padding: 4px 8px;
+  font-size: 12px;
+  font-family: var(--vscode-font-family);
+}
+
+.calendar {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.day-header {
+  text-align: center;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 6px 0;
+  opacity: 0.6;
+  text-transform: uppercase;
+}
+
+.day-cell {
+  text-align: center;
+  padding: 10px 4px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: background 0.1s;
+}
+.day-cell:hover {
+  background: var(--hover);
+}
+.day-cell.other-month {
+  opacity: 0.3;
+}
+.day-cell.today {
+  outline: 2px solid var(--today-bg);
+  outline-offset: -2px;
+  font-weight: 700;
+}
+.day-cell.selected {
+  background: var(--accent);
+  color: var(--accent-fg);
+  font-weight: 700;
+}
+
+.preview {
+  margin-top: 16px;
+  padding: 10px;
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  border-radius: 4px;
+  font-size: 14px;
+  text-align: center;
+}
+
+.insert-btn {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+  padding: 8px;
+  background: var(--accent);
+  color: var(--accent-fg);
+  border: none;
+  border-radius: 4px;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: var(--vscode-font-family);
+}
+.insert-btn:hover {
+  filter: brightness(1.1);
+}
+.insert-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}

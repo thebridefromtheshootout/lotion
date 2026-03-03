@@ -1,0 +1,5 @@
+disable the following features (don't delete the code, cut off their commands from registration):
+carousel
+smart typography
+trailing new line fixer
+smart pairs.
