@@ -152,6 +152,7 @@ export const TreeView = {
 export const Context = {
   cursorInTable: "lotion.cursorInTable",
   cursorOnNonEmptyLine: "lotion.cursorOnNonEmptyLine",
+  hasNonEmptySelection: "lotion.hasNonEmptySelection",
 } as const;
 
 // ── Webview Panel IDs ────────────────────────────────────────────────

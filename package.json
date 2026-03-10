@@ -698,31 +698,31 @@
         "command": "lotion.toggleBold",
         "key": "ctrl+b",
         "mac": "cmd+b",
-        "when": "editorTextFocus && editorLangId == markdown && lotion.cursorOnNonEmptyLine"
+        "when": "editorTextFocus && editorLangId == markdown && lotion.cursorOnNonEmptyLine  && lotion.hasNonEmptySelection"
       },
       {
         "command": "lotion.toggleItalic",
         "key": "ctrl+i",
         "mac": "cmd+i",
-        "when": "editorTextFocus && editorLangId == markdown"
+        "when": "editorTextFocus && editorLangId == markdown && lotion.hasNonEmptySelection"
       },
       {
         "command": "lotion.toggleStrikethrough",
         "key": "alt+s",
         "mac": "alt+s",
-        "when": "editorTextFocus && editorLangId == markdown"
+        "when": "editorTextFocus && editorLangId == markdown && lotion.hasNonEmptySelection"
       },
       {
         "command": "lotion.toggleInlineCode",
         "key": "alt+`",
         "mac": "alt+`",
-        "when": "editorTextFocus && editorLangId == markdown"
+        "when": "editorTextFocus && editorLangId == markdown && lotion.hasNonEmptySelection"
       },
       {
         "command": "lotion.toggleHighlight",
         "key": "alt+h",
         "mac": "alt+h",
-        "when": "editorTextFocus && editorLangId == markdown"
+        "when": "editorTextFocus && editorLangId == markdown && lotion.hasNonEmptySelection"
       },
       {
         "command": "lotion.listContinue",

@@ -15,6 +15,7 @@ export { editFrontmatter } from "./frontmatterEditor";
 export { handleSmartPaste } from "./smartPaste";
 export { createSnippetExpander } from "./snippetExpander";
 export { TABLE_SLASH_COMMANDS, tableKeybindingCommands, cursorInTable } from "./table";
+export { createTableAlignOnSave } from "./tableAlignOnSave";
 // export { handleTemplateCommand } from "./template"; // disabled
 export { handleTocCommand, createTocAutoUpdater } from "./toc";
 export { addComment, resolveComment, deleteComment, createCommentCodeLensProvider, showCommentPanel } from "./comments";

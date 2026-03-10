@@ -26,6 +26,7 @@ import {
   tableKeybindingCommands,
   cursorInTable,
   createTocAutoUpdater,
+  createTableAlignOnSave,
   resolveComment,
   deleteComment,
   createCommentCodeLensProvider,
@@ -83,6 +84,7 @@ export function activate(context: ExtensionContext) {
     if (!hostEditor.isMarkdownEditor()) {
       hostEditor.executeCommand("setContext", Context.cursorInTable, false);
       hostEditor.executeCommand("setContext", Context.cursorOnNonEmptyLine, false);
+      hostEditor.executeCommand("setContext", Context.hasNonEmptySelection, false);
       return;
     }
     const doc = hostEditor.getDocument();
@@ -91,6 +93,8 @@ export function activate(context: ExtensionContext) {
     hostEditor.executeCommand("setContext", Context.cursorInTable, inTable);
     const lineText = doc?.lineAt(pos.line).text ?? "";
     hostEditor.executeCommand("setContext", Context.cursorOnNonEmptyLine, lineText.length > 0);
+    const hasNonEmptySelection = hostEditor.getSelections().some(s => !s.isEmpty);
+    hostEditor.executeCommand("setContext", Context.hasNonEmptySelection, hasNonEmptySelection);
   };
   updateTableContext();
   hostEditor.onDidChangeActiveTextEditor(updateTableContext);
@@ -216,6 +220,7 @@ export function activate(context: ExtensionContext) {
     createStrikethroughDecorations(),
     // Auto-fixers & validators
     createListRenumber(),
+    createTableAlignOnSave(),
     // createSmartTypography(),  // disabled
     createTocAutoUpdater(),
     createStructureLinter(),
