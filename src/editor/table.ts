@@ -555,7 +555,7 @@ export async function tableJumpColEnd(): Promise<void> {
   selectCell(range.end, curCol);
 }
 
-/** Select the content of a table cell (or place cursor if empty). */
+/** Move cursor to the given cell in table. If cursor was at cell end, keep at end; otherwise move to start. */
 function selectCell(lineNum: number, col: number): void {
   const lineText = hostEditor.getLineText(lineNum);
   const cellRange = getCellRange(lineText, col);
@@ -563,10 +563,25 @@ function selectCell(lineNum: number, col: number): void {
     return;
   }
 
-  const anchor = new Position(lineNum, cellRange.end);
-  const active = new Position(lineNum, cellRange.start);
-  hostEditor.setSelection(new Selection(anchor, active));
-  hostEditor.revealRange(new Range(active, anchor));
+  const currentPos = hostEditor.getCursorPosition();
+  let targetPos: Position;
+
+  // Check if cursor was at cell end (ignoring trailing whitespace)
+  if (currentPos && currentPos.line === lineNum) {
+    const cellContent = lineText.substring(cellRange.start, cellRange.end);
+    const cellEndWithoutWhitespace = cellRange.start + cellContent.trimEnd().length;
+    
+    if (currentPos.character >= cellEndWithoutWhitespace) {
+      targetPos = new Position(lineNum, cellRange.end);
+    } else {
+      targetPos = new Position(lineNum, cellRange.start);
+    }
+  } else {
+    targetPos = new Position(lineNum, cellRange.start);
+  }
+
+  hostEditor.setSelection(new Selection(targetPos, targetPos));
+  hostEditor.revealRange(new Range(targetPos, targetPos));
 }
 
 // ── Align / reformat table ─────────────────────────────────────────
@@ -585,16 +600,39 @@ export async function handleAlignTable(document: TextDocument, position: Positio
     return;
   }
 
-  // Capture cursor position as cell coordinates
+  // Capture cursor position info BEFORE alignment
   const cursorLine = position.line;
   const lineText = document.lineAt(cursorLine).text;
   const cursorCol = getColumnAtCursor(lineText, position.character);
+  const cellRange = getCellRange(lineText, cursorCol);
+  
+  // Determine if cursor was at cell end (ignoring whitespace) BEFORE alignment
+  let cursorAtEnd = false;
+  if (cellRange) {
+    const cellContent = lineText.substring(cellRange.start, cellRange.end);
+    const cellEndWithoutWhitespace = cellRange.start + cellContent.trimEnd().length;
+    cursorAtEnd = position.character >= cellEndWithoutWhitespace;
+  }
+
   const rowOffset = cursorLine - range.start; // 0 = header, 1 = separator, 2+ = data rows
 
   await replaceTable(document, range, table.headers, table.rows);
 
-  // Restore cursor to the same cell
-  selectCell(range.start + rowOffset, cursorCol);
+  // Restore cursor to the same cell with remembered position
+  selectCellWithMemory(range.start + rowOffset, cursorCol, cursorAtEnd);
+}
+
+/** Move cursor to the given cell, with memory of whether it should be at start or end. */
+function selectCellWithMemory(lineNum: number, col: number, atEnd: boolean): void {
+  const lineText = hostEditor.getLineText(lineNum);
+  const cellRange = getCellRange(lineText, col);
+  if (!cellRange) {
+    return;
+  }
+
+  const targetPos = atEnd ? new Position(lineNum, cellRange.end) : new Position(lineNum, cellRange.start);
+  hostEditor.setSelection(new Selection(targetPos, targetPos));
+  hostEditor.revealRange(new Range(targetPos, targetPos));
 }
 
 // ── Sort table by column ───────────────────────────────────────────
