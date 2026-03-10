@@ -216,7 +216,7 @@ export async function handleDbEntryCommand(
   document: TextDocument,
   position: Position,
   fromSlashCommand: boolean = true,
-  defaults?: Record<string, string>,
+  defaults: Record<string, string> = {},
 ): Promise<void> {
   const cwd = getCwd();
   if (!cwd) {
@@ -249,7 +249,7 @@ export async function handleDbEntryCommand(
   // 2. Prompt for each property value (prefill defaults when provided)
   const props: Record<string, string> = {};
   for (const col of schema.columns) {
-    const defaultValue = defaults?.[col.name];
+    const defaultValue = getDefaultValueForColumn(col, defaults);
     const value = await promptForColumnValue(col, defaultValue);
     if (value === undefined) {
       return;
@@ -844,5 +844,16 @@ export async function logEntryAndPromptNew(entryFilePath: string, columns: DbCol
       continue;
     }
     updateEntryProperty(entryFilePath, col.name, val);
+  }
+}
+
+function getDefaultValueForColumn(col: DbColumn, defaults: Record<string, string>): string | undefined {
+  const providedDefault = defaults[col.name];
+  if (providedDefault !== undefined) {
+    return providedDefault;
+  }
+  if (col.type === "date") {
+    const today = new Date().toISOString().slice(0, 10);
+    return today;
   }
 }
