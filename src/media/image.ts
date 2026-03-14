@@ -215,7 +215,8 @@ export async function handleImageCommand(document: TextDocument, position: Posit
   const relativePath = `.rsrc/${savedFileName}`;
   if (hostEditor.isActiveEditorDocumentEqualTo(document)) {
     const triggerRange = new Range(position.translate(0, -1), position);
-    await hostEditor.replaceRange(triggerRange, `![${path.parse(savedFileName!).name}](${relativePath})`);
+    const alt = path.parse(savedFileName!).name.replace(/"/g, "&quot;");
+    await hostEditor.replaceRange(triggerRange, `<img src="${relativePath}" alt="${alt}">`);
     await hostEditor.saveActiveDocument();
   }
 }

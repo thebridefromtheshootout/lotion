@@ -95,10 +95,12 @@ export async function handleSmartPaste() {
   }
 
   const relativePath = `.rsrc/${savedFileName}`;
+  const escapedAlt = imageName.replace(/"/g, "&quot;");
+  const imgTag = `<img src="${relativePath}" alt="${escapedAlt}">`;
   if (selection.isEmpty) {
-    await hostEditor.insertAtCursor(`![${imageName}](${relativePath})`);
+    await hostEditor.insertAtCursor(imgTag);
   } else {
-    await hostEditor.replaceCurrentSelection(`![${imageName}](${relativePath})`);
+    await hostEditor.replaceCurrentSelection(imgTag);
   }
   await hostEditor.saveActiveDocument();
 }
