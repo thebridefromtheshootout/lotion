@@ -280,8 +280,8 @@ export async function handleDbEntryCommand(
   const entryContent = `# ${entryTitle}\n\n${buildPropertyTable(props)}\n`;
   fs.writeFileSync(entryFilePath, entryContent, "utf-8");
 
-  // 4. Append link in the current database index.md
-  const link = `[${entryTitle}](${relativePath})`;
+  // 4. Append bullet link in the current database index.md
+  const link = `- [${entryTitle}](${relativePath})`;
   if (fromSlashCommand) {
     // Called from slash command — replace the `/` trigger character
     if (hostEditor.isActiveEditorDocumentEqualTo(document)) {

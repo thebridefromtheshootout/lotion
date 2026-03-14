@@ -14,7 +14,7 @@
 ✅ Disable sanitizing of output in processors. Currently, < and > are sanitized out for html portability
 ✅ update /image command or smart paste to use html img instead of markdown image links.
 ✅ Move all regex expressions to a single regex const object like Cmd
-Update the database code to list db entries in the index.md file for a database with bullet points -. Right now it just lists the entries 
+✅ Update the database code to list db entries in the index.md file for a database with bullet points -. Right now it just lists the entries
 Complex Tasks below
 [Complex] Emojis break regex rules lmao
 [complex]Todo bubble up from nested pages to parent page.
