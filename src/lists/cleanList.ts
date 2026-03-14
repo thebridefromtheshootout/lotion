@@ -7,6 +7,8 @@ import type { SlashCommand } from "../core/slashCommands";
 import { collectOrderedList, renumberEdits, applyRenumberEdits } from "./listModel";
 
 const LIST_ITEM_RE = Regex.listItem;
+const EMPTY_LIST_ITEM_RE = Regex.emptyListItem;
+const ORDERED_LIST_RE = Regex.orderedListItem;
 
 export const CLEAN_LIST_SLASH_COMMAND: SlashCommand = {
   label: "/clean-list",
@@ -28,7 +30,77 @@ function isListItem(lineText: string): boolean {
 }
 
 function isEmptyListItem(lineText: string): boolean {
-  return /^(\s*)(?:\d+[.)]|[-*+]|-\s+\[[ xX]\])\s*$/.test(lineText);
+  return EMPTY_LIST_ITEM_RE.test(lineText);
+}
+
+function findListBounds(doc: TextDocument, anchorLine: number, baseIndent: number): { start: number; end: number } {
+  let start = anchorLine;
+  while (start > 0) {
+    const prevText = doc.lineAt(start - 1).text;
+    if (prevText.trim() === "") {
+      start--;
+      continue;
+    }
+    if (isListItem(prevText) && lineIndent(prevText) === baseIndent) {
+      start--;
+      continue;
+    }
+    if (lineIndent(prevText) > baseIndent) {
+      start--;
+      continue;
+    }
+    break;
+  }
+
+  let end = anchorLine;
+  while (end < doc.lineCount - 1) {
+    const nextText = doc.lineAt(end + 1).text;
+    if (nextText.trim() === "") {
+      end++;
+      continue;
+    }
+    if (isListItem(nextText) && lineIndent(nextText) === baseIndent) {
+      end++;
+      continue;
+    }
+    if (lineIndent(nextText) > baseIndent) {
+      end++;
+      continue;
+    }
+    break;
+  }
+
+  return { start, end };
+}
+
+async function renumberOrderedListsInRange(doc: TextDocument, start: number, end: number): Promise<void> {
+  const visited = new Set<number>();
+  const allEdits: { line: number; col: number; oldLen: number; newText: string }[] = [];
+
+  for (let i = start; i <= end; i++) {
+    if (visited.has(i)) {
+      continue;
+    }
+    if (!ORDERED_LIST_RE.test(doc.lineAt(i).text)) {
+      continue;
+    }
+
+    const items = collectOrderedList(doc, i);
+    if (items.length === 0) {
+      continue;
+    }
+
+    for (const node of items) {
+      if (node.line >= start && node.line <= end) {
+        visited.add(node.line);
+      }
+    }
+
+    allEdits.push(...renumberEdits(doc, items, 0, 1));
+    i = Math.min(end, items[items.length - 1].line);
+  }
+
+  await applyRenumberEdits(allEdits);
 }
 
 function cursorInAnyList(document: TextDocument, position: Position): boolean {
@@ -79,41 +151,7 @@ export async function handleCleanList(doc: TextDocument, _pos: Position): Promis
   }
   const baseIndent = anchorMatch[1].length;
 
-  let start = anchorLine;
-  while (start > 0) {
-    const prevText = doc.lineAt(start - 1).text;
-    if (prevText.trim() === "") {
-      start--;
-      continue;
-    }
-    if (isListItem(prevText) && lineIndent(prevText) === baseIndent) {
-      start--;
-      continue;
-    }
-    if (lineIndent(prevText) > baseIndent) {
-      start--;
-      continue;
-    }
-    break;
-  }
-
-  let end = anchorLine;
-  while (end < doc.lineCount - 1) {
-    const nextText = doc.lineAt(end + 1).text;
-    if (nextText.trim() === "") {
-      end++;
-      continue;
-    }
-    if (isListItem(nextText) && lineIndent(nextText) === baseIndent) {
-      end++;
-      continue;
-    }
-    if (lineIndent(nextText) > baseIndent) {
-      end++;
-      continue;
-    }
-    break;
-  }
+  const { start, end } = findListBounds(doc, anchorLine, baseIndent);
 
   const deleteRanges: Range[] = [];
   for (let i = start; i <= end; i++) {
@@ -137,13 +175,22 @@ export async function handleCleanList(doc: TextDocument, _pos: Position): Promis
 
   // Keep ordered lists sequential after item removals.
   const updatedDoc = hostEditor.getDocument();
-  if (!updatedDoc) {
+  if (!updatedDoc || updatedDoc.lineCount === 0) {
     return;
   }
-  const lineForRenumber = Math.min(Math.max(start - 1, 0), updatedDoc.lineCount - 1);
-  const orderedItems = collectOrderedList(updatedDoc, lineForRenumber);
-  if (orderedItems.length > 0) {
-    const edits = renumberEdits(updatedDoc, orderedItems, 0, 1);
-    await applyRenumberEdits(edits);
+
+  const probeLine = Math.min(anchorLine, updatedDoc.lineCount - 1);
+  const updatedAnchor = findAnchorListLine(updatedDoc, probeLine);
+  if (updatedAnchor === undefined) {
+    return;
   }
+
+  const updatedAnchorMatch = updatedDoc.lineAt(updatedAnchor).text.match(LIST_ITEM_RE);
+  if (!updatedAnchorMatch) {
+    return;
+  }
+
+  const updatedBaseIndent = updatedAnchorMatch[1].length;
+  const updatedBounds = findListBounds(updatedDoc, updatedAnchor, updatedBaseIndent);
+  await renumberOrderedListsInRange(updatedDoc, updatedBounds.start, updatedBounds.end);
 }

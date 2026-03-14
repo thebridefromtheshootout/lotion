@@ -52,6 +52,7 @@ export const Regex = {
   inlineCodeNoNewlineGlobal: /`([^`\n]+)`/g,
 
   listItem: /^(\s*)(?:[-*+]\s+|\d+[.)]\s+|-\s+\[[ xX]\]\s+)/,
+  emptyListItem: /^(\s*)(?:\d+[.)]|[-*+]|-\s+\[[ xX]\])\s*$/,
   orderedListItem: /^(\s*)(\d+)([.)]\s)/,
   orderedListDotOnly: /^(\s*)(\d+)(\.)\s/,
   orderedListPrefix: /^(\s*)(\d+)([.)]) /,
