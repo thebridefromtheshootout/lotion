@@ -1,5 +1,5 @@
 import * as path from "path";
-import { Uri, WorkspaceEdit } from "vscode";
+import { Uri, WorkspaceEdit } from "../hostEditor/EditorTypes";
 import { hostEditor } from "../hostEditor/HostingEditor";
 import { Regex } from "../core/regex";
 

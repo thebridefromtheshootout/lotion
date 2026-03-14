@@ -4,10 +4,11 @@ import * as path from "path";
 import * as fs from "fs";
 import { getCwd } from "../core/cwd";
 import { Regex } from "../core/regex";
-import { clipboardHasImage, imageFromClipboard } from "../media/clipboard";
+import { probeClipboardImage, imageFromClipboard } from "../media/clipboard";
 import { cursorInCodeContext } from "./codeContext";
 
 const SMART_PASTE_LOG_PREFIX = "[Lotion][smartPaste]";
+const shownClipboardDependencyErrors = new Set<string>();
 
 function logSmartPaste(step: string, details?: Record<string, unknown>): void {
   if (details) {
@@ -102,9 +103,13 @@ export async function handleSmartPaste() {
 
   // ── Image paste: clipboard image → save & insert ───────────────
   const cwd = getCwd();
-  const hasClipboardImage = clipboardHasImage();
-  logSmartPaste("image-path-check", { hasCwd: !!cwd, hasClipboardImage });
-  if (!cwd || !hasClipboardImage) {
+  const clipProbe = probeClipboardImage();
+  logSmartPaste("image-path-check", { hasCwd: !!cwd, hasClipboardImage: clipProbe.hasImage });
+  if (!cwd || !clipProbe.hasImage) {
+    if (clipProbe.missingDependencyMessage && !shownClipboardDependencyErrors.has(clipProbe.missingDependencyMessage)) {
+      shownClipboardDependencyErrors.add(clipProbe.missingDependencyMessage);
+      await hostEditor.showError(clipProbe.missingDependencyMessage);
+    }
     logSmartPaste("image-path-bypass -> default-paste");
     await hostEditor.executeCommand("editor.action.clipboardPasteAction");
     return;

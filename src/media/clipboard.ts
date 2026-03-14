@@ -8,6 +8,10 @@ import { Regex } from "../core/regex";
 // ── Platform detection ─────────────────────────────────────────────
 
 type Platform = "win32" | "darwin" | "linux";
+export interface ClipboardImageProbeResult {
+  hasImage: boolean;
+  missingDependencyMessage?: string;
+}
 
 function getPlatform(): Platform {
   return process.platform as Platform;
@@ -21,7 +25,7 @@ function getExecErrorText(err: any): string {
 function isMissingCommandError(err: any, command?: string): boolean {
   const text = getExecErrorText(err);
   const genericMissing =
-    /command not found/i.test(text) ||
+    /not found/i.test(text) ||
     /is not recognized as an internal or external command/i.test(text) ||
     /The term .* is not recognized/i.test(text) ||
     /ENOENT/i.test(text);
@@ -41,6 +45,10 @@ function isMissingCommandError(err: any, command?: string): boolean {
  * Uses native OS tools — no Python dependency.
  */
 export function clipboardHasImage(): boolean {
+  return probeClipboardImage().hasImage;
+}
+
+export function probeClipboardImage(): ClipboardImageProbeResult {
   try {
     switch (getPlatform()) {
       case "win32":
@@ -49,12 +57,12 @@ export function clipboardHasImage(): boolean {
           stdio: "pipe",
           timeout: 5000,
         });
-        return true;
+        return { hasImage: true };
 
       case "darwin":
         // osascript: check clipboard for «class PNGf» or «class TIFF»
         const result = execSync('osascript -e "clipboard info"', { stdio: "pipe", timeout: 5000, encoding: "utf-8" });
-        return Regex.clipboardDarwinImageTypes.test(result);
+        return { hasImage: Regex.clipboardDarwinImageTypes.test(result) };
 
       case "linux":
         // xclip: list clipboard targets and check for image types
@@ -63,13 +71,39 @@ export function clipboardHasImage(): boolean {
           timeout: 5000,
           encoding: "utf-8",
         });
-        return Regex.clipboardLinuxImageTypes.test(targets);
+        return { hasImage: Regex.clipboardLinuxImageTypes.test(targets) };
 
       default:
-        return false;
+        return { hasImage: false };
     }
-  } catch {
-    return false;
+  } catch (err: any) {
+    switch (getPlatform()) {
+      case "win32":
+        if (isMissingCommandError(err, "powershell")) {
+          return {
+            hasImage: false,
+            missingDependencyMessage: "Lotion: PowerShell not found. Install/enable PowerShell to paste clipboard images.",
+          };
+        }
+        break;
+      case "darwin":
+        if (isMissingCommandError(err, "osascript")) {
+          return {
+            hasImage: false,
+            missingDependencyMessage: "Lotion: osascript not found. macOS AppleScript is required for clipboard image paste.",
+          };
+        }
+        break;
+      case "linux":
+        if (isMissingCommandError(err, "xclip")) {
+          return {
+            hasImage: false,
+            missingDependencyMessage: "Lotion: xclip not found. Install xclip to paste clipboard images.",
+          };
+        }
+        break;
+    }
+    return { hasImage: false };
   }
 }
 

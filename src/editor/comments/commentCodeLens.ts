@@ -1,4 +1,4 @@
-import { type TextDocument, CodeLens, Disposable } from "vscode";
+import { type TextDocument, CodeLens, Disposable } from "../../hostEditor/EditorTypes";
 import { codeLens, Cmd, createStatefulCodeLensProvider } from "../../core";
 import { loadComments } from "./commentModel";
 import { findCommentLine } from "./commentCommands";

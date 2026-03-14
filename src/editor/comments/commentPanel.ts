@@ -1,5 +1,5 @@
 import * as path from "node:path";
-import { type WebviewPanel, ViewColumn, Uri, Position, Selection, Range, TextEditorRevealType } from "vscode";
+import { type WebviewPanel, ViewColumn, Uri, Position, Selection, Range, TextEditorRevealType } from "../../hostEditor/EditorTypes";
 import { ExtensionToCommentPanelCommunicator } from "../../communicators/commentPanelCommunicator";
 import { Comment } from "../../contracts/comment";
 import { Panel } from "../../core";
