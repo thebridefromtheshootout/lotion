@@ -32,8 +32,6 @@ import {
   findOrphanPages,
   quickSwitchPage,
   showRecentPages,
-  renamePage,
-  movePage,
   // showTagIndex,
   // wikiSearch,
 } from "../navigation";
@@ -146,8 +144,6 @@ export const SIMPLE_COMMANDS: [string, (...args: any[]) => any][] = [
   [Cmd.extractToSubpage, handleExtractToSubpage],
   // [Cmd.showTagIndex, showTagIndex], // disabled
   [Cmd.recentPages, showRecentPages],
-  [Cmd.renamePage, renamePage],
-  [Cmd.movePage, movePage],
   [Cmd.quickSwitch, quickSwitchPage],
   // [Cmd.wikiSearch, wikiSearch], // disabled
   // Media
