@@ -14,6 +14,7 @@ Date regex must be surrounded by whitespace for codelens to appear
 Disable sanitizing of output in processors. Currently, < and > are sanitized out for html portability
 update /image command or smart paste to use html img instead of markdown image links.
 Move all regex expressions to a single regex const object like Cmd 
+Complex Tasks below
 [Complex] Emojis break regex rules lmao
 [complex]Todo bubble up from nested pages to parent page.
 [Complex] Fix paste time
