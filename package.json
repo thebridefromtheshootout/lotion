@@ -3,7 +3,7 @@
   "displayName": "Lotion",
   "publisher": "thebridefromtheshootout",
   "repository": {
-    "url": "https://github.com/thebridefromtheshootout1/lotion"
+    "url": "https://github.com/thebridefromtheshootout/lotion"
   },
   "description": "Notion-like editing for Markdown — slash commands, databases, backlinks, and more",
   "version": "1.0.2",
