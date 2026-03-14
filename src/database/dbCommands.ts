@@ -9,6 +9,7 @@ import { DbFilterOperator, DbView, DbViewFilter, parseViewsFromFile, saveViewsTo
 import { parsePropertyTable, updateEntryProperty, buildPropertyTable, appendToLogTable, clearPropertyFields } from "./dbFrontmatter";
 import { Cmd } from "../core/commands";
 import { Regex } from "../core/regex";
+import { toPathSlug } from "../core/slug";
 import type { SlashCommand } from "../core/slashCommands";
 import { cursorInDb } from "./dbEntries";
 
@@ -174,10 +175,7 @@ export async function handleDatabaseCommand(document: TextDocument, position: Po
   const schema: DbSchema = { columns, titleField: titleField.trim() };
 
   // 5. Create the database child page
-  const slug = dbName
-    .toLowerCase()
-    .replace(Regex.whitespaceRun, "-")
-    .replace(Regex.slugUnsafeChars, "");
+  const slug = toPathSlug(dbName);
   const dbDir = path.join(cwd, slug);
   const dbFilePath = path.join(dbDir, "index.md");
   const relativePath = `${slug}/index.md`;
@@ -239,10 +237,7 @@ export async function handleDbEntryCommand(
   const { entryTitle, props } = entryInput;
 
   // 3. Create child entry page
-  const slug = entryTitle
-    .toLowerCase()
-    .replace(Regex.whitespaceRun, "-")
-    .replace(Regex.slugUnsafeChars, "");
+  const slug = toPathSlug(entryTitle);
   const entryDir = path.join(cwd, slug);
   const entryFilePath = path.join(entryDir, "index.md");
   const relativePath = `${slug}/index.md`;

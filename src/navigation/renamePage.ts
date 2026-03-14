@@ -4,6 +4,7 @@ import * as path from "path";
 import * as fs from "fs";
 import { Cmd } from "../core/commands";
 import { Regex } from "../core/regex";
+import { toKebabCaseLower } from "../core/slug";
 import type { SlashCommand } from "../core/slashCommands";
 import { relinkWorkspacePagePaths } from "./pageRelink";
 
@@ -66,7 +67,7 @@ export async function renamePage(): Promise<void> {
     return;
   }
 
-  const newFolderName = newName.toLowerCase().replace(Regex.whitespaceRun, "-");
+  const newFolderName = toKebabCaseLower(newName);
   const parentDir = path.dirname(currentDir);
   const newDir = path.join(parentDir, newFolderName);
 

@@ -2,6 +2,7 @@ import { Disposable, Range, ThemeColor } from "../hostEditor/EditorTypes";
 import type { DecorationOptions, TextEditorDecorationType } from "../hostEditor/EditorTypes";
 import { hostEditor } from "../hostEditor/HostingEditor";
 import { Regex } from "../core/regex";
+import { toHeadingSlug } from "../core/slug";
 
 /**
  * Inline decorations showing the anchor slug next to each heading.
@@ -14,11 +15,7 @@ import { Regex } from "../core/regex";
 let anchorDecorationType: TextEditorDecorationType;
 
 function headingToSlug(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(Regex.nonWordSpaceHyphen, "")
-    .replace(Regex.whitespaceRun, "-")
-    .replace(Regex.trimHyphenEdges, "");
+  return toHeadingSlug(text);
 }
 
 function updateDecorations(): void {

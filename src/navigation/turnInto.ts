@@ -5,6 +5,7 @@ import * as path from "path";
 import * as fs from "fs";
 import { getCwd } from "../core/cwd";
 import { Regex } from "../core/regex";
+import { toPathSlug } from "../core/slug";
 import { migrateComments } from "../editor/comments";
 import { migrateProcessors } from "../editor/processor";
 import { Cmd } from "../core/commands";
@@ -319,10 +320,7 @@ async function headingToSubpage(doc: TextDocument, headingLine: TextLine, level:
   }
 
   // Create child page
-  const slug = title
-    .toLowerCase()
-    .replace(Regex.whitespaceRun, "-")
-    .replace(Regex.slugUnsafeChars, "");
+  const slug = toPathSlug(title);
   const pageDir = path.join(cwd, slug);
   const childFilePath = path.join(pageDir, "index.md");
   const relativePath = `${slug}/index.md`;

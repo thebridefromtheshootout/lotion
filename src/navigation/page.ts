@@ -6,6 +6,7 @@ import * as fs from "fs";
 import { getCwd } from "../core/cwd";
 import { Cmd } from "../core/commands";
 import { Regex } from "../core/regex";
+import { toKebabCaseLower } from "../core/slug";
 import type { SlashCommand } from "../core/slashCommands";
 
 export const PAGE_SLASH_COMMAND: SlashCommand = {
@@ -46,7 +47,7 @@ export async function handlePageCommand(document: TextDocument, position: Positi
   }
 
   // Convert page name to a folder-safe slug
-  const folderName = pageName.toLowerCase().replace(Regex.whitespaceRun, "-");
+  const folderName = toKebabCaseLower(pageName);
   const pageDir = path.join(cwd, folderName);
   const childFilePath = path.join(pageDir, "index.md");
   const relativePath = `${folderName}/index.md`;

@@ -5,6 +5,7 @@ import * as path from "path";
 import * as fs from "fs";
 import { getCwd } from "../core/cwd";
 import { Regex } from "../core/regex";
+import { toKebabCaseLower } from "../core/slug";
 import { migrateComments } from "../editor/comments";
 import { migrateProcessors } from "../editor/processor";
 
@@ -75,7 +76,7 @@ export async function handleExtractToSubpage(): Promise<void> {
     return;
   }
 
-  const folderName = pageName.toLowerCase().replace(Regex.whitespaceRun, "-");
+  const folderName = toKebabCaseLower(pageName);
   const pageDir = path.join(cwd, folderName);
   const childFilePath = path.join(pageDir, "index.md");
   const relativePath = `${folderName}/index.md`;

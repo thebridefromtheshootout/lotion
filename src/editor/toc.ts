@@ -3,6 +3,7 @@ import type { TextDocument } from "../hostEditor/EditorTypes";
 import { hostEditor } from "../hostEditor/HostingEditor";
 import { Cmd } from "../core/commands";
 import { Regex } from "../core/regex";
+import { toHeadingSlug } from "../core/slug";
 import type { SlashCommand } from "../core/slashCommands";
 
 export const TOC_SLASH_COMMAND: SlashCommand = {
@@ -42,10 +43,7 @@ function buildTocLines(document: TextDocument): string[] {
     if (match) {
       const level = match[1].length;
       const text = match[2].trim();
-      const slug = text
-        .toLowerCase()
-        .replace(Regex.nonWordSpaceHyphen, "")
-        .replace(Regex.whitespaceRun, "-");
+      const slug = toHeadingSlug(text);
       headings.push({ level, text, slug });
     }
   }
