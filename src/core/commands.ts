@@ -21,6 +21,7 @@ export const Cmd = {
   insertDate: "lotion.insertDate",
   insertEmoji: "lotion.insertEmoji",
   insertFootnote: "lotion.insertFootnote",
+  copyCode: "lotion.copyCode",
   insertTemplate: "lotion.insertTemplate",
   insertToc: "lotion.insertToc",
   insertProcessor: "lotion.insertProcessor",
