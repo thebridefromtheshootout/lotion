@@ -657,6 +657,12 @@
         "category": "Lotion"
       },
       {
+        "command": "lotion.cleanList",
+        "title": "Lotion: Clean List",
+        "icon": "$(clear-all)",
+        "category": "Lotion"
+      },
+      {
         "command": "lotion.editFrontmatter",
         "title": "Lotion: Edit Front Matter",
         "icon": "$(edit)",

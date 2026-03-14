@@ -15,9 +15,11 @@ export {
 // ── Slash commands ─────────────────────────────────────────────────
 import type { SlashCommand } from "../core/slashCommands";
 import { RENUMBER_SLASH_COMMAND, OL_TO_UL_SLASH_COMMAND, UL_TO_OL_SLASH_COMMAND } from "./listModel";
+import { CLEAN_LIST_SLASH_COMMAND } from "./cleanList";
 
 export const LISTS_SLASH_COMMANDS: SlashCommand[] = [
   RENUMBER_SLASH_COMMAND,
+  CLEAN_LIST_SLASH_COMMAND,
   OL_TO_UL_SLASH_COMMAND,
   UL_TO_OL_SLASH_COMMAND,
 ];

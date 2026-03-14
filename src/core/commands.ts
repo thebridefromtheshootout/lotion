@@ -80,6 +80,7 @@ export const Cmd = {
   outdentList: "lotion.outdentList",
   toggleListType: "lotion.toggleListType",
   renumberList: "lotion.renumberList",
+  cleanList: "lotion.cleanList",
   olToUl: "lotion.olToUl",
   ulToOl: "lotion.ulToOl",
 
