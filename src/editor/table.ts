@@ -370,9 +370,12 @@ export async function handleDeleteCol(document: TextDocument, position: Position
   await replaceTable(document, range, table.headers, table.rows);
 }
 
-export async function copyCurrentTableColumnToClipboard(cut = false): Promise<boolean> {
-  const document = hostEditor.getDocument();
-  const position = hostEditor.getCursorPosition();
+export async function copyCurrentTableColumnToClipboard(
+  cut = false,
+  opts?: { document?: TextDocument; position?: Position },
+): Promise<boolean> {
+  const document = opts?.document ?? hostEditor.getDocument();
+  const position = opts?.position ?? hostEditor.getCursorPosition();
   if (!document || !position) {
     return false;
   }
@@ -467,6 +470,42 @@ export async function pasteTableColumnAtCursor(
 
   await replaceTable(document, range, table.headers, table.rows);
   return true;
+}
+
+export async function handleCopyColumn(document: TextDocument, position: Position): Promise<void> {
+  if (!hostEditor.isActiveEditorDocumentEqualTo(document)) {
+    return;
+  }
+  const copied = await copyCurrentTableColumnToClipboard(false, { document, position });
+  if (!copied) {
+    hostEditor.showWarning("Place cursor inside a table to copy a column.");
+  }
+}
+
+export async function handleCutColumn(document: TextDocument, position: Position): Promise<void> {
+  if (!hostEditor.isActiveEditorDocumentEqualTo(document)) {
+    return;
+  }
+  const cut = await copyCurrentTableColumnToClipboard(true, { document, position });
+  if (!cut) {
+    hostEditor.showWarning("Place cursor inside a table to cut a column.");
+  }
+}
+
+export async function handlePasteColumn(document: TextDocument, position: Position): Promise<void> {
+  if (!hostEditor.isActiveEditorDocumentEqualTo(document)) {
+    return;
+  }
+  const clipText = await hostEditor.getClipboardText();
+  const payload = parseTableColumnClipboard(clipText);
+  if (!payload) {
+    hostEditor.showWarning("Clipboard does not contain a copied table column.");
+    return;
+  }
+  const pasted = await pasteTableColumnAtCursor(document, position, payload);
+  if (!pasted) {
+    hostEditor.showWarning("Place cursor inside a table to paste a column.");
+  }
 }
 
 // ── Which column is the cursor in? ────────────────────────────────
@@ -923,6 +962,36 @@ export const TABLE_SLASH_COMMANDS: SlashCommand[] = [
     kind: 21,
     when: cursorInTable,
     handler: handleDeleteCol,
+  },
+  {
+    label: "/copy-column",
+    insertText: "",
+    detail: "📋 Copy current column",
+    isAction: true,
+    commandId: Cmd.tableCopyColumn,
+    kind: 21,
+    when: cursorInTable,
+    handler: handleCopyColumn,
+  },
+  {
+    label: "/cut-column",
+    insertText: "",
+    detail: "✂️ Cut current column",
+    isAction: true,
+    commandId: Cmd.tableCutColumn,
+    kind: 21,
+    when: cursorInTable,
+    handler: handleCutColumn,
+  },
+  {
+    label: "/paste-column",
+    insertText: "",
+    detail: "📥 Paste column from clipboard",
+    isAction: true,
+    commandId: Cmd.tablePasteColumn,
+    kind: 21,
+    when: cursorInTable,
+    handler: handlePasteColumn,
   },
   {
     label: "/align",

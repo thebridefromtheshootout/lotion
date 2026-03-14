@@ -6,7 +6,6 @@ import { getCwd } from "../core/cwd";
 import { Regex } from "../core/regex";
 import { clipboardHasImage, imageFromClipboard } from "../media/clipboard";
 import { cursorInCodeContext } from "./codeContext";
-import { cursorInTable, parseTableColumnClipboard, pasteTableColumnAtCursor } from "./table";
 
 // ── Smart paste (Ctrl+V with link & image detection) ──────────────
 export async function handleSmartPaste() {
@@ -22,18 +21,6 @@ export async function handleSmartPaste() {
     return;
   }
   const selection = hostEditor.getSelection()!;
-
-  // ── Table-column paste: internal column payload → table column ──
-  if (document && cursor && selection.isEmpty && cursorInTable(document, cursor)) {
-    const clipText = await hostEditor.getClipboardText();
-    const columnPayload = parseTableColumnClipboard(clipText);
-    if (columnPayload) {
-      const pasted = await pasteTableColumnAtCursor(document, cursor, columnPayload);
-      if (pasted) {
-        return;
-      }
-    }
-  }
 
   // ── Link-wrap: selected text + URL on clipboard → [text](url) ──
   if (!selection.isEmpty) {

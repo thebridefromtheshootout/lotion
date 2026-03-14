@@ -285,6 +285,24 @@
         "category": "Lotion"
       },
       {
+        "command": "lotion.tableCopyColumn",
+        "title": "Lotion: Table — Copy Column",
+        "icon": "$(copy)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.tableCutColumn",
+        "title": "Lotion: Table — Cut Column",
+        "icon": "$(scissors)",
+        "category": "Lotion"
+      },
+      {
+        "command": "lotion.tablePasteColumn",
+        "title": "Lotion: Table — Paste Column",
+        "icon": "$(clippy)",
+        "category": "Lotion"
+      },
+      {
         "command": "lotion.tableTabForward",
         "title": "Lotion: Table — Next Cell",
         "icon": "$(arrow-right)",
