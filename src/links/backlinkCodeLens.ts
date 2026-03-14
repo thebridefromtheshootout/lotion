@@ -1,6 +1,7 @@
 import { hostEditor } from "../hostEditor/HostingEditor";
 import { CodeLens, Disposable, EventEmitter, Range } from "../hostEditor/EditorTypes";
-import type { CodeLensProvider, TextDocument } from "../hostEditor/EditorTypes";
+import type { CodeLensProvider, TextDocument, Uri } from "../hostEditor/EditorTypes";
+import * as fs from "fs";
 import * as path from "path";
 import { Cmd } from "../core/commands";
 import { Regex } from "../core/regex";
@@ -15,7 +16,7 @@ export class BacklinkCodeLensProvider implements CodeLensProvider {
   private _onDidChangeCodeLenses = new EventEmitter<void>();
   readonly onDidChangeCodeLenses = this._onDidChangeCodeLenses.event;
 
-  private cache: Map<string, number> = new Map();
+  private cache: Map<string, { sourceUri: Uri; line: number }[]> = new Map();
   private disposables: Disposable[] = [];
 
   constructor() {
@@ -29,34 +30,107 @@ export class BacklinkCodeLensProvider implements CodeLensProvider {
     this.rebuildCache();
   }
 
+  private normalizePath(filePath: string): string {
+    const normalized = filePath.replace(Regex.windowsSlash, "/");
+    return process.platform === "win32" ? normalized.toLowerCase() : normalized;
+  }
+
+  private isExternalTarget(target: string): boolean {
+    return (
+      Regex.httpOrMailtoOrAnchor.test(target) ||
+      target.startsWith("data:") ||
+      target.startsWith("file:") ||
+      target.startsWith("//")
+    );
+  }
+
+  private splitTarget(target: string): { pathPart: string; suffix: string } {
+    const idx = target.search(Regex.queryOrHashMarker);
+    if (idx === -1) {
+      return { pathPart: target, suffix: "" };
+    }
+    return {
+      pathPart: target.slice(0, idx),
+      suffix: target.slice(idx),
+    };
+  }
+
+  private resolveCandidateTargets(pathPart: string, sourceDir: string, workspaceRoot: string): string[] {
+    const bases: string[] = [];
+
+    if (pathPart.startsWith("/")) {
+      bases.push(path.resolve(workspaceRoot, "." + pathPart));
+    } else {
+      bases.push(path.resolve(sourceDir, pathPart));
+      // Support workspace-root style links such as "docs/page/index.md".
+      if (!pathPart.startsWith("./") && !pathPart.startsWith("../")) {
+        bases.push(path.resolve(workspaceRoot, pathPart));
+      }
+    }
+
+    const expanded = new Set<string>();
+    for (const base of bases) {
+      expanded.add(base);
+      if (fs.existsSync(base)) {
+        try {
+          if (fs.statSync(base).isDirectory()) {
+            expanded.add(path.join(base, "index.md"));
+          }
+        } catch {
+          // ignore unreadable path
+        }
+      } else if (!path.extname(base)) {
+        expanded.add(`${base}.md`);
+      }
+    }
+
+    return Array.from(expanded);
+  }
+
   private async rebuildCache(): Promise<void> {
+    const workspaceRoot = hostEditor.getWorkspaceFolders()?.[0]?.uri.fsPath;
+    if (!workspaceRoot) {
+      this.cache = new Map();
+      return;
+    }
+
     const files = await hostEditor.findFiles("**/*.md");
-    const counts: Map<string, number> = new Map();
+    const backlinks: Map<string, { sourceUri: Uri; line: number }[]> = new Map();
 
     for (const uri of files) {
       try {
         const doc = await hostEditor.openTextDocument(uri);
-        const text = doc.getText();
+        const sourceDir = path.dirname(uri.fsPath);
 
-        // Find markdown links [text](target)
-        const linkRe = Regex.markdownLinkGlobal;
-        let m: RegExpExecArray | null;
-        while ((m = linkRe.exec(text)) !== null) {
-          const target = m[2];
-          if (target.startsWith("http://") || target.startsWith("https://") || target.startsWith("#")) {
-            continue;
+        for (let line = 0; line < doc.lineCount; line++) {
+          const lineText = doc.lineAt(line).text;
+          const linkRe = new RegExp(Regex.markdownLinkGlobal.source, "g");
+          let m: RegExpExecArray | null;
+          while ((m = linkRe.exec(lineText)) !== null) {
+            // Skip images
+            if (m.index > 0 && lineText[m.index - 1] === "!") {
+              continue;
+            }
+
+            const { pathPart } = this.splitTarget(m[2]);
+            if (!pathPart || this.isExternalTarget(pathPart)) {
+              continue;
+            }
+
+            for (const resolved of this.resolveCandidateTargets(pathPart, sourceDir, workspaceRoot)) {
+              const norm = this.normalizePath(resolved);
+              if (!backlinks.has(norm)) {
+                backlinks.set(norm, []);
+              }
+              backlinks.get(norm)!.push({ sourceUri: uri, line });
+            }
           }
-          // Resolve relative to file's directory
-          const dir = path.dirname(uri.fsPath);
-          const resolved = path.resolve(dir, target.split("#")[0]);
-          const norm = resolved.replace(Regex.windowsSlash, "/").toLowerCase();
-          counts.set(norm, (counts.get(norm) ?? 0) + 1);
         }
       } catch {
         // skip unreadable files
       }
     }
-    this.cache = counts;
+    this.cache = backlinks;
   }
 
   provideCodeLenses(document: TextDocument): CodeLens[] {
@@ -64,17 +138,36 @@ export class BacklinkCodeLensProvider implements CodeLensProvider {
       return [];
     }
 
-    const norm = document.uri.fsPath.replace(Regex.windowsSlash, "/").toLowerCase();
-    const count = this.cache.get(norm) ?? 0;
+    const norm = this.normalizePath(document.uri.fsPath);
+    const refs = this.cache.get(norm) ?? [];
+    const count = refs.length;
 
     if (count === 0) {
       return [];
     }
 
     const range = new Range(0, 0, 0, 0);
+    if (count === 1) {
+      const only = refs[0];
+      return [
+        new CodeLens(range, {
+          title: "↩ 1 backlink",
+          command: "vscode.open",
+          tooltip: "Open the page containing the backlink",
+          arguments: [
+            only.sourceUri,
+            {
+              selection: new Range(only.line, 0, only.line, 0),
+              preview: false,
+            },
+          ],
+        }),
+      ];
+    }
+
     return [
       new CodeLens(range, {
-        title: `↩ ${count} backlink${count === 1 ? "" : "s"}`,
+        title: `↩ ${count} backlinks`,
         command: Cmd.focusBacklinks,
         tooltip: "Show backlinks panel",
       }),
