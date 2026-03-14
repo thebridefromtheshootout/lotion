@@ -1,6 +1,7 @@
 // ── Editor module barrel ────────────────────────────────────────────
 export { handleToggleCommand, handleCalloutCommand, handleToggleHeadingCommand } from "./callout";
 export { handleCodeBlockCommand } from "./codeBlock";
+export { cursorInCodeContext } from "./codeContext";
 export {
   handleTodayCommand,
   handleDateCommand,
@@ -40,6 +41,7 @@ import {
   CALLOUT_SLASH_COMMAND,
 } from "./callout";
 import { CODE_SLASH_COMMAND } from "./codeBlock";
+import { COPY_SLASH_COMMAND } from "./copyCode";
 import { TODAY_SLASH_COMMAND } from "./date/dateCommands";
 import { DATE_SLASH_COMMAND } from "./date/datePanel";
 import { EMOJI_SLASH_COMMAND } from "./emoji";
@@ -60,6 +62,7 @@ export const EDITOR_SLASH_COMMANDS: SlashCommand[] = [
   TOGGLE_SLASH_COMMAND,
   CALLOUT_SLASH_COMMAND,
   CODE_SLASH_COMMAND,
+  COPY_SLASH_COMMAND,
   TODAY_SLASH_COMMAND,
   DATE_SLASH_COMMAND,
   EMOJI_SLASH_COMMAND,

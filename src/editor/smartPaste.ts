@@ -4,10 +4,18 @@ import * as path from "path";
 import * as fs from "fs";
 import { getCwd } from "../core/cwd";
 import { clipboardHasImage, imageFromClipboard } from "../media/clipboard";
+import { cursorInCodeContext } from "./codeContext";
 
 // ── Smart paste (Ctrl+V with link & image detection) ──────────────
 export async function handleSmartPaste() {
   if (!hostEditor.isMarkdownEditor()) {
+    await hostEditor.executeCommand("editor.action.clipboardPasteAction");
+    return;
+  }
+  const document = hostEditor.getDocument();
+  const cursor = hostEditor.getCursorPosition();
+  if (document && cursor && cursorInCodeContext(document, cursor)) {
+    // Preserve literal paste behavior while editing code snippets/blocks.
     await hostEditor.executeCommand("editor.action.clipboardPasteAction");
     return;
   }
