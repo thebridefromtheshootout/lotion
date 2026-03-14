@@ -232,31 +232,11 @@ export async function handleDbEntryCommand(
     return;
   }
 
-  // 1. Ask for entry title
-  const entryTitle = await hostEditor.showInputBox({
-    prompt: "Entry title",
-    placeHolder: "New entry",
-    validateInput: (v) => {
-      if (!v || v.trim().length === 0) {
-        return "Title cannot be empty";
-      }
-      return undefined;
-    },
-  });
-  if (!entryTitle) {
+  const entryInput = await promptDbEntryInput(schema, defaults);
+  if (!entryInput) {
     return;
   }
-
-  // 2. Prompt for each property value (prefill defaults when provided)
-  const props: Record<string, string> = {};
-  for (const col of schema.columns) {
-    const defaultValue = getDefaultValueForColumn(col, defaults);
-    const value = await promptForColumnValue(col, defaultValue);
-    if (value === undefined) {
-      return;
-    } // cancelled
-    props[col.name] = value;
-  }
+  const { entryTitle, props } = entryInput;
 
   // 3. Create child entry page
   const slug = entryTitle
@@ -343,6 +323,37 @@ export async function handleDbEntryCommand(
   await hostEditor.showTextDocument(entryDoc);
 
   hostEditor.showInformation(`Entry "${entryTitle}" created.`);
+}
+
+async function promptDbEntryInput(
+  schema: DbSchema,
+  defaults: Record<string, string>,
+): Promise<{ entryTitle: string; props: Record<string, string> } | undefined> {
+  const entryTitle = await hostEditor.showInputBox({
+    prompt: "Entry title",
+    placeHolder: "New entry",
+    validateInput: (v) => {
+      if (!v || v.trim().length === 0) {
+        return "Title cannot be empty";
+      }
+      return undefined;
+    },
+  });
+  if (!entryTitle) {
+    return undefined;
+  }
+
+  const props: Record<string, string> = {};
+  for (const col of schema.columns) {
+    const defaultValue = getDefaultValueForColumn(col, defaults);
+    const value = await promptForColumnValue(col, defaultValue);
+    if (value === undefined) {
+      return undefined;
+    }
+    props[col.name] = value;
+  }
+
+  return { entryTitle, props };
 }
 
 // ── Column value prompters ─────────────────────────────────────────
