@@ -283,10 +283,51 @@ export async function handleDbEntryCommand(
   // 4. Append bullet link in the current database index.md
   const link = `- [${entryTitle}](${relativePath})`;
   if (fromSlashCommand) {
-    // Called from slash command — replace the `/` trigger character
+    // Called from slash command — context-aware replacement near cursor.
     if (hostEditor.isActiveEditorDocumentEqualTo(document)) {
-      const triggerRange = new Range(position.translate(0, -1), position);
-      await hostEditor.replaceRange(triggerRange, link);
+      const line = document.lineAt(position.line);
+      const lineText = line.text;
+      const cursorCol = Math.min(position.character, lineText.length);
+      const slashIdx = lineText.lastIndexOf("/", Math.max(cursorCol - 1, 0));
+      const rawLink = `[${entryTitle}](${relativePath})`;
+
+      const markerOnlyUnordered = /^(\s*[-*+]\s)$/;
+      const markerOnlyOrdered = /^(\s*\d+[.)]\s)$/;
+      const markerOnlyCheckbox = /^(\s*[-*+]\s\[[ xX]\]\s)$/i;
+
+      if (slashIdx !== -1) {
+        const before = lineText.slice(0, slashIdx);
+        const after = lineText.slice(slashIdx + 1);
+
+        let replacementLine: string;
+        if (
+          markerOnlyUnordered.test(before) ||
+          markerOnlyOrdered.test(before) ||
+          markerOnlyCheckbox.test(before)
+        ) {
+          // Line already has list marker prefix, so only inject the link payload.
+          replacementLine = `${before}${rawLink}${after}`;
+        } else if (before.trim().length === 0) {
+          // Empty/whitespace line -> create bullet entry.
+          replacementLine = `${before}- ${rawLink}${after}`;
+        } else {
+          // Normal text context -> inject plain link payload.
+          replacementLine = `${before}${rawLink}${after}`;
+        }
+
+        await hostEditor.replaceRange(line.range, replacementLine);
+      } else if (
+        markerOnlyUnordered.test(lineText) ||
+        markerOnlyOrdered.test(lineText) ||
+        markerOnlyCheckbox.test(lineText)
+      ) {
+        await hostEditor.replaceRange(line.range, `${lineText}${rawLink}`);
+      } else if (lineText.trim().length === 0) {
+        const indent = lineText.match(Regex.lineIndent)?.[1] ?? "";
+        await hostEditor.replaceRange(line.range, `${indent}- ${rawLink}`);
+      } else {
+        await hostEditor.insertAt(position, rawLink);
+      }
       await hostEditor.saveActiveDocument();
     }
   } else {
