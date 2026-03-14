@@ -3,6 +3,7 @@ import { hostEditor } from "../hostEditor/HostingEditor";
 import * as path from "path";
 import * as fs from "fs";
 import { getCwd } from "../core/cwd";
+import { Regex } from "../core/regex";
 import { clipboardHasImage, imageFromClipboard } from "../media/clipboard";
 import { cursorInCodeContext } from "./codeContext";
 import { cursorInTable, parseTableColumnClipboard, pasteTableColumnAtCursor } from "./table";
@@ -37,7 +38,7 @@ export async function handleSmartPaste() {
   // ── Link-wrap: selected text + URL on clipboard → [text](url) ──
   if (!selection.isEmpty) {
     const clipText = (await hostEditor.getClipboardText()).trim();
-    if (/^https?:\/\/\S+$/.test(clipText)) {
+    if (Regex.httpUrl.test(clipText)) {
       const selectedText = hostEditor.getDocumentText(selection);
       await hostEditor.replaceCurrentSelection(`[${selectedText}](${clipText})`);
       return;
@@ -47,7 +48,7 @@ export async function handleSmartPaste() {
   // ── Auto-link: no selection + bare URL on clipboard → [host](url) ──
   if (selection.isEmpty) {
     const clipText = (await hostEditor.getClipboardText()).trim();
-    if (/^https?:\/\/\S+$/.test(clipText)) {
+    if (Regex.httpUrl.test(clipText)) {
       try {
         const url = new URL(clipText);
         // Derive a readable label from the URL
@@ -91,7 +92,7 @@ export async function handleSmartPaste() {
       if (!value || value.trim().length === 0) {
         return "Image name cannot be empty";
       }
-      if (/[<>:"/\\|?*]/.test(value)) {
+      if (Regex.invalidPathChars.test(value)) {
         return "Image name contains invalid characters";
       }
       return undefined;

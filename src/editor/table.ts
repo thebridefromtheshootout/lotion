@@ -2,9 +2,10 @@
 import { Position, Range, Selection } from "../hostEditor/EditorTypes";
 import type { TextDocument } from "../hostEditor/EditorTypes";
 import { hostEditor } from "../hostEditor/HostingEditor";
+import { Regex } from "../core/regex";
 
 // ── Table detection ────────────────────────────────────────────────
-const TABLE_ROW_RE = /^\s*\|.*\|\s*$/;
+const TABLE_ROW_RE = Regex.markdownTableRow;
 
 /**
  * Check if a line looks like a table row (starts and ends with |).

@@ -3,6 +3,7 @@ import { hostEditor } from "../hostEditor/HostingEditor";
 import * as path from "path";
 import * as fs from "fs";
 import { Cmd } from "../core/commands";
+import { Regex } from "../core/regex";
 import type { SlashCommand } from "../core/slashCommands";
 import { relinkWorkspacePagePaths } from "./pageRelink";
 
@@ -54,7 +55,7 @@ export async function renamePage(): Promise<void> {
       if (!value || value.trim().length === 0) {
         return "Name cannot be empty";
       }
-      if (/[<>:"/\\|?*]/.test(value)) {
+      if (Regex.invalidPathChars.test(value)) {
         return "Contains invalid characters";
       }
       return undefined;

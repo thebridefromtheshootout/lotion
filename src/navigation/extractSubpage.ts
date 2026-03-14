@@ -4,6 +4,7 @@ import { hostEditor } from "../hostEditor/HostingEditor";
 import * as path from "path";
 import * as fs from "fs";
 import { getCwd } from "../core/cwd";
+import { Regex } from "../core/regex";
 import { migrateComments } from "../editor/comments";
 import { migrateProcessors } from "../editor/processor";
 
@@ -63,7 +64,7 @@ export async function handleExtractToSubpage(): Promise<void> {
       if (!value || value.trim().length === 0) {
         return "Page name cannot be empty";
       }
-      if (/[<>:"/\\|?*]/.test(value)) {
+      if (Regex.invalidPathChars.test(value)) {
         return "Page name contains invalid characters";
       }
       return undefined;

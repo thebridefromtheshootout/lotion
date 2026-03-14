@@ -2,6 +2,7 @@ import { CodeLens, Disposable, Range } from "../../hostEditor/EditorTypes";
 import type { TextDocument } from "../../hostEditor/EditorTypes";
 import { Cmd } from "../../core/commands";
 import { createCodeLensProvider } from "../../core/codeLens";
+import { Regex } from "../../core/regex";
 
 // ── Date CodeLens provider ─────────────────────────────────────────
 
@@ -13,13 +14,7 @@ import { createCodeLensProvider } from "../../core/codeLens";
  * - D Month YYYY (5 January 2024)
  * - ddd, Month D, YYYY (Mon, January 5, 2024)
  */
-const DATE_PATTERNS = [
-  /\b\d{4}-\d{2}-\d{2}(?:\s+\d{2}:\d{2})?\b/g, // YYYY-MM-DD [HH:mm]
-  /\b\d{1,2}\/\d{1,2}\/\d{4}\b/g, // MM/DD/YYYY or DD/MM/YYYY
-  /\b(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},?\s+\d{4}\b/g, // MMMM D, YYYY
-  /\b\d{1,2}\s+(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{4}\b/g, // D MMMM YYYY
-  /\b(?:Sun|Mon|Tue|Wed|Thu|Fri|Sat),?\s+(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},?\s+\d{4}\b/g, // ddd, MMMM D, YYYY
-];
+const DATE_PATTERNS = Regex.datePatterns;
 
 export function createDateCodeLensProvider(): Disposable {
   return createCodeLensProvider(generateDateLenses);

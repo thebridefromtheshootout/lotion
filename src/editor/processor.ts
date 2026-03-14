@@ -5,6 +5,7 @@ import * as path from "path";
 import * as fs from "fs";
 import { execSync } from "child_process";
 import { Cmd } from "../core/commands";
+import { Regex } from "../core/regex";
 import { createCodeLensProvider, codeLens } from "../core/codeLens";
 import type { SlashCommand } from "../core/slashCommands";
 
@@ -88,7 +89,7 @@ export function generateGuid(): string {
 
 // ── Marker ID scanning (private) ───────────────────────────────────
 
-const PROC_MARKER_RE_G = /<!--\s*lotion-processor:\s*([0-9a-f-]+)\s*-->/g;
+const PROC_MARKER_RE_G = Regex.processorMarkerGlobal;
 
 /**
  * Scan arbitrary text for all processor marker UUIDs.
@@ -160,11 +161,11 @@ export function duplicateProcessorMarkers(blockText: string, docPath: string): s
 
 // ── Processor block markers ────────────────────────────────────────
 
-export const PROC_START_RE = /^<!--\s*lotion-processor:\s*([0-9a-f-]+)\s*-->$/;
-const PROC_DETAILS_OPEN = /^<details[^>]*>\s*$/;
-const PROC_SUMMARY_OPEN = /^<summary>/;
-const PROC_SUMMARY_CLOSE = /<\/summary>\s*$/;
-const PROC_DETAILS_CLOSE = /^<\/details>\s*$/;
+export const PROC_START_RE = Regex.processorStart;
+const PROC_DETAILS_OPEN = Regex.processorDetailsOpen;
+const PROC_SUMMARY_OPEN = Regex.processorSummaryOpen;
+const PROC_SUMMARY_CLOSE = Regex.processorSummaryClose;
+const PROC_DETAILS_CLOSE = Regex.processorDetailsClose;
 
 /**
  * Parsed processor block structure:

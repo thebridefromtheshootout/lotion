@@ -5,6 +5,7 @@ import * as path from "path";
 import * as fs from "fs";
 import { getCwd } from "../core/cwd";
 import { Cmd } from "../core/commands";
+import { Regex } from "../core/regex";
 import type { SlashCommand } from "../core/slashCommands";
 
 export const PAGE_SLASH_COMMAND: SlashCommand = {
@@ -33,7 +34,7 @@ export async function handlePageCommand(document: TextDocument, position: Positi
       if (!value || value.trim().length === 0) {
         return "Page name cannot be empty";
       }
-      if (/[<>:"/\\|?*]/.test(value)) {
+      if (Regex.invalidPathChars.test(value)) {
         return "Page name contains invalid characters";
       }
       return undefined;

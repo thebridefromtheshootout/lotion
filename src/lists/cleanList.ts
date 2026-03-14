@@ -2,9 +2,10 @@ import { Position, Range } from "../hostEditor/EditorTypes";
 import type { TextDocument } from "../hostEditor/EditorTypes";
 import { hostEditor } from "../hostEditor/HostingEditor";
 import { Cmd } from "../core/commands";
+import { Regex } from "../core/regex";
 import type { SlashCommand } from "../core/slashCommands";
 
-const LIST_ITEM_RE = /^(\s*)(?:[-*+]\s+|\d+[.)]\s+|-\s+\[[ xX]\]\s+)/;
+const LIST_ITEM_RE = Regex.listItem;
 
 export const CLEAN_LIST_SLASH_COMMAND: SlashCommand = {
   label: "/clean-list",

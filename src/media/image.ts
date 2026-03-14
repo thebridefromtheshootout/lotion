@@ -8,6 +8,7 @@ import * as http from "http";
 import { getCwd } from "../core/cwd";
 import { imageFromClipboard } from "./clipboard";
 import { Cmd } from "../core/commands";
+import { Regex } from "../core/regex";
 import type { SlashCommand } from "../core/slashCommands";
 
 export const IMAGE_SLASH_COMMAND: SlashCommand = {
@@ -182,7 +183,7 @@ export async function handleImageCommand(document: TextDocument, position: Posit
       if (!value || value.trim().length === 0) {
         return "Image name cannot be empty";
       }
-      if (/[<>:"/\\|?*]/.test(value)) {
+      if (Regex.invalidPathChars.test(value)) {
         return "Image name contains invalid characters";
       }
       return undefined;

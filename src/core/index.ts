@@ -1,5 +1,6 @@
 // ── Core module barrel ──────────────────────────────────────────────
 export { Cmd, TreeView, Context, Panel } from "./commands";
+export { Regex } from "./regex";
 export { createCodeLensProvider, createStatefulCodeLensProvider, codeLens } from "./codeLens";
 export type { CodeLensGenerator, StatefulCodeLensOptions } from "./codeLens";
 export { CODELENS_GENERATORS } from "./codelensGenerators";

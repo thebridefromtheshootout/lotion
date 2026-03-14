@@ -1,6 +1,7 @@
 import { Disposable, Position, Range } from "../hostEditor/EditorTypes";
 import type { TextDocument, TextDocumentContentChangeEvent } from "../hostEditor/EditorTypes";
 import { hostEditor } from "../hostEditor/HostingEditor";
+import { Regex } from "../core/regex";
 
 /**
  * Smart typographic quotes on type.
@@ -57,7 +58,7 @@ function isInsideCode(doc: TextDocument, pos: Position): boolean {
   // inside fenced code block?
   let fenced = false;
   for (let i = 0; i < pos.line; i++) {
-    if (/^```/.test(doc.lineAt(i).text)) {
+    if (Regex.fencedCodeDelimiter.test(doc.lineAt(i).text)) {
       fenced = !fenced;
     }
   }
@@ -66,7 +67,7 @@ function isInsideCode(doc: TextDocument, pos: Position): boolean {
   }
   // inside inline code?
   const before = line.substring(0, pos.character);
-  const backticks = (before.match(/`/g) || []).length;
+  const backticks = (before.match(Regex.backtick) || []).length;
   return backticks % 2 === 1;
 }
 
