@@ -1,6 +1,7 @@
 import { hostEditor } from "../hostEditor/HostingEditor";
 import { Disposable, TextEdit } from "../hostEditor/EditorTypes";
 import { collectOrderedList, renumberEdits, toTextEdits } from "./listModel";
+import { Regex } from "../core/regex";
 
 /**
  * Automatically re-number ordered (1. 2. 3. …) lists on save.
@@ -9,7 +10,7 @@ import { collectOrderedList, renumberEdits, toTextEdits } from "./listModel";
  * then renumbers the entire sequence starting from 1.
  */
 
-const OL_RE = /^(\s*)(\d+)(\.)\s/;
+const OL_RE = Regex.orderedListDotOnly;
 
 export function createListRenumber(): Disposable {
   return hostEditor.onWillSaveTextDocument((e) => {

@@ -3,6 +3,7 @@ import { Position, Range, Selection } from "../hostEditor/EditorTypes";
 import type { TextLine } from "../hostEditor/EditorTypes";
 import { hostEditor, OpType, type EditOp } from "../hostEditor/HostingEditor";
 import { collectOrderedList, renumberEdits, applyRenumberEdits } from "./listModel";
+import { Regex } from "../core/regex";
 
 /**
  * Auto-continue markdown lists on Enter.
@@ -37,10 +38,10 @@ export async function handleListContinue(): Promise<void> {
   // Checkbox:     `  - [ ] ` or `  - [x] `
   // Unordered:    `  - ` or `  * ` or `  + `
   // Ordered:      `  1. ` `  2) ` etc.
-  const blockquoteRe = /^(\s*(?:>\s*)+)(.*)$/;
-  const checkboxRe = /^(\s*- \[[ x]\] )(.*)$/;
-  const unorderedRe = /^(\s*[-*+] )(.*)$/;
-  const orderedRe = /^(\s*)(\d+)([.)]\s)(.*)$/;
+  const blockquoteRe = Regex.blockquotePrefixWithContent;
+  const checkboxRe = Regex.checkboxWithContent;
+  const unorderedRe = Regex.unorderedListWithContent;
+  const orderedRe = Regex.orderedListWithContent;
 
   let match: RegExpMatchArray | null;
 
@@ -67,7 +68,7 @@ export async function handleListContinue(): Promise<void> {
       await clearLine(line);
     } else {
       // Continue with unchecked checkbox
-      const indent = marker.match(/^(\s*)/)?.[1] ?? "";
+      const indent = marker.match(Regex.lineIndent)?.[1] ?? "";
       await insertBelow(selection, `${indent}- [ ] `);
     }
     return;

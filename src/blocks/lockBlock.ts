@@ -3,6 +3,7 @@ import type { TextDocument } from "../hostEditor/EditorTypes";
 import { hostEditor } from "../hostEditor/HostingEditor";
 import * as crypto from "crypto";
 import { Cmd } from "../core/commands";
+import { Regex } from "../core/regex";
 import type { SlashCommand } from "../core/slashCommands";
 
 export const SECRETBOX_SLASH_COMMAND: SlashCommand = {
@@ -47,9 +48,9 @@ const TAG_LEN = 16;
 const PBKDF2_ITERATIONS = 100_000;
 const PBKDF2_DIGEST = "sha512";
 
-const LOCK_MARKER_RE = /^<!--lotion-lock:([A-Za-z0-9+/=]+\.[A-Za-z0-9+/=]+\.[A-Za-z0-9+/=]+\.[A-Za-z0-9+/=]+)-->$/;
+const LOCK_MARKER_RE = Regex.lockMarker;
 const SECRETBOX_MARKER = "<!--lotion-secretbox-->";
-const SECRETBOX_TAG_RE = /^\s*<details>\s*<!--lotion-secretbox-->/i;
+const SECRETBOX_TAG_RE = Regex.secretboxTagLine;
 
 /** Remember the last password entered during this session (never persisted). */
 let lastPassword: string | undefined;
@@ -389,10 +390,10 @@ function findDetailsBlock(document: TextDocument, cursorLine: number): DetailsBl
   for (let i = startLine; i <= endLine; i++) {
     const line = document.lineAt(i).text;
     // <summary>Title</summary> on one line
-    const oneLineMatch = line.match(/<summary>(.*?)<\/summary>/i);
+    const oneLineMatch = line.match(Regex.summaryTagInline);
     if (oneLineMatch) {
       summaryEndLine = i;
-      summaryText = oneLineMatch[1].replace(/^🔒\s*/, "").trim();
+      summaryText = oneLineMatch[1].replace(Regex.lockIconPrefix, "").trim();
       break;
     }
     // Standalone </summary>
@@ -409,9 +410,9 @@ function findDetailsBlock(document: TextDocument, cursorLine: number): DetailsBl
   if (!summaryText) {
     for (let i = startLine; i <= summaryEndLine; i++) {
       const line = document.lineAt(i).text;
-      const openMatch = line.match(/<summary>(.*)/i);
+      const openMatch = line.match(Regex.summaryTagStartCapture);
       if (openMatch) {
-        summaryText = openMatch[1].replace(/^🔒\s*/, "").trim();
+        summaryText = openMatch[1].replace(Regex.lockIconPrefix, "").trim();
         break;
       }
     }

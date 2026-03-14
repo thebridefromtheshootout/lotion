@@ -28,7 +28,7 @@ export async function handleExtractToSubpage(): Promise<void> {
     extractRange = selection;
     // Try to use the first heading as the name
     const firstLine = document.lineAt(selection.start.line).text;
-    const headingMatch = firstLine.match(/^#+\s+(.+)/);
+    const headingMatch = firstLine.match(Regex.headingAnyLevelTitleOnly);
     if (headingMatch) {
       suggestedName = headingMatch[1].trim();
     }
@@ -75,7 +75,7 @@ export async function handleExtractToSubpage(): Promise<void> {
     return;
   }
 
-  const folderName = pageName.toLowerCase().replace(/\s+/g, "-");
+  const folderName = pageName.toLowerCase().replace(Regex.whitespaceRun, "-");
   const pageDir = path.join(cwd, folderName);
   const childFilePath = path.join(pageDir, "index.md");
   const relativePath = `${folderName}/index.md`;
@@ -111,7 +111,7 @@ function getHeadingSection(document: TextDocument, line: number): { range: Range
 
   for (let i = line; i >= 0; i--) {
     const text = document.lineAt(i).text;
-    const match = text.match(/^(#+)\s+(.+)/);
+    const match = text.match(Regex.headingAnyLevelWithText);
     if (match) {
       headingLine = i;
       headingLevel = match[1].length;
@@ -128,7 +128,7 @@ function getHeadingSection(document: TextDocument, line: number): { range: Range
   let endLine = document.lineCount - 1;
   for (let i = headingLine + 1; i < document.lineCount; i++) {
     const text = document.lineAt(i).text;
-    const match = text.match(/^(#+)\s/);
+    const match = text.match(Regex.headingAnyLevelPrefix);
     if (match && match[1].length <= headingLevel) {
       endLine = i - 1;
       break;

@@ -1,6 +1,7 @@
 import { Disposable } from "../hostEditor/EditorTypes";
 import { hostEditor } from "../hostEditor/HostingEditor";
 import { Cmd } from "../core/commands";
+import { Regex } from "../core/regex";
 
 /**
  * Clipboard history ring.
@@ -39,7 +40,9 @@ export async function pasteFromHistory(): Promise<void> {
   }
 
   const items = clipHistory.map((text, i) => {
-    const preview = text.length > 80 ? text.substring(0, 80).replace(/\n/g, "↵") + "…" : text.replace(/\n/g, "↵");
+    const preview = text.length > 80
+      ? text.substring(0, 80).replace(Regex.newlineGlobal, "↵") + "…"
+      : text.replace(Regex.newlineGlobal, "↵");
     return {
       label: `${i + 1}. ${preview}`,
       detail: `${text.length} chars`,

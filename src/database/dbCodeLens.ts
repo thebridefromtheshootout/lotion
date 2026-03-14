@@ -6,10 +6,11 @@ import * as fs from "fs";
 import { isDbFile } from "./database";
 import { Cmd } from "../core/commands";
 import { createCodeLensProvider, codeLens } from "../core/codeLens";
+import { Regex } from "../core/regex";
 
 // ── CodeLens provider for database links ───────────────────────────
 
-const PAGE_LINK_RE = /^\[([^\]]+)\]\(([^)]+\.md)\)\s*$/;
+const PAGE_LINK_RE = Regex.markdownPageLinkLine;
 
 /**
  * If `filePath` is an entry inside a database folder, return the

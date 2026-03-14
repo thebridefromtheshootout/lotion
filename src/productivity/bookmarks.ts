@@ -4,6 +4,7 @@ import { hostEditor } from "../hostEditor/HostingEditor";
 import * as path from "path";
 import * as fs from "fs";
 import { TreeView } from "../core/commands";
+import { Regex } from "../core/regex";
 
 /**
  * Bookmark / pin system for frequently-accessed pages.
@@ -66,7 +67,7 @@ export async function bookmarkPage(): Promise<void> {
     return;
   }
 
-  const relPath = path.relative(root, docUri.fsPath).replace(/\\/g, "/");
+  const relPath = path.relative(root, docUri.fsPath).replace(Regex.windowsSlash, "/");
   const bookmarks = loadBookmarks();
 
   if (bookmarks.some((b) => b.path === relPath)) {

@@ -46,7 +46,7 @@ export async function handlePageCommand(document: TextDocument, position: Positi
   }
 
   // Convert page name to a folder-safe slug
-  const folderName = pageName.toLowerCase().replace(/\s+/g, "-");
+  const folderName = pageName.toLowerCase().replace(Regex.whitespaceRun, "-");
   const pageDir = path.join(cwd, folderName);
   const childFilePath = path.join(pageDir, "index.md");
   const relativePath = `${folderName}/index.md`;

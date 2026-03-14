@@ -1,8 +1,9 @@
 import { Position, Range, WorkspaceEdit } from "../hostEditor/EditorTypes";
 import { hostEditor } from "../hostEditor/HostingEditor";
+import { Regex } from "../core/regex";
 
 function escapeRegex(text: string): string {
-  return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return text.replace(Regex.regexMetaCharsGlobal, "\\$&");
 }
 
 /**

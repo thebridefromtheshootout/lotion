@@ -3,6 +3,7 @@ import type { StatusBarItem } from "../hostEditor/EditorTypes";
 import { hostEditor } from "../hostEditor/HostingEditor";
 import * as path from "path";
 import { Cmd } from "../core/commands";
+import { Regex } from "../core/regex";
 
 // ── Breadcrumb status bar item ─────────────────────────────────────
 //
@@ -51,7 +52,7 @@ function updateBreadcrumb(): void {
     return;
   }
 
-  const relativePath = path.relative(workspaceRoot, filePath).replace(/\\/g, "/");
+  const relativePath = path.relative(workspaceRoot, filePath).replace(Regex.windowsSlash, "/");
   const parts = relativePath.split("/");
 
   // Build breadcrumb from path segments, stripping noise:
@@ -75,7 +76,7 @@ function updateBreadcrumb(): void {
   }
 
   // Prettify crumbs: kebab-case → Title Case
-  const pretty = crumbs.map((c) => c.replace(/[-_]/g, " ").replace(/\b\w/g, (ch) => ch.toUpperCase()));
+  const pretty = crumbs.map((c) => c.replace(Regex.dashUnderscore, " ").replace(Regex.wordBoundaryChar, (ch) => ch.toUpperCase()));
 
   statusBarItem.text = `$(folder) ${pretty.join(" $(chevron-right) ")}`;
   statusBarItem.show();

@@ -1,5 +1,6 @@
 import React from "react";
 import { FormatCellProps } from "../../../types/";
+import { Regex } from "../../../../core/regex";
 
 export function FormatCell({
   value,
@@ -12,7 +13,7 @@ export function FormatCell({
   switch (type) {
     case "image": {
       // value is a relative path like ".rsrc/photo.png"
-      const src = baseUri ? `${baseUri.replace(/\/$/, "")}/${value}` : value;
+      const src = baseUri ? `${baseUri.replace(Regex.trailingSlash, "")}/${value}` : value;
       const mw = maxWidth ?? 120;
       const mh = maxHeight ?? 80;
       return (

@@ -4,6 +4,7 @@ import { hostEditor } from "../hostEditor/HostingEditor";
 import * as path from "path";
 import * as fs from "fs";
 import { getCwd } from "../core/cwd";
+import { Regex } from "../core/regex";
 import { migrateComments } from "../editor/comments";
 import { migrateProcessors } from "../editor/processor";
 import { Cmd } from "../core/commands";
@@ -21,7 +22,7 @@ export const MOVE_SLASH_COMMAND: SlashCommand = {
 
 // ── Patterns ───────────────────────────────────────────────────────
 
-const HEADING_RE = /^(#{1,6})\s+(.+)$/;
+const HEADING_RE = Regex.headingLineWithText;
 
 // ── /move handler ──────────────────────────────────────────────────
 
@@ -71,7 +72,7 @@ export async function handleMoveCommand(document: TextDocument, position: Positi
     .filter((uri) => uri.fsPath !== selfPath)
     .map((uri) => {
       const title = deriveTitle(uri);
-      const rel = path.relative(cwd, uri.fsPath).replace(/\\/g, "/");
+      const rel = path.relative(cwd, uri.fsPath).replace(Regex.windowsSlash, "/");
       return { label: title, detail: rel, uri };
     })
     .sort((a, b) => a.label.localeCompare(b.label));
@@ -142,7 +143,7 @@ function getBlockRange(document: TextDocument, cursorLine: number): { startLine:
     let endLine = document.lineCount - 1;
 
     for (let i = startLine + 1; i < document.lineCount; i++) {
-      const m = document.lineAt(i).text.match(/^(#{1,6})\s/);
+      const m = document.lineAt(i).text.match(Regex.headingPrefix);
       if (m && m[1].length <= level) {
         endLine = i - 1;
         break;
@@ -185,7 +186,7 @@ function migrateAssets(text: string, srcDir: string, destDir: string): string {
   // ── Migrate .rsrc/ files ─────────────────────────────────────
   const srcRsrc = path.join(srcDir, ".rsrc");
   const destRsrc = path.join(destDir, ".rsrc");
-  const rsrcRe = /\.rsrc\/([^\s)]+)/g;
+  const rsrcRe = Regex.rsrcPathGlobal;
   let rsrcMatch: RegExpExecArray | null;
 
   while ((rsrcMatch = rsrcRe.exec(text)) !== null) {
@@ -208,7 +209,7 @@ function migrateAssets(text: string, srcDir: string, destDir: string): string {
   }
 
   // ── Migrate child page directories ───────────────────────────────
-  const childRe = /\[([^\]]*)\]\((([^/\s)]+)\/index\.md)\)/g;
+  const childRe = Regex.markdownChildIndexLinkGlobal;
   let childMatch: RegExpExecArray | null;
 
   while ((childMatch = childRe.exec(text)) !== null) {
@@ -245,7 +246,7 @@ function migrateAssets(text: string, srcDir: string, destDir: string): string {
 function deriveTitle(uri: Uri): string {
   const parsed = path.parse(uri.fsPath);
   const baseName = parsed.name.toLowerCase() === "index" ? path.basename(path.dirname(uri.fsPath)) : parsed.name;
-  return baseName.replace(/[-_]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+  return baseName.replace(Regex.dashUnderscore, " ").replace(Regex.wordBoundaryChar, (c) => c.toUpperCase());
 }
 
 // ── Metadata migration helpers ─────────────────────────────────────

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { DatePanelToExtensionCommunicator } from "../communicators/DatePanelToExtensionCommunicator";
+import { Regex } from "../../core/regex";
 
 const communicator = new DatePanelToExtensionCommunicator();
 
@@ -49,7 +50,7 @@ function formatDate(d: Date, fmt: string): string {
     .replace("MMMM", MMMM)
     .replace("MM", MM)
     .replace("DD", DD)
-    .replace(/\bD\b/, D)
+    .replace(Regex.dateTokenSingleD, D)
     .replace("ddd", ddd)
     .replace("HH", HH)
     .replace("mm", mm);
@@ -59,13 +60,13 @@ function formatDate(d: Date, fmt: string): string {
 function tryParseDate(s: string): Date | null {
   if (!s) return null;
   // ISO / YYYY-MM-DD variants
-  const iso = /^(\d{4})-(\d{2})-(\d{2})/.exec(s);
+  const iso = Regex.dateIsoStrict.exec(s);
   if (iso) return new Date(+iso[1], +iso[2] - 1, +iso[3]);
   // MM/DD/YYYY
-  const mdy = /^(\d{1,2})\/(\d{1,2})\/(\d{4})/.exec(s);
+  const mdy = Regex.dateSlashMdy.exec(s);
   if (mdy) return new Date(+mdy[3], +mdy[1] - 1, +mdy[2]);
   // DD/MM/YYYY — ambiguous, try after MDY
-  const dmy = /^(\d{1,2})\/(\d{1,2})\/(\d{4})/.exec(s);
+  const dmy = Regex.dateSlashMdy.exec(s);
   if (dmy) return new Date(+dmy[3], +dmy[2] - 1, +dmy[1]);
   // Natural: "January 5, 2026" / "5 January 2026" / "Mon, January 5, 2026"
   const nat = Date.parse(s);

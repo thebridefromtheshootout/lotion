@@ -1,6 +1,7 @@
 import { Uri } from "../hostEditor/EditorTypes";
 import { hostEditor } from "../hostEditor/HostingEditor";
 import * as path from "path";
+import { Regex } from "../core/regex";
 
 // ── Unused images detector ─────────────────────────────────────────
 //
@@ -44,7 +45,7 @@ export async function findUnusedImages(): Promise<void> {
     const filename = path.basename(imgUri.fsPath);
     // Check if filename appears anywhere in markdown text
     if (!allMdText.includes(filename)) {
-      const relPath = path.relative(workspaceRoot, imgUri.fsPath).replace(/\\/g, "/");
+      const relPath = path.relative(workspaceRoot, imgUri.fsPath).replace(Regex.windowsSlash, "/");
       unused.push({
         label: filename,
         detail: relPath,

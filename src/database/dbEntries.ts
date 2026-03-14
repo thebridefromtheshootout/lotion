@@ -4,6 +4,7 @@ import type { TextDocument } from "../hostEditor/EditorTypes";
 import { Position } from "../hostEditor/EditorTypes";
 import { parsePropertyTable } from "./dbFrontmatter";
 import type { DbEntry } from "../contracts/databaseTypes";
+import { Regex } from "../core/regex";
 
 export type { DbEntry } from "../contracts/databaseTypes";
 
@@ -32,13 +33,13 @@ export function readDbEntries(dbDir: string): DbEntry[] {
 
     const content = fs.readFileSync(entryPath, "utf-8");
     // Skip database files (they have a lotion-db block)
-    if (/^```lotion-db\s*$/m.test(content)) {
+    if (Regex.dbSchemaFenceStartMultiline.test(content)) {
       continue;
     }
     const props = parsePropertyTable(content) ?? {};
 
     // Extract title from first heading
-    const headingMatch = content.match(/^#\s+(.+)$/m);
+    const headingMatch = content.match(Regex.headingH1Multiline);
     const title = headingMatch ? headingMatch[1] : dir;
 
     entries.push({
@@ -59,7 +60,7 @@ export function isDbFile(filePath: string): boolean {
     return false;
   }
   const content = fs.readFileSync(filePath, "utf-8");
-  return /^```lotion-db\s*$/m.test(content);
+  return Regex.dbSchemaFenceStartMultiline.test(content);
 }
 
 /**
@@ -67,5 +68,5 @@ export function isDbFile(filePath: string): boolean {
  * Matches the (document, position) => boolean signature used by SlashCommand.when.
  */
 export function cursorInDb(document: TextDocument, _position: Position): boolean {
-  return /^```lotion-db\s*$/m.test(document.getText());
+  return Regex.dbSchemaFenceStartMultiline.test(document.getText());
 }

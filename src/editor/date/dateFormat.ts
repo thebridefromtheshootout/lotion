@@ -1,4 +1,5 @@
 // ── Tiny date formatter (no deps) ─────────────────────────────────
+import { Regex } from "../../core/regex";
 
 const MONTHS = [
   "January",
@@ -36,7 +37,7 @@ export function formatDate(d: Date, fmt: string): string {
     .replace("MMMM", MMMM)
     .replace("MM", MM)
     .replace("DD", DD)
-    .replace(/\bD\b/, D)
+    .replace(Regex.dateTokenSingleD, D)
     .replace("ddd", ddd)
     .replace("HH", HH)
     .replace("mm", mm);

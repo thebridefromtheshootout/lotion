@@ -1,13 +1,14 @@
 import { Disposable, Position, Range } from "../hostEditor/EditorTypes";
 import type { TextEditorDecorationType } from "../hostEditor/EditorTypes";
 import { hostEditor } from "../hostEditor/HostingEditor";
+import { Regex } from "../core/regex";
 
 // ── Strikethrough completed tasks ──────────────────────────────────
 //
 // Applies a faded + strikethrough decoration to all `- [x]` lines
 // in markdown files, making completed tasks visually distinct.
 
-const CHECKED_RE = /^\s*[-*+] \[x\]/i;
+const CHECKED_RE = Regex.checkboxTaskDoneLine;
 
 let decoration: TextEditorDecorationType | undefined;
 

@@ -2,7 +2,7 @@ import { Disposable, Position, Range } from "../hostEditor/EditorTypes";
 import type { TextDocument, TextDocumentContentChangeEvent } from "../hostEditor/EditorTypes";
 import { hostEditor } from "../hostEditor/HostingEditor";
 import { Regex } from "../core/regex";
-
+// TODO this set of ligatures is not good enough.
 /**
  * Smart typographic quotes on type.
  *

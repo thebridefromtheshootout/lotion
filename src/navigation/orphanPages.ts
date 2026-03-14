@@ -1,6 +1,7 @@
 import { Uri } from "../hostEditor/EditorTypes";
 import { hostEditor } from "../hostEditor/HostingEditor";
 import * as path from "path";
+import { Regex } from "../core/regex";
 
 // ── Orphan page finder ─────────────────────────────────────────────
 //
@@ -24,16 +25,17 @@ export async function findOrphanPages(): Promise<void> {
   const referenced = new Set<string>();
 
   // Patterns that capture link targets in markdown
-  const linkRe = /\[.*?\]\(([^)]+)\)/g;
+  const linkRe = Regex.markdownLinkGlobal;
 
   for (const fileUri of mdFiles) {
     try {
       const doc = await hostEditor.openTextDocument(fileUri);
       const text = doc.getText();
       let match: RegExpExecArray | null;
+      linkRe.lastIndex = 0;
 
       while ((match = linkRe.exec(text)) !== null) {
-        const target = match[1].split("#")[0].split("?")[0].trim(); // strip anchors/params
+        const target = match[2].split("#")[0].split("?")[0].trim(); // strip anchors/params
         if (!target || target.startsWith("http://") || target.startsWith("https://")) {
           continue;
         }
@@ -41,7 +43,7 @@ export async function findOrphanPages(): Promise<void> {
         // Resolve relative to the file's directory
         const fileDir = path.dirname(fileUri.fsPath);
         const absTarget = path.resolve(fileDir, target);
-        const relTarget = path.relative(workspaceRoot, absTarget).replace(/\\/g, "/");
+        const relTarget = path.relative(workspaceRoot, absTarget).replace(Regex.windowsSlash, "/");
         referenced.add(relTarget.toLowerCase());
       }
     } catch {
@@ -53,7 +55,7 @@ export async function findOrphanPages(): Promise<void> {
   const orphans: { label: string; detail: string; uri: Uri }[] = [];
 
   for (const fileUri of mdFiles) {
-    const relPath = path.relative(workspaceRoot, fileUri.fsPath).replace(/\\/g, "/");
+    const relPath = path.relative(workspaceRoot, fileUri.fsPath).replace(Regex.windowsSlash, "/");
 
     // Skip if this file is referenced
     if (referenced.has(relPath.toLowerCase())) {
@@ -94,5 +96,5 @@ export async function findOrphanPages(): Promise<void> {
 function deriveTitle(uri: Uri): string {
   const parsed = path.parse(uri.fsPath);
   const baseName = parsed.name.toLowerCase() === "index" ? path.basename(path.dirname(uri.fsPath)) : parsed.name;
-  return baseName.replace(/[-_]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+  return baseName.replace(Regex.dashUnderscore, " ").replace(Regex.wordBoundaryChar, (c) => c.toUpperCase());
 }

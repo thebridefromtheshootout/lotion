@@ -3,6 +3,7 @@ import { hostEditor } from "../hostEditor/HostingEditor";
 import * as path from "path";
 import * as fs from "fs";
 import { Cmd } from "../core/commands";
+import { Regex } from "../core/regex";
 import type { SlashCommand } from "../core/slashCommands";
 
 export const EXPORT_SLASH_COMMAND: SlashCommand = {
@@ -34,36 +35,36 @@ export function markdownToHtml(md: string): string {
   let html = md;
 
   // ── Strip YAML front matter ───────────────────────────────────
-  html = html.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n?/, "");
+  html = html.replace(Regex.frontmatterBlockWithTrailingNewline, "");
 
   // ── Fenced code blocks ────────────────────────────────────────
-  html = html.replace(/^```(\w*)\r?\n([\s\S]*?)^```\s*$/gm, (_match, lang: string, code: string) => {
+  html = html.replace(Regex.markdownFenceWithLangGlobal, (_match, lang: string, code: string) => {
     const langAttr = lang ? ` class="language-${escHtml(lang)}"` : "";
     return `<pre><code${langAttr}>${escHtml(code.trimEnd())}</code></pre>`;
   });
 
   // ── Inline code (must come before other inline transforms) ────
-  html = html.replace(/`([^`\n]+)`/g, "<code>$1</code>");
+  html = html.replace(Regex.inlineCodeNoNewlineGlobal, "<code>$1</code>");
 
   // ── Headings ──────────────────────────────────────────────────
-  html = html.replace(/^######\s+(.+)$/gm, "<h6>$1</h6>");
-  html = html.replace(/^#####\s+(.+)$/gm, "<h5>$1</h5>");
-  html = html.replace(/^####\s+(.+)$/gm, "<h4>$1</h4>");
-  html = html.replace(/^###\s+(.+)$/gm, "<h3>$1</h3>");
-  html = html.replace(/^##\s+(.+)$/gm, "<h2>$1</h2>");
-  html = html.replace(/^#\s+(.+)$/gm, "<h1>$1</h1>");
+  html = html.replace(Regex.headingH6Global, "<h6>$1</h6>");
+  html = html.replace(Regex.headingH5Global, "<h5>$1</h5>");
+  html = html.replace(Regex.headingH4Global, "<h4>$1</h4>");
+  html = html.replace(Regex.headingH3Global, "<h3>$1</h3>");
+  html = html.replace(Regex.headingH2Global, "<h2>$1</h2>");
+  html = html.replace(Regex.headingH1Global, "<h1>$1</h1>");
 
   // ── Horizontal rules ─────────────────────────────────────────
-  html = html.replace(/^---+\s*$/gm, "<hr>");
+  html = html.replace(Regex.markdownHorizontalRuleGlobal, "<hr>");
 
   // ── Blockquotes (callout-aware) ───────────────────────────────
-  html = html.replace(/^(?:>\s?.+(?:\r?\n|$))+/gm, (block) => {
-    const inner = block.replace(/^>\s?/gm, "").trim();
+  html = html.replace(Regex.blockquoteBlockGlobal, (block) => {
+    const inner = block.replace(Regex.calloutStripPrefixGlobal, "").trim();
     // Detect callouts: [!NOTE], [!TIP], etc.
-    const calloutMatch = inner.match(/^\[!(NOTE|TIP|WARNING|IMPORTANT|CAUTION)\]\s*(.*)/i);
+    const calloutMatch = inner.match(Regex.calloutTokenWithText);
     if (calloutMatch) {
       const type = calloutMatch[1].toLowerCase();
-      const rest = inner.replace(/^\[!\w+\]\s*/, "");
+      const rest = inner.replace(Regex.calloutTokenStrip, "");
       return `<div class="callout callout-${type}"><div class="callout-title">${type.charAt(0).toUpperCase() + type.slice(1)}</div><p>${rest}</p></div>`;
     }
     return `<blockquote><p>${inner}</p></blockquote>`;
@@ -71,7 +72,7 @@ export function markdownToHtml(md: string): string {
 
   // ── Tables ────────────────────────────────────────────────────
   html = html.replace(
-    /^(\|.+\|)\r?\n(\|[-| :]+\|)\r?\n((?:\|.+\|\r?\n?)+)/gm,
+    Regex.markdownTableBlockGlobal,
     (_match, headerLine: string, _separatorLine: string, bodyBlock: string) => {
       const headers = headerLine
         .split("|")
@@ -79,7 +80,7 @@ export function markdownToHtml(md: string): string {
         .map((c: string) => c.trim());
       const rows = bodyBlock
         .trim()
-        .split(/\r?\n/)
+        .split(Regex.lineBreakSplit)
         .map((row: string) =>
           row
             .split("|")
@@ -104,43 +105,47 @@ export function markdownToHtml(md: string): string {
   );
 
   // ── Task lists ────────────────────────────────────────────────
-  html = html.replace(/^- \[x\]\s+(.+)$/gm, '<li class="task-done"><input type="checkbox" checked disabled> $1</li>');
-  html = html.replace(/^- \[ \]\s+(.+)$/gm, '<li class="task"><input type="checkbox" disabled> $1</li>');
+  html = html.replace(Regex.markdownTaskDoneGlobal, '<li class="task-done"><input type="checkbox" checked disabled> $1</li>');
+  html = html.replace(Regex.markdownTaskTodoGlobal, '<li class="task"><input type="checkbox" disabled> $1</li>');
 
   // ── Unordered lists ───────────────────────────────────────────
-  html = html.replace(/^[-*+]\s+(.+)$/gm, "<li>$1</li>");
-  html = html.replace(/((?:<li>.*<\/li>\s*)+)/g, "<ul>$1</ul>");
+  html = html.replace(Regex.markdownBulletLineGlobal, "<li>$1</li>");
+  html = html.replace(Regex.htmlListItemsGroupGlobal, "<ul>$1</ul>");
 
   // ── Ordered lists ────────────────────────────────────────────
-  html = html.replace(/^\d+\.\s+(.+)$/gm, "<oli>$1</oli>");
-  html = html.replace(/((?:<oli>.*<\/oli>\s*)+)/g, (_m, block: string) => {
-    return "<ol>" + block.replace(/<\/?oli>/g, (tag: string) => tag.replace("oli", "li")) + "</ol>";
+  html = html.replace(Regex.markdownOrderedLineGlobal, "<oli>$1</oli>");
+  html = html.replace(Regex.htmlOrderedItemsGroupGlobal, (_m, block: string) => {
+    return "<ol>" + block.replace(Regex.htmlOliTagGlobal, (tag: string) => tag.replace("oli", "li")) + "</ol>";
   });
 
   // ── Inline formatting ────────────────────────────────────────
-  html = html.replace(/\*\*\*(.+?)\*\*\*/g, "<strong><em>$1</em></strong>");
-  html = html.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
-  html = html.replace(/\*(.+?)\*/g, "<em>$1</em>");
-  html = html.replace(/~~(.+?)~~/g, "<del>$1</del>");
-  html = html.replace(/==(.+?)==/g, "<mark>$1</mark>");
+  html = html.replace(Regex.markdownBoldItalicGlobal, "<strong><em>$1</em></strong>");
+  html = html.replace(Regex.markdownBoldGlobal, "<strong>$1</strong>");
+  html = html.replace(Regex.markdownItalicGlobal, "<em>$1</em>");
+  html = html.replace(Regex.markdownStrikeGlobal, "<del>$1</del>");
+  html = html.replace(Regex.markdownHighlightGlobal, "<mark>$1</mark>");
 
   // ── Images ────────────────────────────────────────────────────
-  html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" style="max-width:100%">');
+  html = html.replace(Regex.markdownImageGlobal, '<img src="$2" alt="$1" style="max-width:100%">');
 
   // ── Links ─────────────────────────────────────────────────────
-  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
+  html = html.replace(Regex.markdownLinkGlobal, '<a href="$2">$1</a>');
 
   // ── Paragraphs (wrap remaining loose text) ────────────────────
-  html = html.replace(/^(?!<[a-z/])((?:.(?!<[a-z/]))+.?)$/gm, "<p>$1</p>");
+  html = html.replace(Regex.markdownLooseParagraphGlobal, "<p>$1</p>");
 
   // Clean up empty paragraphs
-  html = html.replace(/<p>\s*<\/p>/g, "");
+  html = html.replace(Regex.htmlEmptyParagraphGlobal, "");
 
   return html;
 }
 
 export function escHtml(s: string): string {
-  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  return s
+    .replace(Regex.htmlEscapeAmp, "&amp;")
+    .replace(Regex.htmlEscapeLt, "&lt;")
+    .replace(Regex.htmlEscapeGt, "&gt;")
+    .replace(Regex.htmlEscapeQuote, "&quot;");
 }
 
 /**
@@ -317,14 +322,14 @@ export async function exportToPdf(): Promise<void> {
   const fileDir = path.dirname(doc.uri.fsPath);
 
   // Extract title from first heading or filename
-  const titleMatch = mdText.match(/^#\s+(.+)$/m);
+  const titleMatch = mdText.match(Regex.headingH1Multiline);
   const title = titleMatch ? titleMatch[1] : fileName;
 
   // Convert relative image paths to absolute file:// URIs for local rendering
   let htmlBody = markdownToHtml(mdText);
-  htmlBody = htmlBody.replace(/src="(?!https?:\/\/|data:)([^"]+)"/g, (_match, relPath: string) => {
+  htmlBody = htmlBody.replace(Regex.htmlRelativeSrcAttrGlobal, (_match, relPath: string) => {
     const absPath = path.resolve(fileDir, relPath);
-    return `src="file:///${absPath.replace(/\\/g, "/")}"`;
+    return `src="file:///${absPath.replace(Regex.windowsSlash, "/")}"`;
   });
 
   const fullHtml = buildExportHtml(title, htmlBody);

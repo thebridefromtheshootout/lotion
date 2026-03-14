@@ -2,12 +2,13 @@
 import { Position, Range, Selection, TextEditorRevealType } from "../hostEditor/EditorTypes";
 import type { QuickPickItem } from "../hostEditor/EditorTypes";
 import { hostEditor } from "../hostEditor/HostingEditor";
+import { Regex } from "../core/regex";
 
 // ── Heading navigation ────────────────────────────────────────────
 //
 // Jump to the next or previous markdown heading.
 
-const HEADING_RE = /^#{1,6}\s/;
+const HEADING_RE = Regex.headingPrefix;
 
 export async function jumpToNextHeading(): Promise<void> {
   if (!hostEditor.isMarkdownEditor()) {
@@ -68,7 +69,7 @@ export async function jumpToHeadingPicker(): Promise<void> {
 
   const items: HeadingItem[] = [];
   for (let i = 0; i < doc.lineCount; i++) {
-    const match = doc.lineAt(i).text.match(/^(#{1,6})\s+(.+)$/);
+    const match = doc.lineAt(i).text.match(Regex.headingLineWithText);
     if (match) {
       const level = match[1].length;
       const text = match[2];

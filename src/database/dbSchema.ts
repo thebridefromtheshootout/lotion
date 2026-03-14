@@ -1,16 +1,17 @@
 import * as fs from "fs";
 import type { DbColumn, DbSchema } from "../contracts/databaseTypes";
+import { Regex } from "../core/regex";
 
 export type { DbColumn, DbSchema } from "../contracts/databaseTypes";
 
 // ── Internal helpers (exported for dbViews / dbCommands) ───────────
 
-export const SCHEMA_FENCE_START = /^```lotion-db\s*$/;
-export const SCHEMA_FENCE_END = /^```\s*$/;
+export const SCHEMA_FENCE_START = Regex.dbSchemaFenceStart;
+export const SCHEMA_FENCE_END = Regex.dbFenceEnd;
 
 /** Extract lines inside a fenced code block matching the given start pattern. */
 export function extractFencedLines(text: string, startPattern: RegExp): string[] {
-  const lines = text.split(/\r?\n/);
+  const lines = text.split(Regex.lineBreakSplit);
   let inBlock = false;
   const result: string[] = [];
 
@@ -70,17 +71,17 @@ function parseSimpleYaml(lines: string[]): DbSchema | undefined {
   for (const raw of lines) {
     const line = raw.trimEnd();
 
-    if (line.match(/^columns:\s*$/)) {
+    if (line.match(Regex.dbColumnsLine)) {
       continue;
     }
 
-    const titleFieldMatch = line.match(/^titleField:\s*(.+)$/);
+    const titleFieldMatch = line.match(Regex.dbTitleFieldLine);
     if (titleFieldMatch) {
       titleField = titleFieldMatch[1].trim();
       continue;
     }
 
-    const dashName = line.match(/^\s+-\s+name:\s*(.+)$/);
+    const dashName = line.match(Regex.dbDashNameLine);
     if (dashName) {
       if (current && current.name && current.type) {
         columns.push(current as DbColumn);
@@ -89,25 +90,25 @@ function parseSimpleYaml(lines: string[]): DbSchema | undefined {
       continue;
     }
 
-    const typeLine = line.match(/^\s+type:\s*(.+)$/);
+    const typeLine = line.match(Regex.dbTypeLine);
     if (typeLine && current) {
       current.type = typeLine[1].trim() as DbColumn["type"];
       continue;
     }
 
-    const optionsLine = line.match(/^\s+options:\s*\[(.+)\]$/);
+    const optionsLine = line.match(Regex.dbOptionsLine);
     if (optionsLine && current) {
       current.options = optionsLine[1].split(",").map((s) => s.trim());
       continue;
     }
 
-    const maxWidthLine = line.match(/^\s+maxWidth:\s*(\d+)$/);
+    const maxWidthLine = line.match(Regex.dbMaxWidthLine);
     if (maxWidthLine && current) {
       current.maxWidth = parseInt(maxWidthLine[1], 10);
       continue;
     }
 
-    const maxHeightLine = line.match(/^\s+maxHeight:\s*(\d+)$/);
+    const maxHeightLine = line.match(Regex.dbMaxHeightLine);
     if (maxHeightLine && current) {
       current.maxHeight = parseInt(maxHeightLine[1], 10);
       continue;

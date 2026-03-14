@@ -5,6 +5,7 @@ import { hostEditor } from "../hostEditor/HostingEditor";
 import * as path from "path";
 import * as fs from "fs";
 import { Cmd } from "../core/commands";
+import { Regex } from "../core/regex";
 import type { SlashCommand } from "../core/slashCommands";
 
 export const OPENLINK_SLASH_COMMAND: SlashCommand = {
@@ -22,7 +23,7 @@ export const OPENLINK_SLASH_COMMAND: SlashCommand = {
 // Finds the nearest markdown link on the current line (or adjacent lines)
 // and opens the target file.
 
-const LINK_RE = /\[([^\]]*)\]\(([^)]+)\)/g;
+const LINK_RE = Regex.markdownLinkGlobal;
 
 interface LinkMatch {
   text: string;
@@ -64,7 +65,7 @@ export async function handleOpenLinkCommand(document: TextDocument, position: Po
 
       const target = match[2];
       // Skip external URLs and anchor-only links
-      if (/^https?:\/\/|^mailto:|^#/.test(target)) {
+      if (Regex.httpOrMailtoOrAnchor.test(target)) {
         continue;
       }
 

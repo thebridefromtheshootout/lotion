@@ -1,5 +1,6 @@
 import { Disposable, Position } from "../hostEditor/EditorTypes";
 import { hostEditor } from "../hostEditor/HostingEditor";
+import { Regex } from "../core/regex";
 
 /**
  * Smart bracket/pair completion for markdown.
@@ -80,5 +81,5 @@ export function createSmartPairs(): Disposable {
 }
 
 function escapeRegex(s: string): string {
-  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return s.replace(Regex.regexMetaCharsGlobal, "\\$&");
 }

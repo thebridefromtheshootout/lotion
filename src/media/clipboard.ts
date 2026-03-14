@@ -3,6 +3,7 @@ import { hostEditor } from "../hostEditor/HostingEditor";
 import * as path from "path";
 import * as fs from "fs";
 import { execSync } from "child_process";
+import { Regex } from "../core/regex";
 
 // ── Platform detection ─────────────────────────────────────────────
 
@@ -32,7 +33,7 @@ export function clipboardHasImage(): boolean {
       case "darwin":
         // osascript: check clipboard for «class PNGf» or «class TIFF»
         const result = execSync('osascript -e "clipboard info"', { stdio: "pipe", timeout: 5000, encoding: "utf-8" });
-        return /«class PNGf»|«class TIFF»|public\.png|public\.tiff/.test(result);
+        return Regex.clipboardDarwinImageTypes.test(result);
 
       case "linux":
         // xclip: list clipboard targets and check for image types
@@ -41,7 +42,7 @@ export function clipboardHasImage(): boolean {
           timeout: 5000,
           encoding: "utf-8",
         });
-        return /image\/png|image\/jpeg|image\/bmp/.test(targets);
+        return Regex.clipboardLinuxImageTypes.test(targets);
 
       default:
         return false;
@@ -68,7 +69,7 @@ export async function imageFromClipboard(rsrcDir: string, imageName: string): Pr
         const psScript = [
           "$img = Get-Clipboard -Format Image",
           "if ($null -eq $img) { exit 1 }",
-          `$img.Save('${filePath.replace(/'/g, "''")}', [System.Drawing.Imaging.ImageFormat]::Png)`,
+          `$img.Save('${filePath.replace(Regex.singleQuote, "''")}', [System.Drawing.Imaging.ImageFormat]::Png)`,
         ].join("; ");
         execSync(`powershell -NoProfile -Command "${psScript}"`, {
           stdio: "pipe",

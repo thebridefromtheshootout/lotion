@@ -1,12 +1,13 @@
 import * as fs from "fs";
 import { extractFencedLines, SCHEMA_FENCE_START, SCHEMA_FENCE_END } from "./dbSchema";
 import type { DbFilterOperator, DbViewFilter, DbFilterClause, DbView, LayoutKind } from "../contracts/databaseTypes";
+import { Regex } from "../core/regex";
 
 export type { DbFilterOperator, DbViewFilter, DbFilterClause, DbView, LayoutKind } from "../contracts/databaseTypes";
 
 // ── View parsing ───────────────────────────────────────────────────
 
-const VIEWS_FENCE_START = /^```lotion-db-views\s*$/;
+const VIEWS_FENCE_START = Regex.dbViewsFenceStart;
 
 export function parseViewsFromFile(filePath: string): DbView[] {
   if (!fs.existsSync(filePath)) {
@@ -32,11 +33,11 @@ function parseViewsYaml(lines: string[]): DbView[] {
   for (const raw of lines) {
     const line = raw.trimEnd();
 
-    if (line.match(/^views:\s*$/)) {
+    if (line.match(Regex.dbViewsLine)) {
       continue;
     }
 
-    const dashName = line.match(/^\s+-\s+name:\s*(.+)$/);
+    const dashName = line.match(Regex.dbDashNameLine);
     if (dashName) {
       if (current && current.name) {
         if (!current.filters) {
@@ -53,66 +54,66 @@ function parseViewsYaml(lines: string[]): DbView[] {
       continue;
     }
 
-    const defaultLine = line.match(/^\s+default:\s*(true|false)$/);
+    const defaultLine = line.match(Regex.dbDefaultLine);
     if (defaultLine) {
       current.default = defaultLine[1] === "true";
       continue;
     }
 
-    const sortColLine = line.match(/^\s+sortCol:\s*(.+)$/);
+    const sortColLine = line.match(Regex.dbSortColLine);
     if (sortColLine) {
       const val = sortColLine[1].trim();
       current.sortCol = val === "null" ? null : val;
       continue;
     }
 
-    const sortDirLine = line.match(/^\s+sortDir:\s*(asc|desc)$/);
+    const sortDirLine = line.match(Regex.dbSortDirLine);
     if (sortDirLine) {
       current.sortDir = sortDirLine[1] as "asc" | "desc";
       continue;
     }
 
-    const layoutLine = line.match(/^\s+layout:\s*(table|kanban|calendar|graph|map)$/);
+    const layoutLine = line.match(Regex.dbLayoutLine);
     if (layoutLine) {
       current.layout = layoutLine[1] as LayoutKind;
       continue;
     }
 
-    const kanbanGroupLine = line.match(/^\s+kanbanGroupCol:\s*(.+)$/);
+    const kanbanGroupLine = line.match(Regex.dbKanbanGroupLine);
     if (kanbanGroupLine) {
       current.kanbanGroupCol = kanbanGroupLine[1].trim();
       continue;
     }
 
-    const calDateLine = line.match(/^\s+calendarDateCol:\s*(.+)$/);
+    const calDateLine = line.match(Regex.dbCalendarDateLine);
     if (calDateLine) {
       current.calendarDateCol = calDateLine[1].trim();
       continue;
     }
 
-    const calEndDateLine = line.match(/^\s+calendarEndDateCol:\s*(.+)$/);
+    const calEndDateLine = line.match(Regex.dbCalendarEndDateLine);
     if (calEndDateLine) {
       current.calendarEndDateCol = calEndDateLine[1].trim();
       continue;
     }
 
-    if (line.match(/^\s+filters:\s*$/)) {
+    if (line.match(Regex.dbFiltersLine)) {
       inFilters = true;
       continue;
     }
 
     if (inFilters) {
-      const filterCol = line.match(/^\s+-\s+col:\s*(.+)$/);
+      const filterCol = line.match(Regex.dbFilterColLine);
       if (filterCol) {
         current.filters!.push({ col: filterCol[1].trim(), op: "contains", value: "" });
         continue;
       }
-      const filterOp = line.match(/^\s+op:\s*(.+)$/);
+      const filterOp = line.match(Regex.dbFilterOpLine);
       if (filterOp && current.filters!.length > 0) {
         current.filters![current.filters!.length - 1].op = filterOp[1].trim() as DbFilterOperator;
         continue;
       }
-      const filterVal = line.match(/^\s+value:\s*(.+)$/);
+      const filterVal = line.match(Regex.dbFilterValueLine);
       if (filterVal && current.filters!.length > 0) {
         current.filters![current.filters!.length - 1].value = filterVal[1].trim();
         continue;
@@ -173,7 +174,7 @@ export function serializeViews(views: DbView[]): string {
  */
 export function saveViewsToFile(filePath: string, views: DbView[]): void {
   const content = fs.readFileSync(filePath, "utf-8");
-  const lines = content.split(/\r?\n/);
+  const lines = content.split(Regex.lineBreakSplit);
   const newBlock = "```lotion-db-views\n" + serializeViews(views) + "\n```";
 
   // Find existing views block

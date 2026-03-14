@@ -15,6 +15,7 @@ import {
   logEntryAndPromptNew,
 } from "./database";
 import { Cmd, Panel } from "../core/commands";
+import { Regex } from "../core/regex";
 import { ExtensionToDbPanelCommunicator } from "../communicators/dbPanelCommunicator";
 import { IDbPanelInitPayload, DbEntryLink } from "../contracts/messages/dbPanelMessages";
 import type { SlashCommand } from "../core/slashCommands";
@@ -236,7 +237,7 @@ function mapEntries(entries: DbEntry[]): DbEntry[] {
   }));
 }
 
-const LINK_RE = /\[([^\]]*)\]\(([^)]+)\)/g;
+const LINK_RE = Regex.markdownLinkGlobal;
 
 /**
  * Scan each entry's markdown for internal links that point to other entries

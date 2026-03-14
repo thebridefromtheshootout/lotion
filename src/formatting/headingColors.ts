@@ -1,6 +1,7 @@
 import { Disposable, Range } from "../hostEditor/EditorTypes";
 import type { DecorationOptions, TextEditorDecorationType } from "../hostEditor/EditorTypes";
 import { hostEditor } from "../hostEditor/HostingEditor";
+import { Regex } from "../core/regex";
 
 /**
  * Color-coded heading level decorations.
@@ -50,7 +51,7 @@ export function createHeadingColors(): Disposable {
 
     const buckets: DecorationOptions[][] = [[], [], [], [], [], []];
     const text = hostEditor.getDocumentText();
-    const re = /^(#{1,6})\s+.+$/gm;
+    const re = Regex.headingAnyLineGlobalMultiline;
     let m: RegExpExecArray | null;
     while ((m = re.exec(text)) !== null) {
       const level = m[1].length - 1; // 0-indexed

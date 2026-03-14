@@ -3,6 +3,7 @@ import { Diagnostic, DiagnosticSeverity, Disposable, Range } from "../hostEditor
 import type { DiagnosticCollection, TextDocument } from "../hostEditor/EditorTypes";
 import * as path from "path";
 import * as fs from "fs";
+import { Regex } from "../core/regex";
 
 // ── Link validator ─────────────────────────────────────────────────
 //
@@ -10,7 +11,7 @@ import * as fs from "fs";
 // point to non-existent files. Uses VS Code diagnostics so broken
 // links appear as warnings in the Problems panel.
 
-const LINK_RE = /\[([^\]]*)\]\(([^)]+)\)/g;
+const LINK_RE = Regex.markdownLinkGlobal;
 
 let diagnosticCollection: DiagnosticCollection | undefined;
 

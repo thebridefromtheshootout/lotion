@@ -1,6 +1,7 @@
 import * as path from "path";
 import { Uri, WorkspaceEdit } from "vscode";
 import { hostEditor } from "../hostEditor/HostingEditor";
+import { Regex } from "../core/regex";
 
 export async function fireInto(): Promise<void> {
   // 1. Get all markdown files
@@ -13,7 +14,7 @@ export async function fireInto(): Promise<void> {
   const workspaceRoot = hostEditor.getWorkspaceFolders()?.[0]?.uri.fsPath || "";
 
   const items = mdFiles.map((uri: Uri) => {
-    const relPath = path.relative(workspaceRoot, uri.fsPath).replace(/\\/g, "/");
+    const relPath = path.relative(workspaceRoot, uri.fsPath).replace(Regex.windowsSlash, "/");
     return {
       label: deriveTitle(uri),
       description: relPath,
@@ -64,5 +65,5 @@ export async function fireInto(): Promise<void> {
 function deriveTitle(uri: Uri): string {
   const parsed = path.parse(uri.fsPath);
   const baseName = parsed.name.toLowerCase() === "index" ? path.basename(path.dirname(uri.fsPath)) : parsed.name;
-  return baseName.replace(/[-_]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+  return baseName.replace(Regex.dashUnderscore, " ").replace(Regex.wordBoundaryChar, (c) => c.toUpperCase());
 }

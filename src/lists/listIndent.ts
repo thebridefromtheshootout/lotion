@@ -2,6 +2,7 @@
 import { Position, Range, Selection } from "../hostEditor/EditorTypes";
 import { hostEditor } from "../hostEditor/HostingEditor";
 import { collectOrderedList, renumberEdits, applyRenumberEdits } from "./listModel";
+import { Regex } from "../core/regex";
 
 // ── Smart list indent / outdent ────────────────────────────────────
 //
@@ -14,9 +15,9 @@ import { collectOrderedList, renumberEdits, applyRenumberEdits } from "./listMod
 //   Tab on OL prefix  → indent and convert to `- `, renumber outer list
 //   Shift+Tab on `- ` inside a numbered list → convert back to `N. `, renumber
 
-const LIST_RE = /^(\s*)([-*+]|\d+[.)]) /;
-const OL_PREFIX_RE = /^(\s*)(\d+)([.)]) /;
-const UNORDERED_RE = /^(\s*)([-*+]) (.*)$/;
+const LIST_RE = Regex.listItem;
+const OL_PREFIX_RE = Regex.orderedListPrefix;
+const UNORDERED_RE = Regex.unorderedListPrefix;
 
 /** Return the indent unit (in spaces) for the current editor. */
 function getIndentSize(): number {
@@ -145,7 +146,7 @@ export async function outdentListItem(): Promise<void> {
     if (ulMatch && ulMatch[1].length >= indentSize) {
       const outerIndent = ulMatch[1].slice(indentSize); // remove one indent level
       const content = ulMatch[3];
-      const OL_RE = /^(\s*)(\d+)([.)]\s)/;
+      const OL_RE = Regex.orderedListItem;
 
       // Look for an ordered-list item above at the outer indent level
       let outerListLine = -1;
@@ -159,7 +160,7 @@ export async function outdentListItem(): Promise<void> {
         // Stop scanning if we hit a non-blank, non-indented line that isn't
         // a deeper list item or continuation content
         if (t.trim() !== "") {
-          const li = t.match(/^(\s*)/)?.[1].length ?? 0;
+          const li = t.match(Regex.lineIndent)?.[1].length ?? 0;
           if (li <= outerIndent.length && !t.match(OL_RE)) {
             break;
           }

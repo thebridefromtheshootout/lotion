@@ -20,7 +20,7 @@ export const CLEAN_LIST_SLASH_COMMAND: SlashCommand = {
 };
 
 function lineIndent(lineText: string): number {
-  return (lineText.match(/^(\s*)/)?.[1].length ?? 0);
+  return (lineText.match(Regex.lineIndent)?.[1].length ?? 0);
 }
 
 function isListItem(lineText: string): boolean {

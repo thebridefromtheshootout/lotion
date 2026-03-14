@@ -1,14 +1,15 @@
 import { Uri } from "../hostEditor/EditorTypes";
 import { hostEditor } from "../hostEditor/HostingEditor";
 import * as path from "path";
+import { Regex } from "../core/regex";
 
 // ── Tag index ──────────────────────────────────────────────────────
 //
 // Scans all markdown files for tags (frontmatter `tags: [...]` or
 // inline `#tag`), groups pages by tag, and lets the user browse.
 
-const FM_TAGS_RE = /^tags:\s*\[([^\]]*)\]/m;
-const INLINE_TAG_RE = /(?:^|\s)#([a-zA-Z][\w-]*)/g;
+const FM_TAGS_RE = Regex.frontmatterTagsLine;
+const INLINE_TAG_RE = Regex.inlineTagGlobal;
 
 export async function showTagIndex(): Promise<void> {
   const mdFiles = await hostEditor.findFiles("**/*.md", "**/node_modules/**");
@@ -64,7 +65,7 @@ export async function showTagIndex(): Promise<void> {
   const pages = tagMap.get(tagPick.tag) || [];
   const pageItems = pages.map((p) => ({
     label: p.label,
-    detail: path.relative(hostEditor.getWorkspaceFolders()?.[0]?.uri.fsPath || "", p.uri.fsPath).replace(/\\/g, "/"),
+    detail: path.relative(hostEditor.getWorkspaceFolders()?.[0]?.uri.fsPath || "", p.uri.fsPath).replace(Regex.windowsSlash, "/"),
     uri: p.uri,
   }));
 
@@ -88,7 +89,7 @@ function extractTags(text: string): string[] {
   if (fmMatch) {
     const raw = fmMatch[1];
     for (const tag of raw.split(",")) {
-      const t = tag.trim().replace(/['"]/g, "");
+      const t = tag.trim().replace(Regex.quotedStringEdges, "");
       if (t) {
         tags.add(t);
       }
@@ -96,7 +97,7 @@ function extractTags(text: string): string[] {
   }
 
   // Inline #tags (only outside code blocks for simplicity)
-  const stripped = text.replace(/```[\s\S]*?```/g, "").replace(/`[^`]+`/g, "");
+  const stripped = text.replace(Regex.fencedCodeBlockGlobal, "").replace(Regex.inlineCodeSimpleGlobal, "");
 
   let match: RegExpExecArray | null;
   while ((match = INLINE_TAG_RE.exec(stripped)) !== null) {
@@ -109,5 +110,5 @@ function extractTags(text: string): string[] {
 function deriveTitle(uri: Uri): string {
   const parsed = path.parse(uri.fsPath);
   const baseName = parsed.name.toLowerCase() === "index" ? path.basename(path.dirname(uri.fsPath)) : parsed.name;
-  return baseName.replace(/[-_]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+  return baseName.replace(Regex.dashUnderscore, " ").replace(Regex.wordBoundaryChar, (c) => c.toUpperCase());
 }

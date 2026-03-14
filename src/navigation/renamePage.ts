@@ -66,7 +66,7 @@ export async function renamePage(): Promise<void> {
     return;
   }
 
-  const newFolderName = newName.toLowerCase().replace(/\s+/g, "-");
+  const newFolderName = newName.toLowerCase().replace(Regex.whitespaceRun, "-");
   const parentDir = path.dirname(currentDir);
   const newDir = path.join(parentDir, newFolderName);
 
@@ -76,8 +76,8 @@ export async function renamePage(): Promise<void> {
   }
 
   // Compute old and new relative paths for link updates
-  const oldRelFromRoot = path.relative(workspaceRoot, currentDir).replace(/\\/g, "/");
-  const newRelFromRoot = path.relative(workspaceRoot, newDir).replace(/\\/g, "/");
+  const oldRelFromRoot = path.relative(workspaceRoot, currentDir).replace(Regex.windowsSlash, "/");
+  const newRelFromRoot = path.relative(workspaceRoot, newDir).replace(Regex.windowsSlash, "/");
 
   // Close the current document first
   await hostEditor.executeCommand("workbench.action.closeActiveEditor");
@@ -93,10 +93,12 @@ export async function renamePage(): Promise<void> {
   if (fs.existsSync(newIndexPath)) {
     const doc = await hostEditor.openTextDocument(newIndexPath);
     const text = doc.getText();
-    const titleCase = newName.replace(/[-_]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+    const titleCase = newName.replace(Regex.dashUnderscore, " ").replace(Regex.wordBoundaryChar, (c) => c.toUpperCase());
 
     // Update H1 heading if it matches old name
-    const oldTitle = currentFolderName.replace(/[-_]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+    const oldTitle = currentFolderName
+      .replace(Regex.dashUnderscore, " ")
+      .replace(Regex.wordBoundaryChar, (c) => c.toUpperCase());
     if (text.includes(`# ${oldTitle}`)) {
       const newText = text.replace(`# ${oldTitle}`, `# ${titleCase}`);
       const edit = new WorkspaceEdit();

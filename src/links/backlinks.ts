@@ -2,6 +2,7 @@ import { EventEmitter, Range, ThemeIcon, TreeItem, TreeItemCollapsibleState, Uri
 import type { TextDocumentShowOptions, TreeDataProvider } from "../hostEditor/EditorTypes";
 import { hostEditor } from "../hostEditor/HostingEditor";
 import * as path from "path";
+import { Regex } from "../core/regex";
 
 // ── Backlinks TreeView ─────────────────────────────────────────────
 
@@ -39,7 +40,7 @@ export class BacklinksProvider implements TreeDataProvider<BacklinkItem> {
 
   getTreeItem(element: BacklinkItem): TreeItem {
     const workspaceRoot = hostEditor.getWorkspaceFolders()?.[0]?.uri.fsPath ?? "";
-    const relPath = path.relative(workspaceRoot, element.sourceUri.fsPath).replace(/\\/g, "/");
+    const relPath = path.relative(workspaceRoot, element.sourceUri.fsPath).replace(Regex.windowsSlash, "/");
 
     const item = new TreeItem(relPath, TreeItemCollapsibleState.None);
 
@@ -73,7 +74,7 @@ export class BacklinksProvider implements TreeDataProvider<BacklinkItem> {
     }
 
     const currentFsPath = this.currentUri.fsPath;
-    const currentRelative = path.relative(workspaceRoot, currentFsPath).replace(/\\/g, "/");
+    const currentRelative = path.relative(workspaceRoot, currentFsPath).replace(Regex.windowsSlash, "/");
 
     // Build a set of patterns to look for in link targets
     const searchPatterns = buildSearchPatterns(currentRelative, currentFsPath);

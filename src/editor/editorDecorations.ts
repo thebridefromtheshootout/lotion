@@ -1,6 +1,7 @@
 import { Disposable, OverviewRulerLane, Range } from "../hostEditor/EditorTypes";
 import type { DecorationOptions, TextEditorDecorationType } from "../hostEditor/EditorTypes";
 import { hostEditor } from "../hostEditor/HostingEditor";
+import { Regex } from "../core/regex";
 
 // ── Editor decorations for callouts, highlights, and code blocks ───
 //
@@ -89,10 +90,10 @@ function createCodeBlockDecorationType(): TextEditorDecorationType {
 
 // ───── Combined update logic ───────────────────────────────────────
 
-const CALLOUT_OPEN_RE = /^>\s*\[!(NOTE|TIP|WARNING|IMPORTANT|CAUTION)\]/i;
-const CALLOUT_CONT_RE = /^>/;
-const HIGHLIGHT_RE = /==[^=\n]+?==/g;
-const FENCE_RE = /^```/;
+const CALLOUT_OPEN_RE = Regex.calloutOpen;
+const CALLOUT_CONT_RE = Regex.calloutContinuation;
+const HIGHLIGHT_RE = Regex.highlightDelimitedGlobal;
+const FENCE_RE = Regex.fencedBackticksOnly;
 
 export function createEditorDecorations(): Disposable {
   const calloutTypes = createCalloutDecorationTypes();

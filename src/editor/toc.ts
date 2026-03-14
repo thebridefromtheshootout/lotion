@@ -2,6 +2,7 @@ import { Disposable, Position, Range, TextEdit } from "../hostEditor/EditorTypes
 import type { TextDocument } from "../hostEditor/EditorTypes";
 import { hostEditor } from "../hostEditor/HostingEditor";
 import { Cmd } from "../core/commands";
+import { Regex } from "../core/regex";
 import type { SlashCommand } from "../core/slashCommands";
 
 export const TOC_SLASH_COMMAND: SlashCommand = {
@@ -37,14 +38,14 @@ function buildTocLines(document: TextDocument): string[] {
       continue;
     }
 
-    const match = line.match(/^(#{1,6})\s+(.+)$/);
+    const match = line.match(Regex.headingLineWithText);
     if (match) {
       const level = match[1].length;
       const text = match[2].trim();
       const slug = text
         .toLowerCase()
-        .replace(/[^\w\s-]/g, "")
-        .replace(/\s+/g, "-");
+        .replace(Regex.nonWordSpaceHyphen, "")
+        .replace(Regex.whitespaceRun, "-");
       headings.push({ level, text, slug });
     }
   }

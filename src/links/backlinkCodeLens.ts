@@ -3,6 +3,7 @@ import { CodeLens, Disposable, EventEmitter, Range } from "../hostEditor/EditorT
 import type { CodeLensProvider, TextDocument } from "../hostEditor/EditorTypes";
 import * as path from "path";
 import { Cmd } from "../core/commands";
+import { Regex } from "../core/regex";
 
 /**
  * CodeLens shown at the top of each markdown file indicating how many
@@ -38,7 +39,7 @@ export class BacklinkCodeLensProvider implements CodeLensProvider {
         const text = doc.getText();
 
         // Find markdown links [text](target)
-        const linkRe = /\[([^\]]*)\]\(([^)]+)\)/g;
+        const linkRe = Regex.markdownLinkGlobal;
         let m: RegExpExecArray | null;
         while ((m = linkRe.exec(text)) !== null) {
           const target = m[2];
@@ -48,7 +49,7 @@ export class BacklinkCodeLensProvider implements CodeLensProvider {
           // Resolve relative to file's directory
           const dir = path.dirname(uri.fsPath);
           const resolved = path.resolve(dir, target.split("#")[0]);
-          const norm = resolved.replace(/\\/g, "/").toLowerCase();
+          const norm = resolved.replace(Regex.windowsSlash, "/").toLowerCase();
           counts.set(norm, (counts.get(norm) ?? 0) + 1);
         }
       } catch {
@@ -63,7 +64,7 @@ export class BacklinkCodeLensProvider implements CodeLensProvider {
       return [];
     }
 
-    const norm = document.uri.fsPath.replace(/\\/g, "/").toLowerCase();
+    const norm = document.uri.fsPath.replace(Regex.windowsSlash, "/").toLowerCase();
     const count = this.cache.get(norm) ?? 0;
 
     if (count === 0) {

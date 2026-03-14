@@ -1,6 +1,7 @@
 
 import { Uri } from "../hostEditor/EditorTypes";
 import type { Webview } from "../hostEditor/EditorTypes";
+import { Regex } from "./regex";
 
 let _extensionUri: Uri | undefined;
 
@@ -32,7 +33,11 @@ export function getNonce(): string {
 }
 
 function escapeHtml(s: string): string {
-  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  return s
+    .replace(Regex.htmlEscapeAmp, "&amp;")
+    .replace(Regex.htmlEscapeLt, "&lt;")
+    .replace(Regex.htmlEscapeGt, "&gt;")
+    .replace(Regex.htmlEscapeQuote, "&quot;");
 }
 
 export interface ShellOptions {

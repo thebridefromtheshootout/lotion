@@ -8,6 +8,7 @@ import { DbColumn, DbSchema, SCHEMA_FENCE_START, SCHEMA_FENCE_END, parseSchemaFr
 import { DbFilterOperator, DbView, DbViewFilter, parseViewsFromFile, saveViewsToFile, serializeViews } from "./dbViews";
 import { parsePropertyTable, updateEntryProperty, buildPropertyTable, appendToLogTable, clearPropertyFields } from "./dbFrontmatter";
 import { Cmd } from "../core/commands";
+import { Regex } from "../core/regex";
 import type { SlashCommand } from "../core/slashCommands";
 import { cursorInDb } from "./dbEntries";
 
@@ -85,7 +86,7 @@ export async function handleDatabaseCommand(document: TextDocument, position: Po
       if (!v || v.trim().length === 0) {
         return "Name cannot be empty";
       }
-      if (/[<>:"/\\|?*]/.test(v)) {
+      if (Regex.invalidPathChars.test(v)) {
         return "Contains invalid characters";
       }
       return undefined;
@@ -175,8 +176,8 @@ export async function handleDatabaseCommand(document: TextDocument, position: Po
   // 5. Create the database child page
   const slug = dbName
     .toLowerCase()
-    .replace(/\s+/g, "-")
-    .replace(/[^a-z0-9-]/g, "");
+    .replace(Regex.whitespaceRun, "-")
+    .replace(Regex.slugUnsafeChars, "");
   const dbDir = path.join(cwd, slug);
   const dbFilePath = path.join(dbDir, "index.md");
   const relativePath = `${slug}/index.md`;
@@ -260,8 +261,8 @@ export async function handleDbEntryCommand(
   // 3. Create child entry page
   const slug = entryTitle
     .toLowerCase()
-    .replace(/\s+/g, "-")
-    .replace(/[^a-z0-9-]/g, "");
+    .replace(Regex.whitespaceRun, "-")
+    .replace(Regex.slugUnsafeChars, "");
   const entryDir = path.join(cwd, slug);
   const entryFilePath = path.join(entryDir, "index.md");
   const relativePath = `${slug}/index.md`;
@@ -340,7 +341,7 @@ export async function promptForColumnValue(col: DbColumn, defaultValue?: string)
             if (!v || v.trim().length === 0) {
               return `${col.name} is required`;
             }
-            if (!/^\d{4}-\d{2}-\d{2}$/.test(v)) {
+            if (!Regex.isoDateYmd.test(v)) {
               return "Use YYYY-MM-DD format";
             }
             return undefined;

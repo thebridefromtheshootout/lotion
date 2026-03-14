@@ -1,9 +1,10 @@
 import * as fs from "fs";
+import { Regex } from "../core/regex";
 
 // ── Property-table helpers (internal) ──────────────────────────────
 
-const HEADER_RE = /^\|\s*Property\s*\|\s*Value\s*\|/i;
-const SEPARATOR_RE = /^\|[\s-]+\|[\s-]+\|$/;
+const HEADER_RE = Regex.propertyTableHeader;
+const SEPARATOR_RE = Regex.propertyTableSeparator;
 
 interface TableRegion {
   startIdx: number; // header row
@@ -12,7 +13,7 @@ interface TableRegion {
 }
 
 function escapePipe(s: string): string {
-  return s.replace(/\|/g, "\\|");
+  return s.replace(Regex.plainPipe, "\\|");
 }
 
 /**
@@ -44,7 +45,11 @@ function findPropertyTableRegion(lines: string[]): TableRegion | undefined {
     }
     // Split on unescaped pipes: replace \| with placeholder, split, restore
     const PH = "\x00";
-    const cells = lines[i].replace(/\\\|/g, PH).split("|").slice(1, -1).map((c) => c.replace(new RegExp(PH, "g"), "|").trim());
+    const cells = lines[i]
+      .replace(Regex.escapedPipe, PH)
+      .split("|")
+      .slice(1, -1)
+      .map((c) => c.replace(new RegExp(PH, "g"), "|").trim());
     if (cells.length >= 2) {
       const key = cells[0];
       const val = cells[1];
@@ -65,7 +70,7 @@ function findPropertyTableRegion(lines: string[]): TableRegion | undefined {
  * Returns undefined when no property table is found.
  */
 export function parsePropertyTable(text: string): Record<string, string> | undefined {
-  const region = findPropertyTableRegion(text.split(/\r?\n/));
+  const region = findPropertyTableRegion(text.split(Regex.lineBreakSplit));
   return region ? region.props : undefined;
 }
 
@@ -96,12 +101,12 @@ export function updateEntryProperty(filePath: string, key: string, value: string
   }
 
   const content: string = fs.readFileSync(filePath, "utf-8");
-  const lines: string[] = content.split(/\r?\n/);
+  const lines: string[] = content.split(Regex.lineBreakSplit);
   const region = findPropertyTableRegion(lines);
 
   if (!region) {
     // No table yet — insert after first heading or at top
-    const headingIdx = lines.findIndex((l) => /^#\s/.test(l));
+    const headingIdx = lines.findIndex((l) => Regex.headingPrefix.test(l));
     const insertIdx = headingIdx !== -1 ? headingIdx + 1 : 0;
     const table = "\n" + buildPropertyTable({ [key]: value }) + "\n";
     lines.splice(insertIdx, 0, table);
@@ -125,7 +130,7 @@ export function updateEntryProperty(filePath: string, key: string, value: string
  */
 export function appendToLogTable(content: string, fieldNames: string[], values: string[]): string {
   const LOG_TABLE_MARKER = "<!-- lotion-log-table -->";
-  const lines = content.split(/\r?\n/);
+  const lines = content.split(Regex.lineBreakSplit);
 
   // Look for existing log table
   let tableStartIdx = -1;
@@ -137,7 +142,7 @@ export function appendToLogTable(content: string, fieldNames: string[], values: 
   }
 
   // Escape pipe characters in values
-  const escapedValues = values.map((v) => v.replace(/\|/g, "\\|"));
+  const escapedValues = values.map((v) => v.replace(Regex.plainPipe, "\\|"));
   const newRow = `| ${escapedValues.join(" | ")} |`;
 
   if (tableStartIdx === -1) {
@@ -167,7 +172,7 @@ export function appendToLogTable(content: string, fieldNames: string[], values: 
  * Clear (set to empty string) the specified property-table fields.
  */
 export function clearPropertyFields(content: string, fieldNames: string[]): string {
-  const lines = content.split(/\r?\n/);
+  const lines = content.split(Regex.lineBreakSplit);
   const region = findPropertyTableRegion(lines);
   if (!region) {
     return content;

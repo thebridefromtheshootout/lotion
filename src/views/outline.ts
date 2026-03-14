@@ -13,6 +13,7 @@ import {
 import type { TextDocument, TreeDataProvider } from "../hostEditor/EditorTypes";
 import { hostEditor } from "../hostEditor/HostingEditor";
 import { Cmd } from "../core/commands";
+import { Regex } from "../core/regex";
 
 // ── Heading outline tree view ──────────────────────────────────────
 //
@@ -90,7 +91,7 @@ function nodeToItem(node: HeadingNode): HeadingItem {
 
 function buildHeadingTree(document: TextDocument): HeadingNode[] {
   const headings: HeadingNode[] = [];
-  const HEADING_RE = /^(#{1,6})\s+(.+)/;
+  const HEADING_RE = Regex.headingLineWithText;
 
   for (let i = 0; i < document.lineCount; i++) {
     const text = document.lineAt(i).text;
@@ -139,7 +140,7 @@ function nestHeadings(flat: HeadingNode[]): HeadingNode[] {
 function isInsideFence(document: TextDocument, line: number): boolean {
   let fenceCount = 0;
   for (let i = 0; i < line; i++) {
-    if (/^```/.test(document.lineAt(i).text.trim())) {
+    if (Regex.fencedBackticksOnly.test(document.lineAt(i).text.trim())) {
       fenceCount++;
     }
   }

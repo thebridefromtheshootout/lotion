@@ -1,6 +1,7 @@
 import { Position, Range, Selection, TextEditorRevealType, Uri } from "../hostEditor/EditorTypes";
 import { hostEditor } from "../hostEditor/HostingEditor";
 import * as path from "path";
+import { Regex } from "../core/regex";
 
 /**
  * Wiki-aware full-text search across all markdown pages.
@@ -34,7 +35,7 @@ export async function wikiSearch(): Promise<void> {
   try {
     re = new RegExp(query, "gi");
   } catch {
-    re = new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "gi");
+    re = new RegExp(query.replace(Regex.regexMetaCharsGlobal, "\\$&"), "gi");
   }
 
   const results: SearchResult[] = [];
@@ -52,14 +53,14 @@ export async function wikiSearch(): Promise<void> {
       // Find page title (first # heading or filename)
       let pageTitle = path.basename(uri.fsPath, ".md");
       for (let i = 0; i < Math.min(doc.lineCount, 20); i++) {
-        const h = doc.lineAt(i).text.match(/^#\s+(.+)/);
+        const h = doc.lineAt(i).text.match(Regex.headingH1Multiline);
         if (h) {
           pageTitle = h[1];
           break;
         }
       }
 
-      const relPath = root ? path.relative(root, uri.fsPath).replace(/\\/g, "/") : path.basename(uri.fsPath);
+      const relPath = root ? path.relative(root, uri.fsPath).replace(Regex.windowsSlash, "/") : path.basename(uri.fsPath);
 
       // Collect matching lines
       for (let i = 0; i < doc.lineCount; i++) {

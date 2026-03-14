@@ -1,6 +1,7 @@
 import { Disposable, EventEmitter, FileDecoration, Position, Range, Uri } from "../hostEditor/EditorTypes";
 import type { FileDecorationProvider } from "../hostEditor/EditorTypes";
 import { hostEditor, OpType, type EditOp } from "../hostEditor/HostingEditor";
+import { Regex } from "../core/regex";
 
 /**
  * Read a page icon (emoji) from YAML frontmatter `icon:` field.
@@ -8,8 +9,8 @@ import { hostEditor, OpType, type EditOp } from "../hostEditor/HostingEditor";
  * FileDecorationProvider to show icons in the Explorer tree.
  */
 
-const ICON_RE = /^icon:\s*(.+)\s*$/m;
-const FRONTMATTER_RE = /^---\r?\n([\s\S]*?)\r?\n---/;
+const ICON_RE = Regex.iconFrontmatterLine;
+const FRONTMATTER_RE = Regex.frontmatterBlock;
 
 /**
  * Extract the `icon:` value from a markdown document's frontmatter.

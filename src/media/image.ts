@@ -174,7 +174,7 @@ export async function handleImageCommand(document: TextDocument, position: Posit
   }
 
   // Prompt for image name (default: timestamp)
-  const defaultName = new Date().toISOString().replace(/[:.]/g, "-");
+  const defaultName = new Date().toISOString().replace(Regex.colonDot, "-");
   const imageName = await hostEditor.showInputBox({
     prompt: "Name for the image (without extension)",
     value: defaultName,
@@ -216,7 +216,7 @@ export async function handleImageCommand(document: TextDocument, position: Posit
   const relativePath = `.rsrc/${savedFileName}`;
   if (hostEditor.isActiveEditorDocumentEqualTo(document)) {
     const triggerRange = new Range(position.translate(0, -1), position);
-    const alt = path.parse(savedFileName!).name.replace(/"/g, "&quot;");
+    const alt = path.parse(savedFileName!).name.replace(Regex.doubleQuote, "&quot;");
     await hostEditor.replaceRange(triggerRange, `<img src="${relativePath}" alt="${alt}">`);
     await hostEditor.saveActiveDocument();
   }

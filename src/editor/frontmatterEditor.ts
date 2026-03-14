@@ -2,6 +2,7 @@
 import { Position, Range } from "../hostEditor/EditorTypes";
 import type { QuickPickItem, TextDocument } from "../hostEditor/EditorTypes";
 import { hostEditor, OpType, type EditOp } from "../hostEditor/HostingEditor";
+import { Regex } from "../core/regex";
 
 /**
  * Interactive front matter editor.
@@ -10,7 +11,7 @@ import { hostEditor, OpType, type EditOp } from "../hostEditor/HostingEditor";
  * fields without needing to manually edit the YAML block.
  */
 
-const FRONTMATTER_RE = /^---\r?\n([\s\S]*?)\r?\n---/;
+const FRONTMATTER_RE = Regex.frontmatterBlock;
 
 export interface FMField {
   key: string;
@@ -26,7 +27,7 @@ export function parseFrontmatter(text: string): { fields: FMField[]; exists: boo
   const fields: FMField[] = [];
   const lines = match[1].split("\n");
   for (const line of lines) {
-    const kv = line.match(/^([^:]+):\s*(.*)/);
+    const kv = line.match(Regex.frontmatterKeyValue);
     if (kv) {
       fields.push({ key: kv[1].trim(), value: kv[2].trim() });
     }

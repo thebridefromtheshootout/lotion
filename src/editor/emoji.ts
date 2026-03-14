@@ -3,6 +3,7 @@ import type { QuickPickItem, TextDocument } from "../hostEditor/EditorTypes";
 import { hostEditor } from "../hostEditor/HostingEditor";
 import emojiData from "unicode-emoji-json";
 import { Cmd } from "../core/commands";
+import { Regex } from "../core/regex";
 import type { SlashCommand } from "../core/slashCommands";
 
 export const EMOJI_SLASH_COMMAND: SlashCommand = {
@@ -52,14 +53,14 @@ export async function handleEmojiCommand(document: TextDocument, position: Posit
       qp.items = allItems;
       return;
     }
-    const queryTokens = query.toLowerCase().split(/\s+/).filter(Boolean);
+    const queryTokens = query.toLowerCase().split(Regex.whitespaceRunNoGlobal).filter(Boolean);
     const scored: { item: EmojiItem; score: number; unmatched: number }[] = [];
 
     for (const item of allItems) {
-      const text = `${item.label} ${item.description ?? ""}`.toLowerCase();
+        const text = `${item.label} ${item.description ?? ""}`.toLowerCase();
       const nameTokens = (item.description ?? "")
         .toLowerCase()
-        .split(/[\s()]+/)
+        .split(Regex.wordOrParenSplit)
         .filter(Boolean);
 
       // Every query token must appear somewhere in text

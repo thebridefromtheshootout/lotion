@@ -3,6 +3,7 @@ import { Disposable, Hover, MarkdownString, Position, Range } from "../hostEdito
 import type { TextDocument } from "../hostEditor/EditorTypes";
 import * as path from "path";
 import * as fs from "fs";
+import { Regex } from "../core/regex";
 
 /**
  * Link tooltip hover provider.
@@ -15,7 +16,7 @@ export function createLinkHoverProvider(): Disposable {
   return hostEditor.registerHoverProvider({ language: "markdown", scheme: "file" }, { provideHover });
 }
 
-const LINK_RE = /\[([^\]]*)\]\(([^)]+)\)/g;
+const LINK_RE = Regex.markdownLinkGlobal;
 
 async function provideHover(doc: TextDocument, pos: Position): Promise<Hover | undefined> {
   const line = doc.lineAt(pos.line).text;
@@ -35,7 +36,7 @@ async function provideHover(doc: TextDocument, pos: Position): Promise<Hover | u
 
     const target = match[2];
     // Skip external / anchor-only links
-    if (/^https?:\/\/|^#/.test(target)) {
+    if (Regex.httpOrMailtoOrAnchor.test(target)) {
       continue;
     }
 
@@ -53,7 +54,7 @@ async function provideHover(doc: TextDocument, pos: Position): Promise<Hover | u
 
     const title = extractTitle(content, targetPath);
     const summary = extractSummary(content);
-    const wordCount = content.split(/\s+/).filter(Boolean).length;
+    const wordCount = content.split(Regex.wordSplit).filter(Boolean).length;
 
     const md = new MarkdownString();
     md.appendMarkdown(`### ${title}\n\n`);
@@ -96,16 +97,16 @@ function resolveLink(doc: TextDocument, target: string): string | undefined {
 
 function extractTitle(content: string, filePath: string): string {
   // Check frontmatter title
-  const fmMatch = content.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+  const fmMatch = content.match(Regex.frontmatterBlock);
   if (fmMatch) {
-    const titleMatch = fmMatch[1].match(/^title:\s*(.+)$/m);
+    const titleMatch = fmMatch[1].match(Regex.frontmatterTitleLine);
     if (titleMatch) {
-      return titleMatch[1].trim().replace(/^["']|["']$/g, "");
+      return titleMatch[1].trim().replace(Regex.quotedStringEdges, "");
     }
   }
 
   // Check first H1
-  const h1 = content.match(/^#\s+(.+)$/m);
+  const h1 = content.match(Regex.headingH1Multiline);
   if (h1) {
     return h1[1].trim();
   }
@@ -115,7 +116,7 @@ function extractTitle(content: string, filePath: string): string {
 }
 
 function extractSummary(content: string): string {
-  const lines = content.split(/\r?\n/);
+  const lines = content.split(Regex.lineBreakSplit);
   let inFrontmatter = false;
   let pastFrontmatter = false;
   const paragraphLines: string[] = [];
@@ -135,7 +136,7 @@ function extractSummary(content: string): string {
     }
 
     // Skip headings
-    if (/^#{1,6}\s/.test(line)) {
+    if (Regex.headingPrefix.test(line)) {
       continue;
     }
 

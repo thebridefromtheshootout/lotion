@@ -4,6 +4,7 @@ import type { TextDocument } from "../hostEditor/EditorTypes";
 import { hostEditor } from "../hostEditor/HostingEditor";
 import { duplicateCommentMarkers } from "../editor/comments";
 import { duplicateProcessorMarkers, PROC_START_RE } from "../editor/processor";
+import { Regex } from "../core/regex";
 
 // ── Duplicate block ────────────────────────────────────────────────
 //
@@ -12,7 +13,7 @@ import { duplicateProcessorMarkers, PROC_START_RE } from "../editor/processor";
 //   - If cursor is on a heading: duplicate heading + section
 //   - Otherwise: duplicate the current contiguous paragraph
 
-const HEADING_RE = /^(#{1,6})\s/;
+const HEADING_RE = Regex.headingPrefix;
 
 export async function handleDuplicateBlock(): Promise<void> {
   if (!hostEditor.isMarkdownEditor()) {

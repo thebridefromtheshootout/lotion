@@ -1,6 +1,7 @@
 import { Disposable } from "../hostEditor/EditorTypes";
 import { hostEditor } from "../hostEditor/HostingEditor";
 import * as path from "path";
+import { Regex } from "../core/regex";
 
 /**
  * Tracks recently visited markdown pages and provides a quick-pick
@@ -53,10 +54,10 @@ export async function showRecentPages(): Promise<void> {
   const workspaceRoot = hostEditor.getWorkspaceFolders()?.[0]?.uri.fsPath ?? "";
 
   const items = history.map((fsPath) => {
-    const rel = workspaceRoot ? path.relative(workspaceRoot, fsPath).replace(/\\/g, "/") : path.basename(fsPath);
+    const rel = workspaceRoot ? path.relative(workspaceRoot, fsPath).replace(Regex.windowsSlash, "/") : path.basename(fsPath);
 
     // Derive page title from relative path
-    const parts = rel.replace(/\/index\.md$/, "").split("/");
+    const parts = rel.replace(Regex.trailingIndexMd, "").split("/");
     const label = parts[parts.length - 1] || rel;
 
     return {

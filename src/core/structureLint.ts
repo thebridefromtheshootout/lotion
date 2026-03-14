@@ -1,6 +1,7 @@
 import { hostEditor } from "../hostEditor/HostingEditor";
 import { Diagnostic, DiagnosticSeverity, Disposable, Position, Range } from "../hostEditor/EditorTypes";
 import type { DiagnosticCollection, TextDocument } from "../hostEditor/EditorTypes";
+import { Regex } from "./regex";
 
 /**
  * Document structure linter for markdown.
@@ -35,7 +36,7 @@ function lintDocument(doc: TextDocument): void {
     const text = line.text;
 
     // Code fence tracking
-    if (/^```/.test(text)) {
+    if (Regex.fencedBackticksOnly.test(text)) {
       if (!inCodeFence) {
         inCodeFence = true;
         codeFenceStart = i;
@@ -51,7 +52,7 @@ function lintDocument(doc: TextDocument): void {
     }
 
     // Heading analysis
-    const headingMatch = text.match(/^(#{1,6})\s+(.+)$/);
+    const headingMatch = text.match(Regex.headingLineWithText);
     if (headingMatch) {
       const level = headingMatch[1].length;
       const headingText = headingMatch[2].trim();
@@ -98,7 +99,7 @@ function lintDocument(doc: TextDocument): void {
     }
 
     // Empty links
-    const emptyLinkRe = /\[([^\]]+)\]\(\s*\)/g;
+    const emptyLinkRe = Regex.markdownEmptyLinkGlobal;
     let m: RegExpExecArray | null;
     while ((m = emptyLinkRe.exec(text)) !== null) {
       const start = new Position(i, m.index);

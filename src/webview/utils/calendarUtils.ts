@@ -1,5 +1,6 @@
 import { CellData, CalEvent, WeekEvent, Assignment, IWeekProfile, IMonthProfile } from "../types/CalendarTypes";
 import { SLOT_H } from "../components/database/calendarview/CalendarView";
+import { Regex } from "../../core/regex";
 
 const MAX_SLOTS = 50;
 export function dfmt(d: Date): string {
@@ -22,9 +23,9 @@ export function daysBetween(a: string, b: string): number {
 
 export function parseDate(s: string): Date | null {
   if (!s) return null;
-  const iso = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  const iso = s.match(Regex.dateIsoLoose);
   if (iso) return new Date(Number(iso[1]), Number(iso[2]) - 1, Number(iso[3]));
-  const mdy = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+  const mdy = s.match(Regex.dateSlashMdy);
   if (mdy) return new Date(Number(mdy[3]), Number(mdy[1]) - 1, Number(mdy[2]));
   const dv = new Date(s);
   return isNaN(dv.getTime()) ? null : dv;

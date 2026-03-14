@@ -1,14 +1,15 @@
 import { Disposable, StatusBarAlignment } from "../hostEditor/EditorTypes";
 import type { StatusBarItem } from "../hostEditor/EditorTypes";
 import { hostEditor } from "../hostEditor/HostingEditor";
+import { Regex } from "../core/regex";
 
 // ── Task progress status bar ───────────────────────────────────────
 //
 // Shows "✓ 3/5 tasks" in the status bar for markdown files containing
 // checkbox items, giving a quick overview of completion progress.
 
-const TASK_RE = /^\s*[-*+] \[ \]/gm;
-const DONE_RE = /^\s*[-*+] \[x\]/gim;
+const TASK_RE = Regex.checkboxTaskPendingGlobal;
+const DONE_RE = Regex.checkboxTaskDoneGlobal;
 
 let statusBarItem: StatusBarItem | undefined;
 

@@ -8,6 +8,7 @@ import * as crypto from "crypto";
 import { getCwd } from "../core/cwd";
 import { Cmd } from "../core/commands";
 import { createCodeLensProvider, codeLens } from "../core/codeLens";
+import { Regex } from "../core/regex";
 import type { SlashCommand } from "../core/slashCommands";
 
 const GRAPH_SLASH_COMMAND: SlashCommand = {
@@ -180,12 +181,12 @@ export function generateGraphLenses(document: TextDocument): CodeLens[] {
   for (let i = 0; i < document.lineCount; i++) {
     const line = document.lineAt(i).text;
     // Look for <details> that is followed (within 10 lines) by a ```dot block
-    if (!/^\s*<details/i.test(line)) {
+    if (!Regex.detailsOpenLine.test(line)) {
       continue;
     }
 
     for (let j = i + 1; j < Math.min(i + 15, document.lineCount); j++) {
-      if (/^\s*```dot\s*$/i.test(document.lineAt(j).text)) {
+      if (Regex.dotFenceOpenLine.test(document.lineAt(j).text)) {
         lenses.push(
           codeLens(i, "▶ Render graph", Cmd.renderGraph, [document.uri.toString(), i, 0], {
             endChar: line.length,
@@ -194,7 +195,7 @@ export function generateGraphLenses(document: TextDocument): CodeLens[] {
         break;
       }
       // Stop if we hit </details> before finding ```dot
-      if (/^\s*<\/details>/i.test(document.lineAt(j).text)) {
+      if (Regex.detailsCloseLine.test(document.lineAt(j).text)) {
         break;
       }
     }
@@ -261,10 +262,10 @@ function findGraphBlock(document: TextDocument, cursorLine: number): GraphBlock 
   let summaryEnd = -1;
   for (let i = detailsStart; i <= detailsEnd; i++) {
     const text = document.lineAt(i).text;
-    if (summaryStart === -1 && /<summary>/i.test(text)) {
+    if (summaryStart === -1 && Regex.summaryTagOpen.test(text)) {
       summaryStart = i;
     }
-    if (summaryStart !== -1 && /<\/summary>/i.test(text)) {
+    if (summaryStart !== -1 && Regex.summaryTagClose.test(text)) {
       summaryEnd = i;
       break;
     }
@@ -278,11 +279,11 @@ function findGraphBlock(document: TextDocument, cursorLine: number): GraphBlock 
   let dotEnd = -1;
   for (let i = summaryEnd + 1; i < detailsEnd; i++) {
     const text = document.lineAt(i).text;
-    if (dotStart === -1 && /^\s*```dot\s*$/i.test(text)) {
+    if (dotStart === -1 && Regex.dotFenceOpenLine.test(text)) {
       dotStart = i;
       continue;
     }
-    if (dotStart !== -1 && /^\s*```\s*$/.test(text)) {
+    if (dotStart !== -1 && Regex.anyFenceCloseLine.test(text)) {
       dotEnd = i;
       break;
     }
@@ -304,7 +305,7 @@ function findGraphBlock(document: TextDocument, cursorLine: number): GraphBlock 
   // Try to extract existing image path from summary
   let imagePath: string | undefined;
   for (let i = summaryContentStart; i <= summaryContentEnd; i++) {
-    const m = document.lineAt(i).text.match(/!\[.*?\]\(([^)]+)\)/);
+    const m = document.lineAt(i).text.match(Regex.markdownImageSimple);
     if (m) {
       imagePath = m[1];
       break;

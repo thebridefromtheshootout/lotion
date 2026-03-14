@@ -1,6 +1,7 @@
 import { Disposable, Range, ThemeColor } from "../hostEditor/EditorTypes";
 import type { DecorationOptions, TextEditorDecorationType } from "../hostEditor/EditorTypes";
 import { hostEditor } from "../hostEditor/HostingEditor";
+import { Regex } from "../core/regex";
 
 /**
  * Inline decorations showing the anchor slug next to each heading.
@@ -15,9 +16,9 @@ let anchorDecorationType: TextEditorDecorationType;
 function headingToSlug(text: string): string {
   return text
     .toLowerCase()
-    .replace(/[^\w\s-]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/^-+|-+$/g, "");
+    .replace(Regex.nonWordSpaceHyphen, "")
+    .replace(Regex.whitespaceRun, "-")
+    .replace(Regex.trimHyphenEdges, "");
 }
 
 function updateDecorations(): void {
@@ -29,7 +30,7 @@ function updateDecorations(): void {
 
   for (let i = 0; i < doc.lineCount; i++) {
     const line = doc.lineAt(i);
-    const match = line.text.match(/^(#{1,6})\s+(.+)$/);
+    const match = line.text.match(Regex.headingLineWithText);
     if (!match) {
       continue;
     }

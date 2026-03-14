@@ -1,6 +1,7 @@
 import { Uri } from "../hostEditor/EditorTypes";
 import { hostEditor } from "../hostEditor/HostingEditor";
 import * as path from "path";
+import { Regex } from "../core/regex";
 
 // ── Quick page switcher ────────────────────────────────────────────
 //
@@ -17,7 +18,7 @@ export async function quickSwitchPage(): Promise<void> {
   const workspaceRoot = hostEditor.getWorkspaceFolders()?.[0]?.uri.fsPath || "";
 
   const items = mdFiles.map((uri) => {
-    const relPath = path.relative(workspaceRoot, uri.fsPath).replace(/\\/g, "/");
+    const relPath = path.relative(workspaceRoot, uri.fsPath).replace(Regex.windowsSlash, "/");
     return {
       label: deriveTitle(uri),
       description: relPath,
@@ -41,5 +42,5 @@ export async function quickSwitchPage(): Promise<void> {
 function deriveTitle(uri: Uri): string {
   const parsed = path.parse(uri.fsPath);
   const baseName = parsed.name.toLowerCase() === "index" ? path.basename(path.dirname(uri.fsPath)) : parsed.name;
-  return baseName.replace(/[-_]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+  return baseName.replace(Regex.dashUnderscore, " ").replace(Regex.wordBoundaryChar, (c) => c.toUpperCase());
 }

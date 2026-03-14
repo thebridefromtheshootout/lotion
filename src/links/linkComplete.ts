@@ -2,6 +2,7 @@ import { hostEditor } from "../hostEditor/HostingEditor";
 import { CompletionItem, CompletionItemKind, Disposable, Position, Range, Uri } from "../hostEditor/EditorTypes";
 import type { TextDocument } from "../hostEditor/EditorTypes";
 import * as path from "path";
+import { Regex } from "../core/regex";
 
 /**
  * [[ link autocomplete – CompletionItemProvider triggered by `[`.
@@ -36,7 +37,7 @@ export function createLinkCompletionProvider(): Disposable {
           .map((uri) => {
             // Derive a human-readable title from the file path
             const title = deriveTitle(uri);
-            const relativePath = path.relative(currentDir, uri.fsPath).replace(/\\/g, "/");
+            const relativePath = path.relative(currentDir, uri.fsPath).replace(Regex.windowsSlash, "/");
 
             const item = new CompletionItem(title, CompletionItemKind.File);
             item.detail = relativePath;
@@ -77,5 +78,5 @@ function deriveTitle(uri: Uri): string {
   const baseName = parsed.name.toLowerCase() === "index" ? path.basename(path.dirname(uri.fsPath)) : parsed.name;
 
   // Convert kebab/snake case to title case
-  return baseName.replace(/[-_]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+  return baseName.replace(Regex.dashUnderscore, " ").replace(Regex.wordBoundaryChar, (c) => c.toUpperCase());
 }

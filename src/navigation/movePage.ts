@@ -1,4 +1,5 @@
 import { Cmd } from "../core/commands";
+import { Regex } from "../core/regex";
 import type { SlashCommand } from "../core/slashCommands";
 import { hostEditor } from "../hostEditor/HostingEditor";
 import * as fs from "fs";
@@ -55,7 +56,7 @@ export async function movePage(): Promise<void> {
     if (!relativeToCurrent.startsWith("..") && relativeToCurrent !== "") {
       continue;
     }
-    const rel = path.relative(workspaceRoot, dir).replace(/\\/g, "/") || "/";
+    const rel = path.relative(workspaceRoot, dir).replace(Regex.windowsSlash, "/") || "/";
     destinations.push({
       label: rel,
       detail: dir,
@@ -83,8 +84,8 @@ export async function movePage(): Promise<void> {
     return;
   }
 
-  const oldRelFromRoot = path.relative(workspaceRoot, currentDir).replace(/\\/g, "/");
-  const newRelFromRoot = path.relative(workspaceRoot, newDir).replace(/\\/g, "/");
+  const oldRelFromRoot = path.relative(workspaceRoot, currentDir).replace(Regex.windowsSlash, "/");
+  const newRelFromRoot = path.relative(workspaceRoot, newDir).replace(Regex.windowsSlash, "/");
 
   await hostEditor.executeCommand("workbench.action.closeActiveEditor");
   fs.renameSync(currentDir, newDir);

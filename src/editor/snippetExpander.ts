@@ -2,6 +2,7 @@ import { Disposable, Position, Range, SnippetString } from "../hostEditor/Editor
 import type { TextDocument } from "../hostEditor/EditorTypes";
 import { hostEditor } from "../hostEditor/HostingEditor";
 import { Cmd } from "../core/commands";
+import { Regex } from "../core/regex";
 
 /**
  * Snippet / abbreviation expander.
@@ -45,7 +46,7 @@ export function createSnippetExpander(): Disposable {
 
     // Find the word before the cursor
     const beforeCursor = lineText.substring(0, pos.character);
-    const wordMatch = beforeCursor.match(/(\S+)$/);
+    const wordMatch = beforeCursor.match(Regex.trailingNonWhitespaceWord);
     if (!wordMatch) {
       return;
     }
@@ -64,7 +65,7 @@ export function createSnippetExpander(): Disposable {
     const wordRange = new Range(wordStart, pos);
 
     // If the body contains $1/$2 tab stops, insert as snippet
-    if (/\$\d/.test(body)) {
+    if (Regex.snippetTabstop.test(body)) {
       await hostEditor.insertSnippet(new SnippetString(body), wordRange);
     } else {
       await hostEditor.replaceRange(wordRange, body);
@@ -93,15 +94,15 @@ function loadSnippets(doc: TextDocument): SnippetMap {
 
   // 2. Frontmatter "snippets:" block
   const text = doc.getText();
-  const fm = text.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+  const fm = text.match(Regex.frontmatterBlock);
   if (fm) {
-    const snipSection = fm[1].match(/^snippets:\s*\n((?:\s+\S.*\n?)*)/m);
+    const snipSection = fm[1].match(Regex.snippetsSection);
     if (snipSection) {
-      const lines = snipSection[1].split(/\r?\n/).filter(Boolean);
+      const lines = snipSection[1].split(Regex.lineBreakSplit).filter(Boolean);
       for (const line of lines) {
-        const kv = line.match(/^\s+(\S+):\s*(.+)$/);
+        const kv = line.match(Regex.snippetLineKeyValue);
         if (kv) {
-          snippets[kv[1]] = kv[2].replace(/^["']|["']$/g, "");
+          snippets[kv[1]] = kv[2].replace(Regex.quotedStringEdges, "");
         }
       }
     }
@@ -119,9 +120,9 @@ function expandVariables(body: string, doc: TextDocument): string {
   const min = String(now.getMinutes()).padStart(2, "0");
 
   let result = body;
-  result = result.replace(/\$\(date\)/g, `${yyyy}-${mm}-${dd}`);
-  result = result.replace(/\$\(time\)/g, `${hh}:${min}`);
-  result = result.replace(/\$\(file\)/g, path.basename(doc.uri.fsPath, path.extname(doc.uri.fsPath)));
+  result = result.replace(Regex.snippetVarDate, `${yyyy}-${mm}-${dd}`);
+  result = result.replace(Regex.snippetVarTime, `${hh}:${min}`);
+  result = result.replace(Regex.snippetVarFile, path.basename(doc.uri.fsPath, path.extname(doc.uri.fsPath)));
 
   // Clipboard will be handled at expansion time
   // but since we can't await inside replace, do it here

@@ -3,13 +3,14 @@ import { Disposable, Hover, MarkdownString, Position, Range, Uri } from "../host
 import type { HoverProvider, ProviderResult, TextDocument } from "../hostEditor/EditorTypes";
 import * as path from "path";
 import * as fs from "fs";
+import { Regex } from "../core/regex";
 
 /**
  * Hover provider that shows image preview + dimensions when hovering
  * over markdown image syntax: ![alt](path)
  */
 
-const IMAGE_RE = /!\[([^\]]*)\]\(([^)]+)\)/g;
+const IMAGE_RE = Regex.markdownImageGlobal;
 
 export class ImageHoverProvider implements HoverProvider {
   provideHover(document: TextDocument, position: Position): ProviderResult<Hover> {

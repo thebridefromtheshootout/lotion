@@ -70,7 +70,7 @@ export async function handleSmartPaste() {
     fs.mkdirSync(rsrcDir, { recursive: true });
   }
 
-  const defaultName = new Date().toISOString().replace(/[:.]/g, "-");
+  const defaultName = new Date().toISOString().replace(Regex.colonDot, "-");
   const imageName = await hostEditor.showInputBox({
     prompt: "Name for the image (without extension)",
     value: defaultName,
@@ -96,7 +96,7 @@ export async function handleSmartPaste() {
   }
 
   const relativePath = `.rsrc/${savedFileName}`;
-  const escapedAlt = imageName.replace(/"/g, "&quot;");
+  const escapedAlt = imageName.replace(Regex.doubleQuote, "&quot;");
   const imgTag = `<img src="${relativePath}" alt="${escapedAlt}">`;
   if (selection.isEmpty) {
     await hostEditor.insertAtCursor(imgTag);
@@ -117,7 +117,7 @@ export async function handleSmartPaste() {
  * - Fallback: hostname without www
  */
 function deriveUrlLabel(url: URL): string {
-  const host = url.hostname.replace(/^www\./, "");
+  const host = url.hostname.replace(Regex.urlWwwPrefix, "");
 
   // GitHub: show user/repo
   if (host === "github.com") {
@@ -150,10 +150,10 @@ function deriveUrlLabel(url: URL): string {
   // If the path has a meaningful last segment, use it
   const pathParts = url.pathname.split("/").filter(Boolean);
   if (pathParts.length > 0) {
-    const last = pathParts[pathParts.length - 1].replace(/[-_]/g, " ").replace(/\.\w+$/, ""); // strip file extension
+    const last = pathParts[pathParts.length - 1].replace(Regex.dashUnderscore, " ").replace(Regex.fileExtensionSuffix, ""); // strip file extension
     if (last.length > 0 && last.length < 60) {
       // Title-case it
-      const titled = last.replace(/\b\w/g, (c) => c.toUpperCase());
+      const titled = last.replace(Regex.wordBoundaryChar, (c) => c.toUpperCase());
       return titled;
     }
   }
@@ -168,13 +168,13 @@ function deriveUrlLabel(url: URL): string {
  * Returns a markdown table string, or undefined if not tabular.
  */
 function tryParseTableData(text: string): string | undefined {
-  const lines = text.split(/\r?\n/).filter((l) => l.length > 0);
+  const lines = text.split(Regex.lineBreakSplit).filter((l) => l.length > 0);
   if (lines.length < 2) {
     return undefined;
   }
 
   // Check for tab-separated
-  const tabCounts = lines.map((l) => (l.match(/\t/g) || []).length);
+  const tabCounts = lines.map((l) => (l.match(Regex.tabGlobal) || []).length);
   const allSameTabCount = tabCounts.every((c) => c === tabCounts[0] && c >= 1);
 
   if (allSameTabCount) {
@@ -182,7 +182,7 @@ function tryParseTableData(text: string): string | undefined {
   }
 
   // Check for CSV (at least 2 commas per line, consistent count)
-  const commaCounts = lines.map((l) => (l.match(/,/g) || []).length);
+  const commaCounts = lines.map((l) => (l.match(Regex.commaGlobal) || []).length);
   const allSameCommaCount = commaCounts.every((c) => c === commaCounts[0] && c >= 1);
 
   if (allSameCommaCount) {

@@ -9,6 +9,7 @@ import * as fs from "fs";
 import { getCwd } from "../core/cwd";
 import { getExtensionUri, getWebviewShellHtml } from "../core/webviewShell";
 import { Cmd } from "../core/commands";
+import { Regex } from "../core/regex";
 import type { SlashCommand } from "../core/slashCommands";
 
 export const GIF_SLASH_COMMAND: SlashCommand = {
@@ -364,7 +365,7 @@ export async function handleGifCommand(document: TextDocument, position: Positio
     return;
   }
 
-  const alt = (pick.label || "gif").replace(/[[\]]/g, "");
+  const alt = (pick.label || "gif").replace(Regex.squareBracketsGlobal, "");
   const triggerRange = new Range(position.translate(0, -1), position);
   await hostEditor.replaceRange(triggerRange, `![${alt}](.rsrc/${safeName}.gif)`);
 }

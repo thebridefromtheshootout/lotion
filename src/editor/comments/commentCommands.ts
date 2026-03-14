@@ -3,6 +3,7 @@ import type { TextDocument } from "../../hostEditor/EditorTypes";
 import { hostEditor } from "../../hostEditor/HostingEditor";
 import * as fs from "fs";
 import { Comment } from "../../contracts/comment";
+import { Regex } from "../../core/regex";
 import { loadComments, removeMarkerFromDocument, saveComments, saveNewComment } from "./commentModel";
 import { refreshCommentPanel } from "./commentPanel";
 import { fireCommentLensRefresh } from "./commentCodeLens";
@@ -12,8 +13,8 @@ import { fireCommentLensRefresh } from "./commentCodeLens";
 // ── Marker helpers ─────────────────────────────────────────────────
 
 /** Regex to match a comment marker in the document */
-export const COMMENT_MARKER_RE = /<!--lotion-comment:([a-z0-9]+)-->/;
-const COMMENT_MARKER_RE_G = /<!--lotion-comment:([a-z0-9]+)-->/g;
+export const COMMENT_MARKER_RE = Regex.commentMarker;
+const COMMENT_MARKER_RE_G = Regex.commentMarkerGlobal;
 
 /** Build the HTML-comment marker string for a given comment id */
 export function commentMarker(id: string): string {

@@ -3,6 +3,7 @@ import type { TextDocument } from "../hostEditor/EditorTypes";
 import { hostEditor } from "../hostEditor/HostingEditor";
 import * as path from "path";
 import { Cmd } from "../core/commands";
+import { Regex } from "../core/regex";
 import type { SlashCommand } from "../core/slashCommands";
 
 export const LINK_SLASH_COMMAND: SlashCommand = {
@@ -37,7 +38,7 @@ export async function handleLinkCommand(document: TextDocument, position: Positi
     }
 
     const workspaceRoot = hostEditor.getWorkspaceFolders()?.[0]?.uri.fsPath || "";
-    const relPath = path.relative(workspaceRoot, uri.fsPath).replace(/\\/g, "/");
+    const relPath = path.relative(workspaceRoot, uri.fsPath).replace(Regex.windowsSlash, "/");
 
     items.push({
       label: deriveTitle(uri),
@@ -64,7 +65,7 @@ export async function handleLinkCommand(document: TextDocument, position: Positi
 
   // Compute relative path from current file to target
   const currentDir = path.dirname(currentUri.fsPath);
-  let relLink = path.relative(currentDir, pick.uri.fsPath).replace(/\\/g, "/");
+  let relLink = path.relative(currentDir, pick.uri.fsPath).replace(Regex.windowsSlash, "/");
 
   // Build markdown link
   const linkText = `[${pick.label}](${relLink})`;
@@ -75,5 +76,5 @@ export async function handleLinkCommand(document: TextDocument, position: Positi
 function deriveTitle(uri: Uri): string {
   const parsed = path.parse(uri.fsPath);
   const baseName = parsed.name.toLowerCase() === "index" ? path.basename(path.dirname(uri.fsPath)) : parsed.name;
-  return baseName.replace(/[-_]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+  return baseName.replace(Regex.dashUnderscore, " ").replace(Regex.wordBoundaryChar, (c) => c.toUpperCase());
 }

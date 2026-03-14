@@ -3,6 +3,7 @@ import { Position, Range, Selection, TextEditorRevealType } from "../hostEditor/
 import type { TextDocument } from "../hostEditor/EditorTypes";
 import { hostEditor } from "../hostEditor/HostingEditor";
 import { Cmd } from "../core/commands";
+import { Regex } from "../core/regex";
 import type { SlashCommand } from "../core/slashCommands";
 
 export const FOOTNOTE_SLASH_COMMAND: SlashCommand = {
@@ -21,7 +22,7 @@ export const FOOTNOTE_SLASH_COMMAND: SlashCommand = {
 // footnote definition at the bottom of the document. Automatically
 // numbers the footnote based on existing footnotes.
 
-const FOOTNOTE_REF_RE = /\[\^(\d+)\]/g;
+const FOOTNOTE_REF_RE = Regex.footnoteRefGlobal;
 
 export async function handleFootnoteCommand(document: TextDocument, position: Position): Promise<void> {
   if (!hostEditor.isActiveEditorDocumentEqualTo(document)) {

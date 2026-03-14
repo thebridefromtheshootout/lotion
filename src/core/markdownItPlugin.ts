@@ -9,6 +9,7 @@
  * This file is loaded by VS Code's markdown preview via
  * contributes.markdown.markdownItPlugins.
  */
+import { Regex } from "./regex";
 
 function lotionMarkdownItPlugin(md) {
   // ── ==highlight== ──────────────────────────────────────────
@@ -70,7 +71,7 @@ function lotionMarkdownItPlugin(md) {
       }
 
       const content = tokens[inlineIdx].content;
-      const calloutMatch = content.match(/^\[!(NOTE|TIP|WARNING|IMPORTANT|CAUTION)\]\s*(.*)/i);
+      const calloutMatch = content.match(Regex.calloutTokenWithText);
       if (!calloutMatch) {
         continue;
       }
@@ -84,7 +85,7 @@ function lotionMarkdownItPlugin(md) {
 
       // Replace the inline content (remove the [!TYPE] prefix)
       const icon = { note: "ℹ️", tip: "💡", warning: "⚠️", important: "🔥", caution: "🛑" }[type] || "📌";
-      tokens[inlineIdx].content = content.replace(/^\[!(NOTE|TIP|WARNING|IMPORTANT|CAUTION)\]\s*/i, "");
+      tokens[inlineIdx].content = content.replace(Regex.calloutTokenWithText, "$2");
 
       // Insert a callout title before the content
       const titleOpen = new state.Token("html_block", "", 0);

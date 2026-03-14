@@ -1,6 +1,7 @@
 
 import { Range } from "../hostEditor/EditorTypes";
 import { hostEditor } from "../hostEditor/HostingEditor";
+import { Regex } from "../core/regex";
 
 // ── Toggle list type ───────────────────────────────────────────────
 //
@@ -10,10 +11,10 @@ import { hostEditor } from "../hostEditor/HostingEditor";
 //   - Checkbox (- [ ] )
 //   - Plain text (no marker)
 
-const UL_RE = /^(\s*)[-*+] (?!\[[ x]\])/;
-const OL_RE = /^(\s*)\d+[.)] /;
-const CHECK_RE = /^(\s*)[-*+] \[[ x]\] /;
-const ANY_LIST_RE = /^(\s*)([-*+] \[[ x]\] |[-*+] |\d+[.)] )/;
+const UL_RE = Regex.plainUnorderedList;
+const OL_RE = Regex.orderedListPrefix;
+const CHECK_RE = Regex.checkboxListAnyPrefix;
+const ANY_LIST_RE = Regex.anyListPrefix;
 
 export async function toggleListType(): Promise<void> {
   if (!hostEditor.isMarkdownEditor()) {
@@ -36,21 +37,21 @@ export async function toggleListType(): Promise<void> {
       if (CHECK_RE.test(text)) {
         edits.push({ range: line.range, text: text.replace(ANY_LIST_RE, "$1") });
       } else if (UL_RE.test(text)) {
-        const match = text.match(/^(\s*)[-*+] /);
+        const match = text.match(Regex.unorderedListSimple);
         if (match) {
           const indent = match[1];
           const rest = text.slice(match[0].length);
           edits.push({ range: line.range, text: `${indent}1. ${rest}` });
         }
       } else if (OL_RE.test(text)) {
-        const match = text.match(/^(\s*)\d+[.)] /);
+        const match = text.match(Regex.orderedListPrefix);
         if (match) {
           const indent = match[1];
           const rest = text.slice(match[0].length);
           edits.push({ range: line.range, text: `${indent}- [ ] ${rest}` });
         }
       } else {
-        const match = text.match(/^(\s*)/);
+        const match = text.match(Regex.lineIndent);
         const indent = match ? match[1] : "";
         const rest = text.slice(indent.length);
         edits.push({ range: line.range, text: `${indent}- ${rest}` });

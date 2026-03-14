@@ -1,6 +1,7 @@
 import { Disposable, StatusBarAlignment } from "../hostEditor/EditorTypes";
 import type { StatusBarItem } from "../hostEditor/EditorTypes";
 import { hostEditor } from "../hostEditor/HostingEditor";
+import { Regex } from "../core/regex";
 
 // ── Word count status bar item ─────────────────────────────────────
 //
@@ -76,16 +77,16 @@ function updateWordCount(): void {
 
 function countWords(text: string): number {
   const cleaned = text
-    .replace(/^---[\s\S]*?^---/m, "") // frontmatter
-    .replace(/```[\s\S]*?```/g, "") // code blocks
-    .replace(/`[^`]+`/g, "") // inline code
-    .replace(/<[^>]+>/g, "") // HTML tags
-    .replace(/!\[[^\]]*\]\([^)]*\)/g, "") // images
-    .replace(/\[[^\]]*\]\([^)]*\)/g, (m) => {
+    .replace(Regex.frontmatterBlock, "") // frontmatter
+    .replace(Regex.fencedCodeBlockGlobal, "") // code blocks
+    .replace(Regex.inlineCodeSimpleGlobal, "") // inline code
+    .replace(Regex.htmlTagGlobal, "") // HTML tags
+    .replace(Regex.markdownImageGlobal, "") // images
+    .replace(Regex.markdownLinkGlobal, (m) => {
       // links → keep text
-      const textMatch = m.match(/\[([^\]]*)\]/);
+      const textMatch = m.match(Regex.markdownLinkTextOnly);
       return textMatch ? textMatch[1] : "";
     });
 
-  return cleaned.split(/\s+/).filter((w) => w.length > 0).length;
+  return cleaned.split(Regex.wordSplit).filter((w) => w.length > 0).length;
 }

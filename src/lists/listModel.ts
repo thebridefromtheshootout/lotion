@@ -3,6 +3,7 @@ import { Position, Range, TextEdit } from "../hostEditor/EditorTypes";
 import type { TextDocument } from "../hostEditor/EditorTypes";
 import { hostEditor } from "../hostEditor/HostingEditor";
 import { Cmd } from "../core/commands";
+import { Regex } from "../core/regex";
 import type { SlashCommand } from "../core/slashCommands";
 
 export const RENUMBER_SLASH_COMMAND: SlashCommand = {
@@ -45,7 +46,7 @@ export const UL_TO_OL_SLASH_COMMAND: SlashCommand = {
 // be manipulated (insert / remove) and then flushed back to the
 // document via renumbering edits.
 
-const OL_RE = /^(\s*)(\d+)([.)]\s)/;
+const OL_RE = Regex.orderedListItem;
 
 /** A single top-level ordered-list item (at a particular indent level). */
 export interface ListNode {
@@ -88,7 +89,7 @@ export function collectOrderedList(doc: TextDocument, startLine: number): ListNo
     for (let i = startLine - 1; i >= 0; i--) {
       const text = doc.lineAt(i).text;
 
-      if (/^\s*(```|~~~)/.test(text)) {
+      if (Regex.fencedCodeDelimiter.test(text)) {
         inFenced = !inFenced;
         continue;
       }
@@ -107,7 +108,7 @@ export function collectOrderedList(doc: TextDocument, startLine: number): ListNo
       }
 
       // Indented continuation content → keep scanning
-      const lineIndent = text.match(/^(\s*)/)?.[1].length ?? 0;
+      const lineIndent = text.match(Regex.lineIndent)?.[1].length ?? 0;
       if (lineIndent > listIndent.length) {
         continue;
       }
@@ -123,7 +124,7 @@ export function collectOrderedList(doc: TextDocument, startLine: number): ListNo
   for (let i = topLine; i < doc.lineCount; i++) {
     const text = doc.lineAt(i).text;
 
-    if (/^\s*(```|~~~)/.test(text)) {
+    if (Regex.fencedCodeDelimiter.test(text)) {
       inFenced = !inFenced;
       continue;
     }
@@ -147,7 +148,7 @@ export function collectOrderedList(doc: TextDocument, startLine: number): ListNo
     }
 
     // Non-OL line at or before list indent → list ended
-    const lineIndent = text.match(/^(\s*)/)?.[1].length ?? 0;
+    const lineIndent = text.match(Regex.lineIndent)?.[1].length ?? 0;
     if (lineIndent <= listIndent.length) {
       break;
     }
@@ -227,7 +228,7 @@ export function cursorInOrderedList(document: TextDocument, position: Position):
   return collectOrderedList(document, position.line).length > 0;
 }
 
-const UL_ITEM_RE = /^(\s*)([-*+]) /;
+const UL_ITEM_RE = Regex.unorderedListSimple;
 
 /**
  * Returns true when `position` is on an unordered list line (- / * / +).
@@ -321,7 +322,7 @@ export async function handleUlToOl(doc: TextDocument, _pos: Position): Promise<v
       continue;
     }
     // indented continuation content → keep scanning
-    const li = text.match(/^(\s*)/)?.[1].length ?? 0;
+    const li = text.match(Regex.lineIndent)?.[1].length ?? 0;
     if (li > targetIndent.length) {
       continue;
     }
@@ -341,7 +342,7 @@ export async function handleUlToOl(doc: TextDocument, _pos: Position): Promise<v
       lines.push({ line: i, markerStart: ms, markerEnd: ms + m[2].length + 1 }); // "- " = marker + space
       continue;
     }
-    const li = text.match(/^(\s*)/)?.[1].length ?? 0;
+    const li = text.match(Regex.lineIndent)?.[1].length ?? 0;
     if (li > targetIndent.length) {
       continue;
     }

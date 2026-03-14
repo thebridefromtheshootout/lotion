@@ -1,15 +1,16 @@
 
 import { Range } from "../hostEditor/EditorTypes";
 import { hostEditor } from "../hostEditor/HostingEditor";
+import { Regex } from "../core/regex";
 
 // ── Checkbox toggle ────────────────────────────────────────────────
 //
 // Toggles the checkbox on the current line between `- [ ]` and `- [x]`.
 // If the line isn't a checkbox, converts a plain list item to a checkbox.
 
-const CHECKED_RE = /^(\s*[-*+]\s)\[x\]/i;
-const UNCHECKED_RE = /^(\s*[-*+]\s)\[ \]/;
-const LIST_RE = /^(\s*[-*+]\s)/;
+const CHECKED_RE = Regex.checkboxCheckedLine;
+const UNCHECKED_RE = Regex.checkboxUncheckedLine;
+const LIST_RE = Regex.checkboxListPrefix;
 
 export async function toggleCheckbox(): Promise<void> {
   if (!hostEditor.isMarkdownEditor()) {

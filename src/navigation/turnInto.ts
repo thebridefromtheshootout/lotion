@@ -4,6 +4,7 @@ import { hostEditor } from "../hostEditor/HostingEditor";
 import * as path from "path";
 import * as fs from "fs";
 import { getCwd } from "../core/cwd";
+import { Regex } from "../core/regex";
 import { migrateComments } from "../editor/comments";
 import { migrateProcessors } from "../editor/processor";
 import { Cmd } from "../core/commands";
@@ -20,10 +21,10 @@ export const TURNINTO_SLASH_COMMAND: SlashCommand = {
 };
 
 // ── Patterns ───────────────────────────────────────────────────────
-const HEADING_RE = /^(#{1,6})\s+(.+)$/;
-const PAGE_LINK_RE = /^\[([^\]]+)\]\(([^)]+\.md)\)\s*$/;
-const TOGGLE_HEADING_OPEN_RE = /^<details(\s+open)?>$/;
-const TOGGLE_HEADING_SUMMARY_RE = /^<summary><h([1-6])>(.+)<\/h[1-6]><\/summary>$/;
+const HEADING_RE = Regex.headingLineWithText;
+const PAGE_LINK_RE = Regex.markdownPageLinkLine;
+const TOGGLE_HEADING_OPEN_RE = Regex.toggleHeadingOpen;
+const TOGGLE_HEADING_SUMMARY_RE = Regex.toggleHeadingSummary;
 
 // ── "Turn into…" command ───────────────────────────────────────────
 
@@ -150,7 +151,7 @@ async function headingToToggleHeading(
   let sectionEnd = doc.lineCount - 1;
 
   for (let i = sectionStart + 1; i < doc.lineCount; i++) {
-    const m = doc.lineAt(i).text.match(/^(#{1,6})\s/);
+    const m = doc.lineAt(i).text.match(Regex.headingPrefix);
     if (m && m[1].length <= level) {
       sectionEnd = i - 1;
       break;
@@ -296,7 +297,7 @@ async function headingToSubpage(doc: TextDocument, headingLine: TextLine, level:
   let sectionEnd = doc.lineCount - 1;
 
   for (let i = sectionStart + 1; i < doc.lineCount; i++) {
-    const m = doc.lineAt(i).text.match(/^(#{1,6})\s/);
+    const m = doc.lineAt(i).text.match(Regex.headingPrefix);
     if (m && m[1].length <= level) {
       sectionEnd = i - 1;
       break;
@@ -320,8 +321,8 @@ async function headingToSubpage(doc: TextDocument, headingLine: TextLine, level:
   // Create child page
   const slug = title
     .toLowerCase()
-    .replace(/\s+/g, "-")
-    .replace(/[^a-z0-9-]/g, "");
+    .replace(Regex.whitespaceRun, "-")
+    .replace(Regex.slugUnsafeChars, "");
   const pageDir = path.join(cwd, slug);
   const childFilePath = path.join(pageDir, "index.md");
   const relativePath = `${slug}/index.md`;
@@ -341,7 +342,7 @@ async function headingToSubpage(doc: TextDocument, headingLine: TextLine, level:
   }
 
   // Move referenced .rsrc/ files from parent to child
-  const rsrcRe = /\.rsrc\/([^\s)]+)/g;
+  const rsrcRe = Regex.rsrcPathGlobal;
   const parentRsrc = path.join(cwd, ".rsrc");
   const childRsrc = path.join(pageDir, ".rsrc");
   const bodyText = bodyLines.join("\n");
@@ -427,7 +428,7 @@ async function linkToHeading(
 
   // Read the linked file
   const content = fs.readFileSync(absPath, "utf-8");
-  const lines = content.split(/\r?\n/);
+  const lines = content.split(Regex.lineBreakSplit);
 
   // Strip the first heading (we'll replace it with the new level)
   let bodyStartIndex = 0;

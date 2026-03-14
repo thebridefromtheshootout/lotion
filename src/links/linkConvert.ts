@@ -1,6 +1,7 @@
 
 import { Position, Range } from "../hostEditor/EditorTypes";
 import { hostEditor, OpType, type EditOp } from "../hostEditor/HostingEditor";
+import { Regex } from "../core/regex";
 
 /**
  * Convert all inline markdown links to reference-style links, or vice versa.
@@ -11,9 +12,9 @@ import { hostEditor, OpType, type EditOp } from "../hostEditor/HostingEditor";
  * Commands: lotion.linksToReference, lotion.linksToInline
  */
 
-const INLINE_LINK_RE = /(?<!!)\[([^\]]+)\]\(([^)]+)\)/g;
-const REF_LINK_USE_RE = /(?<!!)\[([^\]]+)\]\[([^\]]+)\]/g;
-const REF_LINK_DEF_RE = /^\[([^\]]+)\]:\s+(.+)$/gm;
+const INLINE_LINK_RE = Regex.inlineLinkUseGlobal;
+const REF_LINK_USE_RE = Regex.refLinkUseGlobal;
+const REF_LINK_DEF_RE = Regex.refLinkDefinitionGlobalMultiline;
 
 export async function convertLinksToReference(): Promise<void> {
   if (!hostEditor.isMarkdownEditor()) {
