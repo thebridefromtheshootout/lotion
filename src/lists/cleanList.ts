@@ -4,13 +4,14 @@ import { hostEditor } from "../hostEditor/HostingEditor";
 import { Cmd } from "../core/commands";
 import { Regex } from "../core/regex";
 import type { SlashCommand } from "../core/slashCommands";
+import { collectOrderedList, renumberEdits, applyRenumberEdits } from "./listModel";
 
 const LIST_ITEM_RE = Regex.listItem;
 
 export const CLEAN_LIST_SLASH_COMMAND: SlashCommand = {
   label: "/clean-list",
   insertText: "",
-  detail: "🧹 Remove empty lines inside current list",
+  detail: "🧹 Remove empty lines/items in current list",
   isAction: true,
   commandId: Cmd.cleanList,
   kind: 11,
@@ -24,6 +25,10 @@ function lineIndent(lineText: string): number {
 
 function isListItem(lineText: string): boolean {
   return LIST_ITEM_RE.test(lineText);
+}
+
+function isEmptyListItem(lineText: string): boolean {
+  return /^(\s*)(?:\d+[.)]|[-*+]|-\s+\[[ xX]\])\s*$/.test(lineText);
 }
 
 function cursorInAnyList(document: TextDocument, position: Position): boolean {
@@ -113,7 +118,7 @@ export async function handleCleanList(doc: TextDocument, _pos: Position): Promis
   const deleteRanges: Range[] = [];
   for (let i = start; i <= end; i++) {
     const text = doc.lineAt(i).text;
-    if (text.trim() !== "") {
+    if (text.trim() !== "" && !isEmptyListItem(text)) {
       continue;
     }
     if (i < doc.lineCount - 1) {
@@ -124,9 +129,21 @@ export async function handleCleanList(doc: TextDocument, _pos: Position): Promis
   }
 
   if (deleteRanges.length === 0) {
-    hostEditor.showInformation("List has no empty lines to remove.");
+    hostEditor.showInformation("List has no empty lines/items to remove.");
     return;
   }
 
   await hostEditor.batchDeleteRanges(deleteRanges);
+
+  // Keep ordered lists sequential after item removals.
+  const updatedDoc = hostEditor.getDocument();
+  if (!updatedDoc) {
+    return;
+  }
+  const lineForRenumber = Math.min(Math.max(start - 1, 0), updatedDoc.lineCount - 1);
+  const orderedItems = collectOrderedList(updatedDoc, lineForRenumber);
+  if (orderedItems.length > 0) {
+    const edits = renumberEdits(updatedDoc, orderedItems, 0, 1);
+    await applyRenumberEdits(edits);
+  }
 }
