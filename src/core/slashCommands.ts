@@ -54,7 +54,6 @@ const STATIC_SLASH_COMMANDS: SlashCommand[] = [
     detail: "📋 YAML front matter block",
     kind: 14,
   },
-  // Git commit doesn't have a handler yet
   {
     label: "/commit",
     insertText: "",

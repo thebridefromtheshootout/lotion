@@ -93,14 +93,29 @@ export async function renamePage(): Promise<void> {
   if (fs.existsSync(newIndexPath)) {
     const doc = await hostEditor.openTextDocument(newIndexPath);
     const text = doc.getText();
-    const titleCase = newName.replace(Regex.dashUnderscore, " ").replace(Regex.wordBoundaryChar, (c) => c.toUpperCase());
+    const desiredTitle = newName.trim();
+    const lines = text.split(Regex.lineBreakSplit);
+    const firstH1Index = lines.findIndex((line) => {
+      const m = line.match(Regex.headingLineWithText);
+      return !!m && m[1].length === 1;
+    });
 
-    // Update H1 heading if it matches old name
-    const oldTitle = currentFolderName
-      .replace(Regex.dashUnderscore, " ")
-      .replace(Regex.wordBoundaryChar, (c) => c.toUpperCase());
-    if (text.includes(`# ${oldTitle}`)) {
-      const newText = text.replace(`# ${oldTitle}`, `# ${titleCase}`);
+    if (firstH1Index >= 0) {
+      lines[firstH1Index] = `# ${desiredTitle}`;
+      const newText = lines.join("\n");
+      if (newText !== text) {
+        const edit = new WorkspaceEdit();
+        const fullRange = new Range(
+          new Position(0, 0),
+          new Position(doc.lineCount - 1, doc.lineAt(doc.lineCount - 1).text.length),
+        );
+        edit.replace(doc.uri, fullRange, newText);
+        await hostEditor.applyWorkspaceEdit(edit);
+        await doc.save();
+      }
+    } else {
+      const prefix = text.length > 0 ? "\n\n" : "";
+      const newText = `# ${desiredTitle}${prefix}${text}`;
       const edit = new WorkspaceEdit();
       const fullRange = new Range(
         new Position(0, 0),

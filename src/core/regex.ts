@@ -19,6 +19,7 @@ export const Regex = {
   fileExtensionSuffix: /\.\w+$/,
   urlWwwPrefix: /^www\./,
   regexMetaCharsGlobal: /[.*+?^${}()|[\]\\]/g,
+  queryOrHashMarker: /[?#]/,
   squareBracketsGlobal: /[\[\]]/g,
   wordOrParenSplit: /[\s()]+/,
   newlineGlobal: /\n/g,
