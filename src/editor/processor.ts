@@ -426,12 +426,8 @@ function runCommand(command: string, cwd: string, stdinInput?: string): { output
   }
 }
 
-function escHtml(s: string): string {
-  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-}
-
 function buildSummaryTag(output: string): string {
-  return `<summary>${escHtml(output)}</summary>`;
+  return `<summary>${output}</summary>`;
 }
 
 /**
@@ -455,7 +451,7 @@ function buildProcessorBlock(guid: string, output: string, inputBody?: string): 
   const lines: string[] = [
     `<!-- lotion-processor: ${guid} -->`,
     `<details open>`,
-    `<summary>${escHtml(output)}</summary>`,
+    `<summary>${output}</summary>`,
     ``,
   ];
   if (inputBody !== undefined && inputBody.length > 0) {
