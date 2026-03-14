@@ -93,6 +93,7 @@ export const Cmd = {
   showTagIndex: "lotion.showTagIndex",
   recentPages: "lotion.recentPages",
   renamePage: "lotion.renamePage",
+  movePage: "lotion.movePage",
   quickSwitch: "lotion.quickSwitch",
   wikiSearch: "lotion.wikiSearch",
   createPage: "lotion.createPage",

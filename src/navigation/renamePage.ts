@@ -2,6 +2,19 @@ import { Position, Range, WorkspaceEdit } from "../hostEditor/EditorTypes";
 import { hostEditor } from "../hostEditor/HostingEditor";
 import * as path from "path";
 import * as fs from "fs";
+import { Cmd } from "../core/commands";
+import type { SlashCommand } from "../core/slashCommands";
+import { relinkWorkspacePagePaths } from "./pageRelink";
+
+export const RENAME_PAGE_SLASH_COMMAND: SlashCommand = {
+  label: "/rename-page",
+  insertText: "",
+  detail: "✏️ Rename current page folder and update links",
+  isAction: true,
+  commandId: Cmd.renamePage,
+  kind: 2,
+  handler: async () => renamePage(),
+};
 
 // ── Rename page with link refactoring ──────────────────────────────
 //
@@ -71,35 +84,8 @@ export async function renamePage(): Promise<void> {
   // Rename the folder
   fs.renameSync(currentDir, newDir);
 
-  // Update all markdown links across workspace
-  const mdFiles = await hostEditor.findFiles("**/*.md", "**/node_modules/**");
-  let updatedCount = 0;
-
-  for (const uri of mdFiles) {
-    try {
-      const doc = await hostEditor.openTextDocument(uri);
-      const text = doc.getText();
-
-      // Replace any path reference containing the old folder name
-      const escaped = oldRelFromRoot.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-      const re = new RegExp(escaped, "g");
-
-      if (re.test(text)) {
-        const newText = text.replace(re, newRelFromRoot);
-        const edit = new WorkspaceEdit();
-        const fullRange = new Range(
-          new Position(0, 0),
-          new Position(doc.lineCount - 1, doc.lineAt(doc.lineCount - 1).text.length),
-        );
-        edit.replace(uri, fullRange, newText);
-        await hostEditor.applyWorkspaceEdit(edit);
-        await doc.save();
-        updatedCount++;
-      }
-    } catch {
-      // skip
-    }
-  }
+  // Update all markdown links/backlinks across workspace
+  const updatedCount = await relinkWorkspacePagePaths(oldRelFromRoot, newRelFromRoot);
 
   // Update the heading in the renamed page's index.md
   const newIndexPath = path.join(newDir, "index.md");

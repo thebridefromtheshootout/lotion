@@ -33,6 +33,7 @@ import {
   quickSwitchPage,
   showRecentPages,
   renamePage,
+  movePage,
   // showTagIndex,
   // wikiSearch,
 } from "../navigation";
@@ -146,6 +147,7 @@ export const SIMPLE_COMMANDS: [string, (...args: any[]) => any][] = [
   // [Cmd.showTagIndex, showTagIndex], // disabled
   [Cmd.recentPages, showRecentPages],
   [Cmd.renamePage, renamePage],
+  [Cmd.movePage, movePage],
   [Cmd.quickSwitch, quickSwitchPage],
   // [Cmd.wikiSearch, wikiSearch], // disabled
   // Media

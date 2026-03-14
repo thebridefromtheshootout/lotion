@@ -543,6 +543,12 @@
         "category": "Lotion"
       },
       {
+        "command": "lotion.movePage",
+        "title": "Lotion: Move Page",
+        "icon": "$(file-symlink-file)",
+        "category": "Lotion"
+      },
+      {
         "command": "lotion.quickSwitch",
         "title": "Lotion: Quick Switch Page",
         "icon": "$(go-to-file)",
