@@ -1,19 +1,19 @@
-support column cut paste in table
-introduce /copy command only for  when cursor in code snippets and blocks
-Disable smart paste in code snippets
-/resource command to open a file picker to add to .rsrc other than images, add link to file where cursor was.
-/clean-list cmd to remove empty lines in a list.
-common ligatures: -> to unicode arrow or emoji configurable setting. Don't add useless ligatures like two alphabets to one. Add what ligatures notion offers.
-Date regex must be surrounded by whitespace for codelens to appear
-/commit is broken, where does it run git add -A, commit? It was failing the last time I tried it.
-/rename-page command (make one if it does not exist) should
+✅ support column cut paste in table
+✅ introduce /copy command only for  when cursor in code snippets and blocks
+✅ Disable smart paste in code snippets
+✅ /resource command to open a file picker to add to .rsrc other than images, add link to file where cursor was.
+✅ /clean-list cmd to remove empty lines in a list.
+✅ common ligatures: -> to unicode arrow or emoji configurable setting. Don't add useless ligatures like two alphabets to one. Add what ligatures notion offers.
+✅ Date regex must be surrounded by whitespace for codelens to appear
+✅ /commit is broken, where does it run git add -A, commit? It was failing the last time I tried it.
+✅ /rename-page command (make one if it does not exist) should
     Update backlinks
     Rename folder
     Update index.md's H1
-/move-page comand missing. It should offer moving the current active page.
-Disable sanitizing of output in processors. Currently, < and > are sanitized out for html portability
-update /image command or smart paste to use html img instead of markdown image links.
-Move all regex expressions to a single regex const object like Cmd 
+✅ /move-page comand missing. It should offer moving the current active page.
+✅ Disable sanitizing of output in processors. Currently, < and > are sanitized out for html portability
+✅ update /image command or smart paste to use html img instead of markdown image links.
+✅ Move all regex expressions to a single regex const object like Cmd 
 Complex Tasks below
 [Complex] Emojis break regex rules lmao
 [complex]Todo bubble up from nested pages to parent page.
