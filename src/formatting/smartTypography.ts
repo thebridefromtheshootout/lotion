@@ -19,7 +19,11 @@ export function createSmartTypography(): Disposable {
     if (e.document.languageId !== "markdown") {
       return;
     }
-    if (!hostEditor.getConfiguration("lotion").get<boolean>("smartTypography", true)) {
+    const config = hostEditor.getConfiguration("lotion");
+    const smartTypographyEnabled = config.get<boolean>("smartTypography", true);
+    const ligatureStyle = config.get<"off" | "unicode" | "emoji">("ligatureStyle", "unicode");
+
+    if (!smartTypographyEnabled && ligatureStyle === "off") {
       return;
     }
     if (!hostEditor.isActiveEditorDocumentEqualTo(e.document)) {
@@ -29,6 +33,14 @@ export function createSmartTypography(): Disposable {
     const doc = e.document;
 
     for (const change of e.contentChanges) {
+      if (handleLigatures(doc, change, ligatureStyle)) {
+        continue;
+      }
+
+      if (!smartTypographyEnabled) {
+        continue;
+      }
+
       if (change.text === '"' || change.text === "'") {
         handleQuote(doc, change);
       } else if (change.text === "-") {
@@ -122,4 +134,62 @@ function handleEllipsis(doc: TextDocument, change: TextDocumentContentChangeEven
       hostEditor.replaceRange(replaceRange, "\u2026", { undoStopBefore: false, undoStopAfter: false });
     }, 0);
   }
+}
+
+function handleLigatures(
+  doc: TextDocument,
+  change: TextDocumentContentChangeEvent,
+  style: "off" | "unicode" | "emoji",
+): boolean {
+  if (style === "off") {
+    return false;
+  }
+  if (change.text !== ">" && change.text !== "-") {
+    return false;
+  }
+
+  const pos = new Position(change.range.start.line, change.range.start.character + 1);
+  if (isInsideCode(doc, change.range.start)) {
+    return false;
+  }
+  const line = doc.lineAt(pos.line).text;
+
+  const replacements =
+    style === "emoji"
+      ? {
+          right: "➡️",
+          left: "⬅️",
+          both: "↔️",
+        }
+      : {
+          right: "→",
+          left: "←",
+          both: "↔",
+        };
+
+  const tryReplace = (token: string, replacement: string): boolean => {
+    if (pos.character < token.length) {
+      return false;
+    }
+    const start = pos.character - token.length;
+    if (line.substring(start, pos.character) !== token) {
+      return false;
+    }
+    const replaceRange = new Range(new Position(pos.line, start), new Position(pos.line, pos.character));
+    setTimeout(() => {
+      hostEditor.replaceRange(replaceRange, replacement, { undoStopBefore: false, undoStopAfter: false });
+    }, 0);
+    return true;
+  };
+
+  if (change.text === ">") {
+    return (
+      tryReplace("<->", replacements.both) ||
+      tryReplace("<=>", replacements.both) ||
+      tryReplace("->", replacements.right) ||
+      tryReplace("=>", replacements.right)
+    );
+  }
+
+  return tryReplace("<-", replacements.left) || tryReplace("<=", replacements.left);
 }

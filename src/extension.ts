@@ -221,7 +221,7 @@ export function activate(context: ExtensionContext) {
     // Auto-fixers & validators
     createListRenumber(),
     createTableAlignOnSave(),
-    // createSmartTypography(),  // disabled
+    createSmartTypography(),
     createTocAutoUpdater(),
     createStructureLinter(),
     createLinkValidator(),

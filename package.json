@@ -935,6 +935,12 @@
           "default": false,
           "description": "Auto-replace straight quotes, dashes, and ellipses with typographic equivalents."
         },
+        "lotion.ligatureStyle": {
+          "type": "string",
+          "enum": ["off", "unicode", "emoji"],
+          "default": "unicode",
+          "description": "Replace common arrow ligatures like ->, <-, and <-> with unicode or emoji arrows."
+        },
         "lotion.autoRenumberLists": {
           "type": "boolean",
           "default": true,
