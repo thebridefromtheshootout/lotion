@@ -37,6 +37,13 @@ export function generateDateLenses(document: TextDocument): CodeLens[] {
       while ((m = pat.exec(lineText)) !== null) {
         const start = m.index;
         const end = start + m[0].length;
+        const before = start > 0 ? lineText[start - 1] : " ";
+        const after = end < lineText.length ? lineText[end] : " ";
+
+        // Only show date lenses when dates are whitespace-delimited.
+        if (!/\s/.test(before) || !/\s/.test(after)) {
+          continue;
+        }
 
         // Avoid duplicate / overlapping lenses on the same line.
         const overlapIdx = lenses.findIndex(
