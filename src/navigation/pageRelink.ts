@@ -7,6 +7,10 @@ interface TargetParts {
   pathPart: string;
   suffix: string;
 }
+interface ResolvedTarget {
+  resolvedPath: string;
+  style: "relative" | "workspace" | "workspaceAbsolute";
+}
 
 function splitTarget(target: string): TargetParts {
   const idx = target.search(Regex.queryOrHashMarker);
@@ -45,6 +49,7 @@ function isInsidePath(candidate: string, root: string): boolean {
 
 function rewriteInternalTarget(
   target: string,
+  workspaceRoot: string,
   sourceDir: string,
   oldAbsDir: string,
   newAbsDir: string,
@@ -54,23 +59,56 @@ function rewriteInternalTarget(
   }
 
   const { pathPart, suffix } = splitTarget(target);
-  if (!pathPart || isExternalTarget(pathPart) || path.isAbsolute(pathPart)) {
+  if (!pathPart || isExternalTarget(pathPart)) {
     return undefined;
   }
 
-  const resolved = path.resolve(sourceDir, pathPart);
-  if (!isInsidePath(resolved, oldAbsDir)) {
+  const candidates: ResolvedTarget[] = [];
+  if (pathPart.startsWith("/")) {
+    candidates.push({
+      resolvedPath: path.resolve(workspaceRoot, "." + pathPart),
+      style: "workspaceAbsolute",
+    });
+  } else {
+    candidates.push({
+      resolvedPath: path.resolve(sourceDir, pathPart),
+      style: "relative",
+    });
+
+    // Also support workspace-root style links like "docs/page/index.md".
+    if (!pathPart.startsWith("./") && !pathPart.startsWith("../")) {
+      candidates.push({
+        resolvedPath: path.resolve(workspaceRoot, pathPart),
+        style: "workspace",
+      });
+    }
+  }
+
+  const matched = candidates.find((c) => isInsidePath(c.resolvedPath, oldAbsDir));
+  if (!matched) {
     return undefined;
   }
 
-  const relWithinPage = path.relative(oldAbsDir, resolved);
+  const relWithinPage = path.relative(oldAbsDir, matched.resolvedPath);
   const newResolved = path.resolve(newAbsDir, relWithinPage);
-  let newRel = path.relative(sourceDir, newResolved).replace(Regex.windowsSlash, "/");
+  let newRel: string;
 
-  if (!newRel) {
-    newRel = "index.md";
-  } else if (pathPart.startsWith("./") && !newRel.startsWith("./") && !newRel.startsWith("../")) {
-    newRel = `./${newRel}`;
+  if (matched.style === "relative") {
+    newRel = path.relative(sourceDir, newResolved).replace(Regex.windowsSlash, "/");
+    if (!newRel) {
+      newRel = "index.md";
+    } else if (pathPart.startsWith("./") && !newRel.startsWith("./") && !newRel.startsWith("../")) {
+      newRel = `./${newRel}`;
+    }
+  } else {
+    newRel = path.relative(workspaceRoot, newResolved).replace(Regex.windowsSlash, "/");
+    if (matched.style === "workspaceAbsolute") {
+      newRel = `/${newRel}`;
+    }
+  }
+
+  if (pathPart.endsWith("/") && !newRel.endsWith("/")) {
+    newRel += "/";
   }
 
   return `${newRel}${suffix}`;
@@ -108,7 +146,7 @@ export async function relinkWorkspacePagePaths(oldRelFromRoot: string, newRelFro
         }
 
         const target = match[2];
-        const rewritten = rewriteInternalTarget(target, sourceDir, oldAbsDir, newAbsDir);
+        const rewritten = rewriteInternalTarget(target, workspaceRoot, sourceDir, oldAbsDir, newAbsDir);
         if (!rewritten || rewritten === target) {
           continue;
         }
@@ -123,7 +161,7 @@ export async function relinkWorkspacePagePaths(oldRelFromRoot: string, newRelFro
       const refDefRe = new RegExp(Regex.refLinkDefinitionGlobalMultiline.source, "gm");
       while ((match = refDefRe.exec(text)) !== null) {
         const target = match[2];
-        const rewritten = rewriteInternalTarget(target, sourceDir, oldAbsDir, newAbsDir);
+        const rewritten = rewriteInternalTarget(target, workspaceRoot, sourceDir, oldAbsDir, newAbsDir);
         if (!rewritten || rewritten === target) {
           continue;
         }
