@@ -6,7 +6,7 @@
     "url": "https://github.com/thebridefromtheshootout/lotion"
   },
   "description": "Notion-like editing for Markdown — slash commands, databases, backlinks, and more",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "license": "GPL-3.0",
   "engines": {
     "vscode": "^1.80.0"
@@ -44,12 +44,6 @@
       ]
     },
     "commands": [
-      {
-        "command": "lotion.exportToPdf",
-        "title": "Lotion: Export to PDF / HTML",
-        "icon": "$(desktop-download)",
-        "category": "Lotion"
-      },
       {
         "command": "lotion.addComment",
         "title": "Lotion: Add Comment",
