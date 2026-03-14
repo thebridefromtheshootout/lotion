@@ -7,38 +7,56 @@ import { Regex } from "../core/regex";
 import { clipboardHasImage, imageFromClipboard } from "../media/clipboard";
 import { cursorInCodeContext } from "./codeContext";
 
+const SMART_PASTE_LOG_PREFIX = "[Lotion][smartPaste]";
+
+function logSmartPaste(step: string, details?: Record<string, unknown>): void {
+  if (details) {
+    console.log(`${SMART_PASTE_LOG_PREFIX} ${step}`, details);
+  } else {
+    console.log(`${SMART_PASTE_LOG_PREFIX} ${step}`);
+  }
+}
+
 // ── Smart paste (Ctrl+V with link & image detection) ──────────────
 export async function handleSmartPaste() {
+  logSmartPaste("start");
   if (!hostEditor.isMarkdownEditor()) {
+    logSmartPaste("not-markdown-editor -> default-paste");
     await hostEditor.executeCommand("editor.action.clipboardPasteAction");
     return;
   }
   const document = hostEditor.getDocument();
   const cursor = hostEditor.getCursorPosition();
   if (document && cursor && cursorInCodeContext(document, cursor)) {
+    logSmartPaste("cursor-in-code-context -> default-paste");
     // Preserve literal paste behavior while editing code snippets/blocks.
     await hostEditor.executeCommand("editor.action.clipboardPasteAction");
     return;
   }
   const selection = hostEditor.getSelection()!;
+  logSmartPaste("selection-state", { isEmpty: selection.isEmpty });
 
   // ── Link-wrap: selected text + URL on clipboard → HTML link/image ──
   if (!selection.isEmpty) {
     const clipText = (await hostEditor.getClipboardText()).trim();
+    logSmartPaste("selection+clipboard", { clipboardLength: clipText.length, looksLikeUrl: Regex.httpUrl.test(clipText) });
     if (Regex.httpUrl.test(clipText)) {
       try {
         const url = new URL(clipText);
         const hrefOrSrc = escHtml(clipText);
         const selectedText = hostEditor.getDocumentText(selection).trim();
         if (isImageUrl(url)) {
+          logSmartPaste("selected-url->html-image");
           const alt = escHtml(selectedText || deriveImageAlt(url));
           await hostEditor.replaceCurrentSelection(`<img src="${hrefOrSrc}" alt="${alt}">`);
         } else {
+          logSmartPaste("selected-url->html-anchor");
           const label = escHtml(selectedText || deriveUrlLabel(url));
           await hostEditor.replaceCurrentSelection(`<a href="${hrefOrSrc}">${label}</a>`);
         }
         return;
       } catch {
+        logSmartPaste("selected-url-parse-failed -> continue");
         // Malformed URL — fall through to normal paste
       }
     }
@@ -47,20 +65,24 @@ export async function handleSmartPaste() {
   // ── Auto-link: no selection + bare URL on clipboard → HTML link/image ──
   if (selection.isEmpty) {
     const clipText = (await hostEditor.getClipboardText()).trim();
+    logSmartPaste("empty-selection+clipboard", { clipboardLength: clipText.length, looksLikeUrl: Regex.httpUrl.test(clipText) });
     if (Regex.httpUrl.test(clipText)) {
       try {
         const url = new URL(clipText);
         const hrefOrSrc = escHtml(clipText);
         if (isImageUrl(url)) {
+          logSmartPaste("auto-url->html-image");
           const alt = escHtml(deriveImageAlt(url));
           await hostEditor.insertAtCursor(`<img src="${hrefOrSrc}" alt="${alt}">`);
         } else {
+          logSmartPaste("auto-url->html-anchor");
           // Derive a readable label from the URL
           const label = escHtml(deriveUrlLabel(url));
           await hostEditor.insertAtCursor(`<a href="${hrefOrSrc}">${label}</a>`);
         }
         return;
       } catch {
+        logSmartPaste("auto-url-parse-failed -> continue");
         // Malformed URL — fall through to normal paste
       }
     }
@@ -71,14 +93,19 @@ export async function handleSmartPaste() {
     const clipText = (await hostEditor.getClipboardText()).trim();
     const tableResult = tryParseTableData(clipText);
     if (tableResult) {
+      logSmartPaste("table-detected->insert-markdown-table");
       await hostEditor.insertAtCursor(tableResult);
       return;
     }
+    logSmartPaste("table-not-detected");
   }
 
   // ── Image paste: clipboard image → save & insert ───────────────
   const cwd = getCwd();
-  if (!cwd || !clipboardHasImage()) {
+  const hasClipboardImage = clipboardHasImage();
+  logSmartPaste("image-path-check", { hasCwd: !!cwd, hasClipboardImage });
+  if (!cwd || !hasClipboardImage) {
+    logSmartPaste("image-path-bypass -> default-paste");
     await hostEditor.executeCommand("editor.action.clipboardPasteAction");
     return;
   }
@@ -86,6 +113,7 @@ export async function handleSmartPaste() {
   const rsrcDir = path.join(cwd, ".rsrc");
   if (!fs.existsSync(rsrcDir)) {
     fs.mkdirSync(rsrcDir, { recursive: true });
+    logSmartPaste("created-rsrc-dir", { rsrcDir });
   }
 
   const defaultName = new Date().toISOString().replace(Regex.colonDot, "-");
@@ -105,23 +133,30 @@ export async function handleSmartPaste() {
   });
 
   if (!imageName) {
+    logSmartPaste("image-name-cancelled");
     return;
   }
+  logSmartPaste("image-name-confirmed", { imageName });
 
   const savedFileName = await imageFromClipboard(rsrcDir, imageName);
   if (!savedFileName) {
+    logSmartPaste("image-save-failed");
     return;
   }
+  logSmartPaste("image-saved", { savedFileName });
 
   const relativePath = `.rsrc/${savedFileName}`;
   const escapedAlt = imageName.replace(Regex.doubleQuote, "&quot;");
   const imgTag = `<img src="${relativePath}" alt="${escapedAlt}">`;
   if (selection.isEmpty) {
+    logSmartPaste("insert-local-image-at-cursor");
     await hostEditor.insertAtCursor(imgTag);
   } else {
+    logSmartPaste("replace-selection-with-local-image");
     await hostEditor.replaceCurrentSelection(imgTag);
   }
   await hostEditor.saveActiveDocument();
+  logSmartPaste("done");
 }
 
 // ── Helpers ────────────────────────────────────────────────────────
