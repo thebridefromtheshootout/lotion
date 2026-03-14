@@ -22,25 +22,43 @@ export async function handleSmartPaste() {
   }
   const selection = hostEditor.getSelection()!;
 
-  // ── Link-wrap: selected text + URL on clipboard → [text](url) ──
+  // ── Link-wrap: selected text + URL on clipboard → HTML link/image ──
   if (!selection.isEmpty) {
     const clipText = (await hostEditor.getClipboardText()).trim();
     if (Regex.httpUrl.test(clipText)) {
-      const selectedText = hostEditor.getDocumentText(selection);
-      await hostEditor.replaceCurrentSelection(`[${selectedText}](${clipText})`);
-      return;
+      try {
+        const url = new URL(clipText);
+        const hrefOrSrc = escHtml(clipText);
+        const selectedText = hostEditor.getDocumentText(selection).trim();
+        if (isImageUrl(url)) {
+          const alt = escHtml(selectedText || deriveImageAlt(url));
+          await hostEditor.replaceCurrentSelection(`<img src="${hrefOrSrc}" alt="${alt}">`);
+        } else {
+          const label = escHtml(selectedText || deriveUrlLabel(url));
+          await hostEditor.replaceCurrentSelection(`<a href="${hrefOrSrc}">${label}</a>`);
+        }
+        return;
+      } catch {
+        // Malformed URL — fall through to normal paste
+      }
     }
   }
 
-  // ── Auto-link: no selection + bare URL on clipboard → [host](url) ──
+  // ── Auto-link: no selection + bare URL on clipboard → HTML link/image ──
   if (selection.isEmpty) {
     const clipText = (await hostEditor.getClipboardText()).trim();
     if (Regex.httpUrl.test(clipText)) {
       try {
         const url = new URL(clipText);
-        // Derive a readable label from the URL
-        const label = deriveUrlLabel(url);
-        await hostEditor.insertAtCursor(`[${label}](${clipText})`);
+        const hrefOrSrc = escHtml(clipText);
+        if (isImageUrl(url)) {
+          const alt = escHtml(deriveImageAlt(url));
+          await hostEditor.insertAtCursor(`<img src="${hrefOrSrc}" alt="${alt}">`);
+        } else {
+          // Derive a readable label from the URL
+          const label = escHtml(deriveUrlLabel(url));
+          await hostEditor.insertAtCursor(`<a href="${hrefOrSrc}">${label}</a>`);
+        }
         return;
       } catch {
         // Malformed URL — fall through to normal paste
@@ -107,6 +125,31 @@ export async function handleSmartPaste() {
 }
 
 // ── Helpers ────────────────────────────────────────────────────────
+
+const IMAGE_URL_EXTS = new Set([".png", ".jpg", ".jpeg", ".gif", ".webp", ".bmp", ".svg", ".avif"]);
+
+function escHtml(text: string): string {
+  return text
+    .replace(Regex.htmlEscapeAmp, "&amp;")
+    .replace(Regex.htmlEscapeLt, "&lt;")
+    .replace(Regex.htmlEscapeGt, "&gt;")
+    .replace(Regex.htmlEscapeQuote, "&quot;");
+}
+
+function isImageUrl(url: URL): boolean {
+  return IMAGE_URL_EXTS.has(path.extname(url.pathname).toLowerCase());
+}
+
+function deriveImageAlt(url: URL): string {
+  const file = path.basename(url.pathname);
+  const base = file ? file.replace(Regex.fileExtensionSuffix, "") : "";
+  if (!base) {
+    return "image";
+  }
+  return base
+    .replace(Regex.dashUnderscore, " ")
+    .replace(Regex.wordBoundaryChar, (c) => c.toUpperCase());
+}
 
 /**
  * Derive a human-readable label from a URL.
