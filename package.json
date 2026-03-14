@@ -87,6 +87,12 @@
         "category": "Lotion"
       },
       {
+        "command": "lotion.insertResource",
+        "title": "Lotion: Insert Resource",
+        "icon": "$(attach)",
+        "category": "Lotion"
+      },
+      {
         "command": "lotion.insertCarousel",
         "title": "Lotion: Insert Image Carousel",
         "icon": "$(preview)",

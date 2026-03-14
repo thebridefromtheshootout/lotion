@@ -100,6 +100,7 @@ export const Cmd = {
   // ── Media ──────────────────────────────────────────────────────────
   findUnusedImages: "lotion.findUnusedImages",
   insertImage: "lotion.insertImage",
+  insertResource: "lotion.insertResource",
   insertCarousel: "lotion.insertCarousel",
   insertGif: "lotion.insertGif",
   insertGraph: "lotion.insertGraph",
