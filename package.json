@@ -1003,6 +1003,7 @@
     }
   },
   "scripts": {
+    "package":"npx vsce package",
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./ && node esbuild.webview.mjs",
     "compile:webview": "node esbuild.webview.mjs",
