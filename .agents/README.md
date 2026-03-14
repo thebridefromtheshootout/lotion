@@ -6,4 +6,5 @@ Read tasks.txt and do any task that is not below the Complex tasks line.
 - write clean, DRY code.
 - test all changes for a fix with `npm run compile`.
     - if it says npm not found, try running `nvm use v20.14.0`
+- before committing, mark the task as done with a green check mark emoji in tasks.txt
 - commit all atomic fixes one by one as you make them.
