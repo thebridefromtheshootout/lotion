@@ -2,7 +2,6 @@ import { ConfigurationTarget, Position, ProgressLocation } from "../hostEditor/E
 import type { TextDocument } from "../hostEditor/EditorTypes";
 import { hostEditor } from "../hostEditor/HostingEditor";
 import * as cp from "child_process";
-import * as path from "path";
 
 // ── Git Commit & Push ──────────────────────────────────────────────
 //
@@ -17,9 +16,9 @@ const REMOTE_URL_KEY = "lotion.git.remoteUrl";
  * Execute a git command in the workspace root.
  * Returns stdout on success, throws on error.
  */
-function git(args: string, cwd: string): Promise<string> {
+function git(args: string[], cwd: string): Promise<string> {
   return new Promise((resolve, reject) => {
-    cp.exec(`git ${args}`, { cwd, encoding: "utf-8" }, (err, stdout, stderr) => {
+    cp.execFile("git", args, { cwd, encoding: "utf-8" }, (err, stdout, stderr) => {
       if (err) {
         reject(new Error(stderr.trim() || err.message));
       } else {
@@ -45,7 +44,7 @@ function getWorkspaceRoot(): string | undefined {
  */
 async function hasRemote(cwd: string): Promise<boolean> {
   try {
-    const result = await git("remote", cwd);
+    const result = await git(["remote"], cwd);
     return result.length > 0;
   } catch {
     return false;
@@ -57,7 +56,7 @@ async function hasRemote(cwd: string): Promise<boolean> {
  */
 async function getCurrentBranch(cwd: string): Promise<string> {
   try {
-    return await git("branch --show-current", cwd);
+    return await git(["branch", "--show-current"], cwd);
   } catch {
     return "main";
   }
@@ -75,7 +74,7 @@ export async function handleGitCommitCommand(_document: TextDocument, _position:
 
   // Verify git is available and this is a repo
   try {
-    await git("rev-parse --is-inside-work-tree", cwd);
+    await git(["rev-parse", "--is-inside-work-tree"], cwd);
   } catch {
     hostEditor.showError("Lotion Git: this workspace is not a Git repository.");
     return;
@@ -83,14 +82,14 @@ export async function handleGitCommitCommand(_document: TextDocument, _position:
 
   // 1. Stage all changes
   try {
-    await git("add -A", cwd);
+    await git(["add", "-A"], cwd);
   } catch (e: any) {
     hostEditor.showError(`Lotion Git: failed to stage changes. ${e.message}`);
     return;
   }
 
   // Check if there's anything to commit
-  const status = await git("status --porcelain", cwd);
+  const status = await git(["status", "--porcelain"], cwd);
   if (!status) {
     hostEditor.showInformation("Lotion Git: nothing to commit — working tree clean.");
     return;
@@ -119,8 +118,7 @@ export async function handleGitCommitCommand(_document: TextDocument, _position:
 
   // 3. Commit
   try {
-    const safeMsg = commitMsg.replace(/"/g, '\\"');
-    const commitOutput = await git(`commit -m "${safeMsg}"`, cwd);
+    await git(["commit", "-m", commitMsg], cwd);
     hostEditor.showInformation(`✓ Committed: ${commitMsg}`);
   } catch (e: any) {
     hostEditor.showError(`Lotion Git: commit failed. ${e.message}`);
@@ -163,9 +161,11 @@ export async function handleGitCommitCommand(_document: TextDocument, _position:
     }
 
     // Ask for remote URL
+    const rememberedRemote = config.get<string>(REMOTE_URL_KEY, "");
     const remoteUrl = await hostEditor.showInputBox({
       prompt: "Remote repository URL",
       placeHolder: "https://github.com/user/repo.git",
+      value: rememberedRemote,
       validateInput: (v) => {
         if (!v || v.trim().length === 0) {
           return "URL cannot be empty";
@@ -178,7 +178,9 @@ export async function handleGitCommitCommand(_document: TextDocument, _position:
     }
 
     try {
-      await git(`remote add origin ${remoteUrl.trim()}`, cwd);
+      const trimmedRemote = remoteUrl.trim();
+      await git(["remote", "add", "origin", trimmedRemote], cwd);
+      await config.update(REMOTE_URL_KEY, trimmedRemote, ConfigurationTarget.Workspace);
       hostEditor.showInformation(`Remote 'origin' set to ${remoteUrl.trim()}`);
     } catch (e: any) {
       hostEditor.showError(`Lotion Git: failed to add remote. ${e.message}`);
@@ -196,7 +198,7 @@ export async function handleGitCommitCommand(_document: TextDocument, _position:
         cancellable: false,
       },
       async () => {
-        await git(`push -u origin ${branch}`, cwd);
+        await git(["push", "-u", "origin", branch], cwd);
       },
     );
     hostEditor.showInformation(`✓ Pushed to remote (${branch})`);
@@ -205,7 +207,7 @@ export async function handleGitCommitCommand(_document: TextDocument, _position:
     if (e.message.includes("no upstream") || e.message.includes("set-upstream")) {
       try {
         const branch = await getCurrentBranch(cwd);
-        await git(`push --set-upstream origin ${branch}`, cwd);
+        await git(["push", "--set-upstream", "origin", branch], cwd);
         hostEditor.showInformation(`✓ Pushed to remote (${branch})`);
       } catch (e2: any) {
         hostEditor.showError(`Lotion Git: push failed. ${e2.message}`);
