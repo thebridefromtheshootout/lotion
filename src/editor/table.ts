@@ -50,6 +50,12 @@ function parseRow(line: string): string[] {
   return parts.slice(1, -1).map((c) => c.trim());
 }
 
+interface TableColumnClipboardPayload {
+  __lotionTableColumn: true;
+  header: string;
+  rows: string[];
+}
+
 function serializeTable(headers: string[], rows: string[][], colWidths: number[]): string {
   const pad = (text: string, width: number) => text.padEnd(width);
 
@@ -361,6 +367,105 @@ export async function handleDeleteCol(document: TextDocument, position: Position
   }
 
   await replaceTable(document, range, table.headers, table.rows);
+}
+
+export async function copyCurrentTableColumnToClipboard(cut = false): Promise<boolean> {
+  const document = hostEditor.getDocument();
+  const position = hostEditor.getCursorPosition();
+  if (!document || !position) {
+    return false;
+  }
+
+  const range = getTableRange(document, position.line);
+  if (!range) {
+    return false;
+  }
+  const table = parseTable(document, range);
+  if (!table) {
+    return false;
+  }
+
+  const lineText = document.lineAt(position.line).text;
+  const colIndex = getColumnAtCursor(lineText, position.character);
+  if (colIndex >= table.headers.length) {
+    return false;
+  }
+
+  const payload: TableColumnClipboardPayload = {
+    __lotionTableColumn: true,
+    header: table.headers[colIndex] ?? "",
+    rows: table.rows.map((row) => row[colIndex] ?? ""),
+  };
+  await hostEditor.writeClipboardText(JSON.stringify(payload));
+
+  if (!cut) {
+    return true;
+  }
+  if (table.headers.length <= 1) {
+    hostEditor.showWarning("Cannot cut the last column.");
+    return false;
+  }
+
+  table.headers.splice(colIndex, 1);
+  for (const row of table.rows) {
+    row.splice(colIndex, 1);
+  }
+
+  await replaceTable(document, range, table.headers, table.rows);
+  return true;
+}
+
+export function parseTableColumnClipboard(text: string): { header: string; rows: string[] } | undefined {
+  try {
+    const parsed = JSON.parse(text) as Partial<TableColumnClipboardPayload>;
+    if (
+      !parsed ||
+      parsed.__lotionTableColumn !== true ||
+      typeof parsed.header !== "string" ||
+      !Array.isArray(parsed.rows) ||
+      !parsed.rows.every((r) => typeof r === "string")
+    ) {
+      return undefined;
+    }
+    return { header: parsed.header, rows: parsed.rows };
+  } catch {
+    return undefined;
+  }
+}
+
+export async function pasteTableColumnAtCursor(
+  document: TextDocument,
+  position: Position,
+  payload: { header: string; rows: string[] },
+): Promise<boolean> {
+  if (!hostEditor.isActiveEditorDocumentEqualTo(document)) {
+    return false;
+  }
+  const range = getTableRange(document, position.line);
+  if (!range) {
+    return false;
+  }
+  const table = parseTable(document, range);
+  if (!table) {
+    return false;
+  }
+
+  const lineText = document.lineAt(position.line).text;
+  const currentCol = Math.min(getColumnAtCursor(lineText, position.character), table.headers.length - 1);
+  const insertAt = currentCol + 1;
+
+  while (table.rows.length < payload.rows.length) {
+    table.rows.push(Array.from({ length: table.headers.length }, () => ""));
+  }
+
+  table.headers.splice(insertAt, 0, payload.header || "Col");
+  for (let i = 0; i < table.rows.length; i++) {
+    const value = i < payload.rows.length ? payload.rows[i] : "";
+    table.rows[i].splice(insertAt, 0, value);
+  }
+
+  await replaceTable(document, range, table.headers, table.rows);
+  return true;
 }
 
 // ── Which column is the cursor in? ────────────────────────────────

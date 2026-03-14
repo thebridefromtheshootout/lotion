@@ -1,6 +1,7 @@
 import { Disposable } from "../hostEditor/EditorTypes";
 import { hostEditor } from "../hostEditor/HostingEditor";
 import { Cmd } from "../core/commands";
+import { copyCurrentTableColumnToClipboard, cursorInTable } from "../editor/table";
 
 /**
  * Clipboard history ring.
@@ -64,7 +65,17 @@ export async function pasteFromHistory(): Promise<void> {
 export function createClipboardHistoryTracker(): Disposable {
   // Intercept copy to record
   const copyDisposable = hostEditor.registerCommand(Cmd.copyToClipboard, async () => {
+    const doc = hostEditor.getDocument();
+    const pos = hostEditor.getCursorPosition();
     const selection = hostEditor.getSelection();
+    if (doc && pos && selection?.isEmpty && cursorInTable(doc, pos)) {
+      const copied = await copyCurrentTableColumnToClipboard(false);
+      if (copied) {
+        const text = await hostEditor.getClipboardText();
+        addEntry(text);
+        return;
+      }
+    }
     if (selection && !selection.isEmpty) {
       const text = hostEditor.getDocumentText(selection);
       await hostEditor.writeClipboardText(text);
@@ -78,7 +89,17 @@ export function createClipboardHistoryTracker(): Disposable {
   });
 
   const cutDisposable = hostEditor.registerCommand(Cmd.cutToClipboard, async () => {
+    const doc = hostEditor.getDocument();
+    const pos = hostEditor.getCursorPosition();
     const selection = hostEditor.getSelection();
+    if (doc && pos && selection?.isEmpty && cursorInTable(doc, pos)) {
+      const cut = await copyCurrentTableColumnToClipboard(true);
+      if (cut) {
+        const text = await hostEditor.getClipboardText();
+        addEntry(text);
+        return;
+      }
+    }
     if (selection) {
       let text: string;
       if (!selection.isEmpty) {
