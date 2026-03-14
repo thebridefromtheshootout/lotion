@@ -13,6 +13,13 @@ export interface ClipboardImageProbeResult {
   missingDependencyMessage?: string;
 }
 
+interface ClipboardPlatformHandler {
+  commandName: string;
+  missingDependencyMessage: string;
+  probeHasImage: () => boolean;
+  saveImage: (filePath: string) => void;
+}
+
 function getPlatform(): Platform {
   return process.platform as Platform;
 }
@@ -38,6 +45,72 @@ function isMissingCommandError(err: any, command?: string): boolean {
   return text.toLowerCase().includes(command.toLowerCase());
 }
 
+const CLIPBOARD_HANDLERS: Record<Platform, ClipboardPlatformHandler> = {
+  win32: {
+    commandName: "powershell",
+    missingDependencyMessage: "Lotion: PowerShell not found. Install/enable PowerShell to paste clipboard images.",
+    probeHasImage: () => {
+      execSync('powershell -NoProfile -Command "if (-not (Get-Clipboard -Format Image)) { exit 1 }"', {
+        stdio: "pipe",
+        timeout: 5000,
+      });
+      return true;
+    },
+    saveImage: (filePath: string) => {
+      const psScript = [
+        "$img = Get-Clipboard -Format Image",
+        "if ($null -eq $img) { exit 1 }",
+        `$img.Save('${filePath.replace(Regex.singleQuote, "''")}', [System.Drawing.Imaging.ImageFormat]::Png)`,
+      ].join("; ");
+      execSync(`powershell -NoProfile -Command "${psScript}"`, {
+        stdio: "pipe",
+        timeout: 10000,
+      });
+    },
+  },
+  darwin: {
+    commandName: "osascript",
+    missingDependencyMessage: "Lotion: osascript not found. macOS AppleScript is required for clipboard image paste.",
+    probeHasImage: () => {
+      const result = execSync('osascript -e "clipboard info"', { stdio: "pipe", timeout: 5000, encoding: "utf-8" });
+      return Regex.clipboardDarwinImageTypes.test(result);
+    },
+    saveImage: (filePath: string) => {
+      execSync(
+        `osascript -e 'set pngData to the clipboard as «class PNGf»' ` +
+          `-e 'set fp to open for access POSIX file "${filePath}" with write permission' ` +
+          `-e 'write pngData to fp' ` +
+          `-e 'close access fp'`,
+        { stdio: "pipe", timeout: 10000 },
+      );
+    },
+  },
+  linux: {
+    commandName: "xclip",
+    missingDependencyMessage: "Lotion: xclip not found. Install xclip to paste clipboard images.",
+    probeHasImage: () => {
+      const targets = execSync("xclip -selection clipboard -t TARGETS -o", {
+        stdio: "pipe",
+        timeout: 5000,
+        encoding: "utf-8",
+      });
+      return Regex.clipboardLinuxImageTypes.test(targets);
+    },
+    saveImage: (filePath: string) => {
+      execSync(`xclip -selection clipboard -t image/png -o > "${filePath}"`, {
+        stdio: "pipe",
+        timeout: 10000,
+        shell: "/bin/sh",
+      });
+    },
+  },
+};
+
+function getClipboardHandler(): ClipboardPlatformHandler | undefined {
+  const platform = getPlatform();
+  return CLIPBOARD_HANDLERS[platform];
+}
+
 // ── Clipboard image check ──────────────────────────────────────────
 
 /**
@@ -49,59 +122,19 @@ export function clipboardHasImage(): boolean {
 }
 
 export function probeClipboardImage(): ClipboardImageProbeResult {
+  const handler = getClipboardHandler();
+  if (!handler) {
+    return { hasImage: false };
+  }
+
   try {
-    switch (getPlatform()) {
-      case "win32":
-        // PowerShell: check if clipboard contains an image
-        execSync('powershell -NoProfile -Command "if (-not (Get-Clipboard -Format Image)) { exit 1 }"', {
-          stdio: "pipe",
-          timeout: 5000,
-        });
-        return { hasImage: true };
-
-      case "darwin":
-        // osascript: check clipboard for «class PNGf» or «class TIFF»
-        const result = execSync('osascript -e "clipboard info"', { stdio: "pipe", timeout: 5000, encoding: "utf-8" });
-        return { hasImage: Regex.clipboardDarwinImageTypes.test(result) };
-
-      case "linux":
-        // xclip: list clipboard targets and check for image types
-        const targets = execSync("xclip -selection clipboard -t TARGETS -o", {
-          stdio: "pipe",
-          timeout: 5000,
-          encoding: "utf-8",
-        });
-        return { hasImage: Regex.clipboardLinuxImageTypes.test(targets) };
-
-      default:
-        return { hasImage: false };
-    }
+    return { hasImage: handler.probeHasImage() };
   } catch (err: any) {
-    switch (getPlatform()) {
-      case "win32":
-        if (isMissingCommandError(err, "powershell")) {
-          return {
-            hasImage: false,
-            missingDependencyMessage: "Lotion: PowerShell not found. Install/enable PowerShell to paste clipboard images.",
-          };
-        }
-        break;
-      case "darwin":
-        if (isMissingCommandError(err, "osascript")) {
-          return {
-            hasImage: false,
-            missingDependencyMessage: "Lotion: osascript not found. macOS AppleScript is required for clipboard image paste.",
-          };
-        }
-        break;
-      case "linux":
-        if (isMissingCommandError(err, "xclip")) {
-          return {
-            hasImage: false,
-            missingDependencyMessage: "Lotion: xclip not found. Install xclip to paste clipboard images.",
-          };
-        }
-        break;
+    if (isMissingCommandError(err, handler.commandName)) {
+      return {
+        hasImage: false,
+        missingDependencyMessage: handler.missingDependencyMessage,
+      };
     }
     return { hasImage: false };
   }
@@ -116,46 +149,15 @@ export function probeClipboardImage(): ClipboardImageProbeResult {
 export async function imageFromClipboard(rsrcDir: string, imageName: string): Promise<string | undefined> {
   const fileName = `${imageName}.png`;
   const filePath = path.join(rsrcDir, fileName);
+  const handler = getClipboardHandler();
+
+  if (!handler) {
+    hostEditor.showError("Lotion: unsupported platform for clipboard image.");
+    return undefined;
+  }
 
   try {
-    switch (getPlatform()) {
-      case "win32":
-        // PowerShell: save clipboard image as PNG
-        const psScript = [
-          "$img = Get-Clipboard -Format Image",
-          "if ($null -eq $img) { exit 1 }",
-          `$img.Save('${filePath.replace(Regex.singleQuote, "''")}', [System.Drawing.Imaging.ImageFormat]::Png)`,
-        ].join("; ");
-        execSync(`powershell -NoProfile -Command "${psScript}"`, {
-          stdio: "pipe",
-          timeout: 10000,
-        });
-        break;
-
-      case "darwin":
-        // osascript + built-in: write PNG data from clipboard
-        execSync(
-          `osascript -e 'set pngData to the clipboard as «class PNGf»' ` +
-            `-e 'set fp to open for access POSIX file "${filePath}" with write permission' ` +
-            `-e 'write pngData to fp' ` +
-            `-e 'close access fp'`,
-          { stdio: "pipe", timeout: 10000 },
-        );
-        break;
-
-      case "linux":
-        // xclip: read image/png from clipboard
-        execSync(`xclip -selection clipboard -t image/png -o > "${filePath}"`, {
-          stdio: "pipe",
-          timeout: 10000,
-          shell: "/bin/sh",
-        });
-        break;
-
-      default:
-        hostEditor.showError("Lotion: unsupported platform for clipboard image.");
-        return undefined;
-    }
+    handler.saveImage(filePath);
 
     if (!fs.existsSync(filePath) || fs.statSync(filePath).size === 0) {
       // Clean up empty file if created
@@ -176,25 +178,9 @@ export async function imageFromClipboard(rsrcDir: string, imageName: string): Pr
         /* ignore */
       }
     }
-    switch (getPlatform()) {
-      case "win32":
-        if (isMissingCommandError(err, "powershell")) {
-          hostEditor.showError("Lotion: PowerShell not found. Install/enable PowerShell to paste clipboard images.");
-          return undefined;
-        }
-        break;
-      case "darwin":
-        if (isMissingCommandError(err, "osascript")) {
-          hostEditor.showError("Lotion: osascript not found. macOS AppleScript is required for clipboard image paste.");
-          return undefined;
-        }
-        break;
-      case "linux":
-        if (isMissingCommandError(err, "xclip")) {
-          hostEditor.showError("Lotion: xclip not found. Install xclip to paste clipboard images.");
-          return undefined;
-        }
-        break;
+    if (isMissingCommandError(err, handler.commandName)) {
+      hostEditor.showError(handler.missingDependencyMessage);
+      return undefined;
     }
     hostEditor.showError("Lotion: no image found on clipboard.");
     return undefined;
