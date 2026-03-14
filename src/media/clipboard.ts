@@ -13,6 +13,27 @@ function getPlatform(): Platform {
   return process.platform as Platform;
 }
 
+function getExecErrorText(err: any): string {
+  const parts = [err?.message, err?.stderr, err?.stdout].filter((v) => typeof v === "string" && v.length > 0);
+  return parts.join("\n");
+}
+
+function isMissingCommandError(err: any, command?: string): boolean {
+  const text = getExecErrorText(err);
+  const genericMissing =
+    /command not found/i.test(text) ||
+    /is not recognized as an internal or external command/i.test(text) ||
+    /The term .* is not recognized/i.test(text) ||
+    /ENOENT/i.test(text);
+  if (!genericMissing) {
+    return false;
+  }
+  if (!command) {
+    return true;
+  }
+  return text.toLowerCase().includes(command.toLowerCase());
+}
+
 // ── Clipboard image check ──────────────────────────────────────────
 
 /**
@@ -112,7 +133,7 @@ export async function imageFromClipboard(rsrcDir: string, imageName: string): Pr
     }
 
     return fileName;
-  } catch (err) {
+  } catch (err: any) {
     // Clean up partial file on failure
     if (fs.existsSync(filePath)) {
       try {
@@ -120,6 +141,26 @@ export async function imageFromClipboard(rsrcDir: string, imageName: string): Pr
       } catch {
         /* ignore */
       }
+    }
+    switch (getPlatform()) {
+      case "win32":
+        if (isMissingCommandError(err, "powershell")) {
+          hostEditor.showError("Lotion: PowerShell not found. Install/enable PowerShell to paste clipboard images.");
+          return undefined;
+        }
+        break;
+      case "darwin":
+        if (isMissingCommandError(err, "osascript")) {
+          hostEditor.showError("Lotion: osascript not found. macOS AppleScript is required for clipboard image paste.");
+          return undefined;
+        }
+        break;
+      case "linux":
+        if (isMissingCommandError(err, "xclip")) {
+          hostEditor.showError("Lotion: xclip not found. Install xclip to paste clipboard images.");
+          return undefined;
+        }
+        break;
     }
     hostEditor.showError("Lotion: no image found on clipboard.");
     return undefined;

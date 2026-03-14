@@ -37,6 +37,27 @@ function isModelReady(): boolean {
   );
 }
 
+function getExecErrorText(err: any): string {
+  const parts = [err?.message, err?.stderr, err?.stdout].filter((v) => typeof v === "string" && v.length > 0);
+  return parts.join("\n");
+}
+
+function isMissingCommandError(err: any, command?: string): boolean {
+  const text = getExecErrorText(err);
+  const genericMissing =
+    /command not found/i.test(text) ||
+    /is not recognized as an internal or external command/i.test(text) ||
+    /The term .* is not recognized/i.test(text) ||
+    /ENOENT/i.test(text);
+  if (!genericMissing) {
+    return false;
+  }
+  if (!command) {
+    return true;
+  }
+  return text.toLowerCase().includes(command.toLowerCase());
+}
+
 // ── Model download helpers ─────────────────────────────────────────
 
 /** Follow redirects and stream to a file. Returns a Promise. */
@@ -88,18 +109,45 @@ async function ensureModel(progress: Progress<{ message?: string; increment?: nu
   // Extract
   progress.report({ message: "Extracting model…" });
   // tar -xjf works on Windows (Git Bash tar), macOS, Linux
+  let tarErr: any;
+  let sevenZipErr: any;
+  let pythonErr: any;
   try {
     execSync(`tar -xjf "${archivePath}" -C "${base}"`, { stdio: "ignore" });
-  } catch {
+  } catch (err: any) {
+    tarErr = err;
     // Some Windows installs lack bzip2 support in tar.
     // Fall back to 7z if available, or python
     try {
       execSync(`7z x "${archivePath}" -so | 7z x -si -ttar -o"${base}"`, { stdio: "ignore" });
-    } catch {
+    } catch (err2: any) {
+      sevenZipErr = err2;
       // python fallback
-      execSync(`python -c "import tarfile; tarfile.open(r'${archivePath}','r:bz2').extractall(r'${base}')"`, {
-        stdio: "ignore",
-      });
+      try {
+        execSync(`python -c "import tarfile; tarfile.open(r'${archivePath}','r:bz2').extractall(r'${base}')"`, {
+          stdio: "ignore",
+        });
+      } catch (err3: any) {
+        pythonErr = err3;
+      }
+    }
+  }
+
+  if (!isModelReady() && (tarErr || sevenZipErr || pythonErr)) {
+    const missing: string[] = [];
+    if (tarErr && isMissingCommandError(tarErr, "tar")) {
+      missing.push("tar");
+    }
+    if (sevenZipErr && isMissingCommandError(sevenZipErr, "7z")) {
+      missing.push("7z");
+    }
+    if (pythonErr && (isMissingCommandError(pythonErr, "python") || isMissingCommandError(pythonErr, "python3"))) {
+      missing.push("python");
+    }
+    if (missing.length > 0) {
+      throw new Error(
+        `Missing extraction tool(s): ${missing.join(", ")}. Install at least one of tar, 7z, or python to continue.`,
+      );
     }
   }
 

@@ -48,6 +48,8 @@ interface Processor {
   id: string;
   /** Shell command to execute */
   command: string;
+  /** Optional shell path/command used to execute the processor command. */
+  shell?: string;
 }
 
 // ── Storage helpers ────────────────────────────────────────────────
@@ -85,6 +87,152 @@ export function generateGuid(): string {
     const v = c === "x" ? r : (r & 0x3) | 0x8;
     return v.toString(16);
   });
+}
+
+function getExecErrorText(err: any): string {
+  const pieces = [err?.message, err?.stderr, err?.stdout].filter((v) => typeof v === "string" && v.length > 0);
+  return pieces.join("\n");
+}
+
+function isMissingCommandError(err: any, command?: string): boolean {
+  const text = getExecErrorText(err);
+  const genericMissing =
+    /command not found/i.test(text) ||
+    /is not recognized as an internal or external command/i.test(text) ||
+    /The term .* is not recognized/i.test(text) ||
+    /ENOENT/i.test(text);
+  if (!genericMissing) {
+    return false;
+  }
+  if (!command) {
+    return true;
+  }
+  return text.toLowerCase().includes(command.toLowerCase());
+}
+
+function getCommandToken(command: string): string {
+  const trimmed = command.trim();
+  if (!trimmed) {
+    return "";
+  }
+  if ((trimmed.startsWith('"') || trimmed.startsWith("'")) && trimmed.length > 1) {
+    const quote = trimmed[0];
+    const end = trimmed.indexOf(quote, 1);
+    if (end > 1) {
+      return trimmed.slice(1, end);
+    }
+  }
+  return trimmed.split(Regex.whitespaceRunNoGlobal)[0];
+}
+
+function resolveWindowsShellFromProfile(profile: any): string | undefined {
+  if (!profile || typeof profile !== "object") {
+    return undefined;
+  }
+  const p = profile as Record<string, unknown>;
+  if (typeof p.path === "string" && p.path.trim().length > 0) {
+    return p.path.trim();
+  }
+  if (Array.isArray(p.path) && typeof p.path[0] === "string" && p.path[0].trim().length > 0) {
+    return p.path[0].trim();
+  }
+  if (typeof p.source === "string") {
+    const source = p.source.toLowerCase();
+    if (source.includes("powershell")) {
+      return "pwsh.exe";
+    }
+    if (source.includes("command prompt")) {
+      return "cmd.exe";
+    }
+    if (source.includes("git bash")) {
+      return "bash.exe";
+    }
+    if (source.includes("wsl")) {
+      return "wsl.exe";
+    }
+  }
+  return undefined;
+}
+
+async function promptWindowsShellPath(current?: string): Promise<string | undefined> {
+  // VS Code does not expose an API for "all installed shells" on the machine.
+  // We use configured terminal profiles when available, else ask for a shell path directly.
+  const terminalCfg = hostEditor.getConfiguration("terminal.integrated");
+  const profiles = terminalCfg.get<Record<string, any>>("profiles.windows") ?? {};
+  const defaultProfileName = terminalCfg.get<string>("defaultProfile.windows", "");
+
+  const items: { label: string; description?: string; detail?: string; shellPath?: string; custom?: boolean }[] = [];
+  for (const [name, profile] of Object.entries(profiles)) {
+    const shellPath = resolveWindowsShellFromProfile(profile);
+    if (!shellPath) {
+      continue;
+    }
+    items.push({
+      label: name,
+      description: shellPath,
+      detail: name === defaultProfileName ? "Default terminal profile" : undefined,
+      shellPath,
+    });
+  }
+
+  if (items.length > 0) {
+    const sorted = items.sort((a, b) => {
+      const aDefault = a.label === defaultProfileName ? 0 : 1;
+      const bDefault = b.label === defaultProfileName ? 0 : 1;
+      if (aDefault !== bDefault) {
+        return aDefault - bDefault;
+      }
+      return a.label.localeCompare(b.label);
+    });
+    sorted.push({
+      label: "Custom shell path…",
+      description: "Enter an explicit shell executable path",
+      custom: true,
+    });
+
+    const pick = await hostEditor.showQuickPick(sorted, {
+      placeHolder: "Select shell for processor command",
+      matchOnDescription: true,
+    });
+    if (!pick) {
+      return undefined;
+    }
+    if (!pick.custom) {
+      return pick.shellPath;
+    }
+  }
+
+  const input = await hostEditor.showInputBox({
+    prompt: "Shell executable path for processor command",
+    value: current || "pwsh.exe",
+    placeHolder: "pwsh.exe, powershell.exe, cmd.exe, bash.exe, C:\\path\\to\\shell.exe",
+    validateInput: (v) => {
+      if (!v || v.trim().length === 0) {
+        return "Shell path cannot be empty";
+      }
+      return undefined;
+    },
+  });
+  return input?.trim();
+}
+
+async function ensureWindowsProcessorShell(
+  proc: Processor,
+  docPath: string,
+  processors: Processor[],
+): Promise<string | undefined> {
+  if (proc.shell && proc.shell.trim().length > 0) {
+    return proc.shell;
+  }
+
+  const chosen = await promptWindowsShellPath();
+  if (!chosen) {
+    return undefined;
+  }
+
+  proc.shell = chosen;
+  saveProcessors(docPath, processors);
+  return chosen;
 }
 
 // ── Marker ID scanning (private) ───────────────────────────────────
@@ -253,16 +401,24 @@ export async function handleProcessorCommand(document: TextDocument, position: P
     return;
   }
 
+  let shell: string | undefined;
+  if (process.platform === "win32") {
+    shell = await promptWindowsShellPath();
+    if (!shell) {
+      return;
+    }
+  }
+
   const guid = generateGuid();
   const docPath = document.uri.fsPath;
 
   // Save processor to JSON (only id + command)
   const processors = loadProcessors(docPath);
-  processors.push({ id: guid, command });
+  processors.push({ id: guid, command, shell });
   saveProcessors(docPath, processors);
 
   // Run the command to get initial output
-  const { output } = runCommand(command, path.dirname(docPath), undefined);
+  const { output } = runCommand(command, path.dirname(docPath), undefined, shell);
 
   // Build the block text (no input body initially)
   const block = buildProcessorBlock(guid, output);
@@ -305,7 +461,15 @@ export async function handleRefreshCommand(document: TextDocument, _position: Po
       }
     }
 
-    const { output } = runCommand(proc.command, path.dirname(docPath), inputText);
+    let shell = proc.shell;
+    if (process.platform === "win32") {
+      shell = await ensureWindowsProcessorShell(proc, docPath, processors);
+      if (!shell) {
+        continue;
+      }
+    }
+
+    const { output } = runCommand(proc.command, path.dirname(docPath), inputText, shell);
 
     // Replace the summary content with the new output
     const summaryStartPos = new Position(block.summaryStart, 0);
@@ -365,6 +529,14 @@ export async function handleUpdateProcessorCommand(document: TextDocument, posit
     return;
   }
 
+  if (process.platform === "win32") {
+    const selectedShell = await promptWindowsShellPath(targetProc.shell);
+    if (!selectedShell) {
+      return;
+    }
+    targetProc.shell = selectedShell;
+  }
+
   targetProc.command = newCommand;
   saveProcessors(docPath, processors);
 
@@ -410,7 +582,13 @@ export function createProcessorCodeLensProvider(): Disposable {
 
 // ── Helpers ────────────────────────────────────────────────────────
 
-function runCommand(command: string, cwd: string, stdinInput?: string): { output: string; exitCode: number } {
+function runCommand(
+  command: string,
+  cwd: string,
+  stdinInput?: string,
+  shellPath?: string,
+): { output: string; exitCode: number } {
+  const shell = shellPath || (process.platform === "win32" ? "cmd.exe" : "/bin/sh");
   try {
     const output = execSync(command, {
       cwd,
@@ -418,12 +596,23 @@ function runCommand(command: string, cwd: string, stdinInput?: string): { output
       timeout: 30000,
       input: stdinInput,
       stdio: [stdinInput !== undefined ? "pipe" : "pipe", "pipe", "pipe"],
-      shell: process.platform === "win32" ? "cmd.exe" : "/bin/sh",
+      shell,
     });
     return { output: output.trimEnd(), exitCode: 0 };
   } catch (err: any) {
-    const output = (err.stdout || "") + (err.stderr ? "\n[stderr] " + err.stderr : "");
-    return { output: output.trimEnd() || err.message, exitCode: err.status || 1 };
+    const stdioOutput = (err.stdout || "") + (err.stderr ? "\n[stderr] " + err.stderr : "");
+    const commandToken = getCommandToken(command);
+
+    if (isMissingCommandError(err, shell)) {
+      const message = `Shell not found: ${shell}\n[hint] Select a valid shell path with /update-processor.`;
+      return { output: message, exitCode: err.status || 1 };
+    }
+    if (commandToken && isMissingCommandError(err, commandToken)) {
+      const message = `${stdioOutput.trimEnd()}\n[hint] Command not found: ${commandToken}`;
+      return { output: message.trim(), exitCode: err.status || 1 };
+    }
+
+    return { output: stdioOutput.trimEnd() || err.message, exitCode: err.status || 1 };
   }
 }
 
