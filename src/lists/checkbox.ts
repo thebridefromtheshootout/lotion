@@ -8,9 +8,6 @@ import { Regex } from "../core/regex";
 // Toggles the checkbox on the current line between `- [ ]` and `- [x]`.
 // If the line isn't a checkbox, converts a plain list item to a checkbox.
 
-const CHECKED_RE = Regex.checkboxCheckedLine;
-const UNCHECKED_RE = Regex.checkboxUncheckedLine;
-const LIST_RE = Regex.checkboxListPrefix;
 
 export async function toggleCheckbox(): Promise<void> {
   if (!hostEditor.isMarkdownEditor()) {
@@ -26,12 +23,12 @@ export async function toggleCheckbox(): Promise<void> {
       const line = hostEditor.getLine(i);
       const text = line.text;
 
-      if (CHECKED_RE.test(text)) {
-        edits.push({ range: line.range, text: text.replace(CHECKED_RE, "$1[ ]") });
-      } else if (UNCHECKED_RE.test(text)) {
-        edits.push({ range: line.range, text: text.replace(UNCHECKED_RE, "$1[x]") });
-      } else if (LIST_RE.test(text)) {
-        edits.push({ range: line.range, text: text.replace(LIST_RE, "$1[ ] ") });
+      if (Regex.checkboxCheckedLine.test(text)) {
+        edits.push({ range: line.range, text: text.replace(Regex.checkboxCheckedLine, "$1[ ]") });
+      } else if (Regex.checkboxUncheckedLine.test(text)) {
+        edits.push({ range: line.range, text: text.replace(Regex.checkboxUncheckedLine, "$1[x]") });
+      } else if (Regex.checkboxListPrefix.test(text)) {
+        edits.push({ range: line.range, text: text.replace(Regex.checkboxListPrefix, "$1[ ] ") });
       }
     }
   }

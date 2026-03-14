@@ -280,8 +280,6 @@ async function insertDbEntryLinkWithListModel(
   rawLink: string,
   fromSlashCommand: boolean,
 ): Promise<void> {
-  const markerOnlyOrdered = /^(\s*)(\d+)([.)]\s)$/;
-
   const lineNumber = Math.min(position.line, document.lineCount - 1);
   const line = document.lineAt(lineNumber);
   const lineText = line.text;
@@ -294,7 +292,7 @@ async function insertDbEntryLinkWithListModel(
       const before = lineText.slice(0, slashIdx);
       const after = lineText.slice(slashIdx + 1);
 
-      const orderedOnly = before.match(markerOnlyOrdered);
+      const orderedOnly = before.match(Regex.orderedListMarkerOnly);
 
       if (orderedOnly) {
         const replacement = `${orderedOnly[1]}${orderedOnly[2]}${orderedOnly[3]}${rawLink}${after}`;
@@ -323,7 +321,7 @@ async function insertDbEntryLinkWithListModel(
     }
   }
 
-  const orderedOnly = lineText.match(markerOnlyOrdered);
+  const orderedOnly = lineText.match(Regex.orderedListMarkerOnly);
 
   if (orderedOnly || lineText.trim().length === 0) {
     const indent = orderedOnly?.[1] ?? (lineText.match(Regex.lineIndent)?.[1] ?? "");
