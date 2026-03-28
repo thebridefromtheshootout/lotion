@@ -120,6 +120,8 @@ export const Cmd = {
   dbNewView: "lotion.dbNewView",
   dbNewField: "lotion.dbNewField",
   dbDeleteField: "lotion.dbDeleteField",
+  dbTableToDatabase: "lotion.dbTableToDatabase",
+  dbCsvToDatabase: "lotion.dbCsvToDatabase",
   openDbWebview: "lotion.openDbWebview",
   
   // ── Productivity ───────────────────────────────────────────────────

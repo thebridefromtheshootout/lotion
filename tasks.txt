@@ -60,7 +60,7 @@ Phase 1 (stability + quick wins)
 
 Phase 2 (DB behavior + command context)
 
-- [P2] DB schema updates should support default value backfill for existing entries.
+- ✅ [P2] DB schema updates should support default value backfill for existing entries.
   - Scope:
     - When adding new field, prompt for default backfill value using field-typed input UX.
     - If default backfill is not provided, exit the add-field flow and show clear notification explaining why.
@@ -73,7 +73,7 @@ Phase 2 (DB behavior + command context)
     - New schema field always captures typed default backfill before proceeding.
     - All existing entries receive that value for the new field.
 
-- [P2] DB schema updates should update entries in general.
+- ✅ [P2] DB schema updates should update entries in general.
   - Scope:
     - Remove-field flow must remove the field from all existing entry tables.
     - Add-field flow should keep entry tables consistent with schema.
@@ -83,7 +83,7 @@ Phase 2 (DB behavior + command context)
   - Done when:
     - Entry property tables are consistent after add/remove field operations.
 
-- [P2] Divider after property table in DB entry files.
+- ✅ [P2] Divider after property table in DB entry files.
   - Scope:
     - Entry template should include separator after property table block.
   - Likely files:
@@ -99,7 +99,7 @@ Phase 2 (DB behavior + command context)
 
 Phase 3 (new commands/features)
 
-- [P3] Table -> DB flow.
+- ✅ [P3] Table -> DB flow.
   - Scope:
     - Convert markdown table into a brand-new DB only.
     - Use header row as DB column names.
@@ -112,7 +112,7 @@ Phase 3 (new commands/features)
     - A table can be transformed into a new DB with columns from table header row.
     - Header row does not skip datatype prompts; each column type is user-confirmed.
 
-- [P3] CSV -> DB flow.
+- ✅ [P3] CSV -> DB flow.
   - Scope:
     - Parse CSV and create a brand-new DB only.
     - Ask user to confirm whether first row is a header row.

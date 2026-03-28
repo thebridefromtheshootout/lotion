@@ -35,6 +35,7 @@ export const Regex = {
   invalidPathChars: /[<>:"/\\|?*]/,
 
   markdownTableRow: /^\s*\|.*\|\s*$/,
+  markdownTableSeparatorRow: /^\s*\|(?:\s*:?-{3,}:?\s*\|)+\s*$/,
   markdownLinkGlobal: /\[([^\]]*)\]\(([^)]+)\)/g,
   markdownLinkTextOnly: /\[([^\]]*)\]/,
   markdownEmptyLinkGlobal: /\[([^\]]+)\]\(\s*\)/g,

@@ -6,14 +6,14 @@ import { hostEditor } from "../hostEditor/HostingEditor";
 import { getCwd } from "../core/cwd";
 import { DbColumn, DbSchema, SCHEMA_FENCE_START, SCHEMA_FENCE_END, parseSchemaFromText, serializeSchema } from "./dbSchema";
 import { DbFilterOperator, DbView, DbViewFilter, parseViewsFromFile, saveViewsToFile, serializeViews } from "./dbViews";
-import { parsePropertyTable, updateEntryProperty, buildPropertyTable, appendToLogTable, clearPropertyFields } from "./dbFrontmatter";
+import { parsePropertyTable, updateEntryProperty, buildPropertyTable, appendToLogTable, clearPropertyFields, removePropertyFields } from "./dbFrontmatter";
 import { Cmd } from "../core/commands";
 import { Regex } from "../core/regex";
 import { toPathSlug } from "../core/slug";
 import type { SlashCommand } from "../core/slashCommands";
 import { collectOrderedList, renumberEdits, applyRenumberEdits } from "../lists/listModel";
 import type { ListNode } from "../lists/listModel";
-import { cursorInDb } from "./dbEntries";
+import { cursorInDb, readDbEntries } from "./dbEntries";
 
 export const DATABASE_SLASH_COMMAND: SlashCommand = {
   label: "/database",
@@ -70,6 +70,26 @@ export const DELETE_FIELD_SLASH_COMMAND: SlashCommand = {
   dbOnly: true,
   kind: 4,
   handler: handleDeleteFieldCommand,
+};
+
+export const TABLE_TO_DB_SLASH_COMMAND: SlashCommand = {
+  label: "/table-to-db",
+  insertText: "",
+  detail: "📊 Create a new DB from markdown table under cursor",
+  isAction: true,
+  commandId: Cmd.dbTableToDatabase,
+  kind: 21,
+  handler: handleTableToDbCommand,
+};
+
+export const CSV_TO_DB_SLASH_COMMAND: SlashCommand = {
+  label: "/csv-to-db",
+  insertText: "",
+  detail: "🧾 Create a new DB from CSV file",
+  isAction: true,
+  commandId: Cmd.dbCsvToDatabase,
+  kind: 21,
+  handler: handleCsvToDbCommand,
 };
 
 // ── /database handler — create a new database ──────────────────────
@@ -254,7 +274,7 @@ export async function handleDbEntryCommand(
   }
 
   // Build entry content: heading then property table
-  const entryContent = `# ${entryTitle}\n\n${buildPropertyTable(props)}\n`;
+  const entryContent = `# ${entryTitle}\n\n${buildPropertyTable(props)}\n\n---\n\n`;
   fs.writeFileSync(entryFilePath, entryContent, "utf-8");
 
   // 4. Insert ordered-list link in database index.md
@@ -637,6 +657,13 @@ export async function handleNewFieldCommand(document: TextDocument, _position: P
     }
   }
 
+  // 3c. Mandatory typed default backfill for existing entries
+  const backfillValue = await promptForColumnValue(col);
+  if (backfillValue === undefined || backfillValue.trim().length === 0) {
+    hostEditor.showWarning(`Cannot add "${col.name}" without a default backfill value for existing entries.`);
+    return;
+  }
+
   // 4. Replace schema block in document
   schema.columns.push(col);
   const blockRange = findSchemaBlockRange(document);
@@ -653,7 +680,15 @@ export async function handleNewFieldCommand(document: TextDocument, _position: P
   await hostEditor.replaceRange(range, newYaml);
   await hostEditor.saveActiveDocument();
 
-  hostEditor.showInformation(`Field "${col.name}" (${col.type}) added to database.`);
+  // 5. Backfill existing entries in this database folder
+  const dbDir = path.dirname(document.uri.fsPath);
+  const entries = readDbEntries(dbDir);
+  for (const entry of entries) {
+    const entryPath = path.join(dbDir, entry.relativePath);
+    updateEntryProperty(entryPath, col.name, backfillValue);
+  }
+
+  hostEditor.showInformation(`Field "${col.name}" (${col.type}) added. Backfilled ${entries.length} entr${entries.length === 1 ? "y" : "ies"}.`);
 }
 
 // ── /delete-field handler ──────────────────────────────────────────
@@ -684,7 +719,7 @@ export async function handleDeleteFieldCommand(document: TextDocument, _position
 
   // 2. Confirm
   const confirm = await hostEditor.showWarningMessage(
-    `Delete field "${pick.label}"? This removes it from the schema (existing entry data is not modified).`,
+    `Delete field "${pick.label}"? This removes it from the schema and all existing entries.`,
     ["Delete", "Cancel"],
   );
   if (confirm !== "Delete") {
@@ -707,7 +742,22 @@ export async function handleDeleteFieldCommand(document: TextDocument, _position
   await hostEditor.replaceRange(range, newYaml);
   await hostEditor.saveActiveDocument();
 
-  hostEditor.showInformation(`Field "${pick.label}" removed from schema.`);
+  // 4. Remove the field from existing entries in this database folder
+  const dbDir = path.dirname(document.uri.fsPath);
+  const entries = readDbEntries(dbDir);
+  for (const entry of entries) {
+    const entryPath = path.join(dbDir, entry.relativePath);
+    if (!fs.existsSync(entryPath)) {
+      continue;
+    }
+    const content = fs.readFileSync(entryPath, "utf-8");
+    const next = removePropertyFields(content, [pick.label]);
+    if (next !== content) {
+      fs.writeFileSync(entryPath, next, "utf-8");
+    }
+  }
+
+  hostEditor.showInformation(`Field "${pick.label}" removed from schema and ${entries.length} entr${entries.length === 1 ? "y" : "ies"}.`);
 }
 
 // ── /new-view handler ──────────────────────────────────────────────
@@ -920,6 +970,357 @@ export async function handleNewViewCommand(document: TextDocument, _position: Po
   await hostEditor.showTextDocument(updatedDoc);
 
   hostEditor.showInformation(`View "${newView.name}" saved.`);
+}
+
+// ── Table / CSV import to DB ──────────────────────────────────────
+
+interface ParsedTabularData {
+  headers: string[];
+  rows: string[][];
+}
+
+function splitMarkdownRow(line: string): string[] {
+  let body = line.trim();
+  if (body.startsWith("|")) {
+    body = body.slice(1);
+  }
+  if (body.endsWith("|")) {
+    body = body.slice(0, -1);
+  }
+  return body.split("|").map((c) => c.trim());
+}
+
+function normalizeTabularHeaders(rawHeaders: string[]): string[] {
+  const used = new Set<string>();
+  return rawHeaders.map((raw, idx) => {
+    const base = raw.trim() || `Column ${idx + 1}`;
+    let candidate = base;
+    let n = 2;
+    while (used.has(candidate)) {
+      candidate = `${base} ${n}`;
+      n++;
+    }
+    used.add(candidate);
+    return candidate;
+  });
+}
+
+function normalizeRowWidth(row: string[], width: number): string[] {
+  if (row.length === width) {
+    return row;
+  }
+  if (row.length > width) {
+    return row.slice(0, width);
+  }
+  return [...row, ...Array.from({ length: width - row.length }, () => "")];
+}
+
+function parseMarkdownTableAtCursor(document: TextDocument, position: Position): ParsedTabularData | undefined {
+  const isTableRow = (line: number) => Regex.markdownTableRow.test(document.lineAt(line).text);
+
+  if (!isTableRow(position.line)) {
+    return undefined;
+  }
+
+  let start = position.line;
+  let end = position.line;
+
+  while (start > 0 && isTableRow(start - 1)) {
+    start--;
+  }
+  while (end + 1 < document.lineCount && isTableRow(end + 1)) {
+    end++;
+  }
+
+  const lines: string[] = [];
+  for (let i = start; i <= end; i++) {
+    lines.push(document.lineAt(i).text);
+  }
+
+  if (lines.length < 3 || !Regex.markdownTableSeparatorRow.test(lines[1])) {
+    return undefined;
+  }
+
+  const headers = normalizeTabularHeaders(splitMarkdownRow(lines[0]));
+  if (headers.length === 0) {
+    return undefined;
+  }
+
+  const rows = lines.slice(2).map((line) => normalizeRowWidth(splitMarkdownRow(line), headers.length));
+  return { headers, rows };
+}
+
+function parseCsvText(text: string): string[][] {
+  const rows: string[][] = [];
+  let row: string[] = [];
+  let cell = "";
+  let inQuotes = false;
+
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    const next = text[i + 1];
+
+    if (ch === "\"") {
+      if (inQuotes && next === "\"") {
+        cell += "\"";
+        i++;
+      } else {
+        inQuotes = !inQuotes;
+      }
+      continue;
+    }
+
+    if (!inQuotes && ch === ",") {
+      row.push(cell);
+      cell = "";
+      continue;
+    }
+
+    if (!inQuotes && (ch === "\n" || ch === "\r")) {
+      if (ch === "\r" && next === "\n") {
+        i++;
+      }
+      row.push(cell);
+      const hasAnyValue = row.some((v) => v.trim().length > 0);
+      if (hasAnyValue) {
+        rows.push(row.map((v) => v.trim()));
+      }
+      row = [];
+      cell = "";
+      continue;
+    }
+
+    cell += ch;
+  }
+
+  row.push(cell);
+  if (row.some((v) => v.trim().length > 0)) {
+    rows.push(row.map((v) => v.trim()));
+  }
+
+  return rows;
+}
+
+async function promptColumnDefinition(name: string): Promise<DbColumn | undefined> {
+  const typePick = await hostEditor.showQuickPick(
+    [
+      { label: "text", description: "Free text" },
+      { label: "number", description: "Numeric value" },
+      { label: "select", description: "Single choice from options" },
+      { label: "multi-select", description: "Multiple choices from options" },
+      { label: "date", description: "Date value (YYYY-MM-DD)" },
+      { label: "checkbox", description: "True / false" },
+      { label: "url", description: "URL / link" },
+      { label: "image", description: "Image path (relative to .rsrc)" },
+      { label: "coordinates", description: "Geographic coordinates (lat, lng)" },
+    ],
+    { placeHolder: `Type for column "${name}"` },
+  );
+  if (!typePick) {
+    return undefined;
+  }
+
+  const col: DbColumn = { name, type: typePick.label as DbColumn["type"] };
+
+  if (col.type === "select" || col.type === "multi-select") {
+    const optionsInput = await hostEditor.showInputBox({
+      prompt: `Options for "${name}" (comma-separated)`,
+      placeHolder: "Option 1, Option 2, Option 3",
+      validateInput: (v) => (!v || v.trim().length === 0 ? "At least one option is required" : undefined),
+    });
+    if (!optionsInput) {
+      return undefined;
+    }
+    col.options = optionsInput
+      .split(",")
+      .map((s) => s.trim())
+      .filter((s) => s.length > 0);
+  }
+
+  if (col.type === "image") {
+    const mw = await hostEditor.showInputBox({
+      prompt: `Max image width in px for "${col.name}" (leave blank for default 120)`,
+      placeHolder: "120",
+    });
+    if (mw && /^\d+$/.test(mw.trim())) {
+      col.maxWidth = parseInt(mw.trim(), 10);
+    }
+
+    const mh = await hostEditor.showInputBox({
+      prompt: `Max image height in px for "${col.name}" (leave blank for default 80)`,
+      placeHolder: "80",
+    });
+    if (mh && /^\d+$/.test(mh.trim())) {
+      col.maxHeight = parseInt(mh.trim(), 10);
+    }
+  }
+
+  return col;
+}
+
+function makeUniqueEntryDir(dbDir: string, desiredSlug: string): string {
+  let candidate = desiredSlug || "entry";
+  let n = 2;
+  while (fs.existsSync(path.join(dbDir, candidate, "index.md"))) {
+    candidate = `${desiredSlug || "entry"}-${n}`;
+    n++;
+  }
+  return candidate;
+}
+
+async function createDatabaseFromTabularData(
+  document: TextDocument,
+  position: Position,
+  data: ParsedTabularData,
+  sourceLabel: "table" | "csv",
+): Promise<void> {
+  const cwd = getCwd();
+  if (!cwd) {
+    hostEditor.showError("Lotion: no active file directory.");
+    return;
+  }
+
+  if (data.headers.length === 0) {
+    hostEditor.showWarning("No headers found to build database columns.");
+    return;
+  }
+
+  const dbName = await hostEditor.showInputBox({
+    prompt: `Database name (${sourceLabel} import)`,
+    placeHolder: "Imported Database",
+    validateInput: (v) => (!v || v.trim().length === 0 ? "Name cannot be empty" : undefined),
+  });
+  if (!dbName) {
+    return;
+  }
+
+  const titleColPick = await hostEditor.showQuickPick(
+    data.headers.map((h, i) => ({ label: h, description: i === 0 ? "Recommended" : undefined })),
+    { placeHolder: "Which header should be used as entry title?" },
+  );
+  if (!titleColPick) {
+    return;
+  }
+
+  const titleColIndex = data.headers.findIndex((h) => h === titleColPick.label);
+  if (titleColIndex < 0) {
+    return;
+  }
+
+  const columns: DbColumn[] = [];
+  for (const header of data.headers) {
+    const col = await promptColumnDefinition(header);
+    if (!col) {
+      return;
+    }
+    columns.push(col);
+  }
+
+  const schema: DbSchema = { titleField: data.headers[titleColIndex], columns };
+  const dbSlug = toPathSlug(dbName);
+  const dbDir = path.join(cwd, dbSlug);
+  const dbFilePath = path.join(dbDir, "index.md");
+  const dbRelPath = `${dbSlug}/index.md`;
+
+  if (fs.existsSync(dbDir)) {
+    hostEditor.showError(`Database folder "${dbSlug}" already exists.`);
+    return;
+  }
+
+  fs.mkdirSync(dbDir, { recursive: true });
+
+  const schemaYaml = serializeSchema(schema);
+  fs.writeFileSync(dbFilePath, `# ${dbName}\n\n\`\`\`lotion-db\n${schemaYaml}\n\`\`\`\n\n---\n\n`, "utf-8");
+
+  const entryLinks: string[] = [];
+  let created = 0;
+  for (const row of data.rows) {
+    const normalized = normalizeRowWidth(row, data.headers.length);
+    if (normalized.every((c) => c.trim().length === 0)) {
+      continue;
+    }
+
+    const entryTitle = normalized[titleColIndex]?.trim() || `Entry ${created + 1}`;
+    const entrySlug = makeUniqueEntryDir(dbDir, toPathSlug(entryTitle));
+    const entryDir = path.join(dbDir, entrySlug);
+    const entryPath = path.join(entryDir, "index.md");
+
+    const props: Record<string, string> = {};
+    for (let i = 0; i < data.headers.length; i++) {
+      props[data.headers[i]] = normalized[i] ?? "";
+    }
+
+    fs.mkdirSync(entryDir, { recursive: true });
+    fs.writeFileSync(entryPath, `# ${entryTitle}\n\n${buildPropertyTable(props)}\n\n---\n\n`, "utf-8");
+
+    created++;
+    entryLinks.push(`${created}. [${entryTitle}](${entrySlug}/index.md)`);
+  }
+
+  if (entryLinks.length > 0) {
+    fs.appendFileSync(dbFilePath, `${entryLinks.join("\n")}\n`, "utf-8");
+  }
+
+  if (hostEditor.isActiveEditorDocumentEqualTo(document)) {
+    const lineText = document.lineAt(position.line).text;
+    const hasSlashTrigger = position.character > 0 && lineText[position.character - 1] === "/";
+    const start = hasSlashTrigger ? position.translate(0, -1) : position;
+    await hostEditor.replaceRange(new Range(start, position), `[${dbName}](${dbRelPath})`);
+    await hostEditor.saveActiveDocument();
+  }
+
+  const dbDoc = await hostEditor.openTextDocument(dbFilePath);
+  await hostEditor.showTextDocument(dbDoc);
+  hostEditor.showInformation(`Imported ${created} entr${created === 1 ? "y" : "ies"} from ${sourceLabel}.`);
+}
+
+export async function handleTableToDbCommand(document: TextDocument, position: Position): Promise<void> {
+  const parsed = parseMarkdownTableAtCursor(document, position);
+  if (!parsed) {
+    hostEditor.showWarning("Place cursor inside a valid markdown table to import.");
+    return;
+  }
+
+  await createDatabaseFromTabularData(document, position, parsed, "table");
+}
+
+export async function handleCsvToDbCommand(document: TextDocument, position: Position): Promise<void> {
+  const uris = await hostEditor.showOpenDialog({
+    canSelectMany: false,
+    filters: { CSV: ["csv"], Text: ["txt"] },
+    openLabel: "Select CSV file",
+  });
+  if (!uris || uris.length === 0) {
+    return;
+  }
+
+  const csvPath = uris[0].fsPath;
+  if (!fs.existsSync(csvPath)) {
+    hostEditor.showError("Selected CSV file was not found.");
+    return;
+  }
+
+  const rows = parseCsvText(fs.readFileSync(csvPath, "utf-8"));
+  if (rows.length < 1) {
+    hostEditor.showWarning("CSV appears to be empty.");
+    return;
+  }
+
+  const headerPick = await hostEditor.showQuickPick(
+    [{ label: "Yes", description: "First row is a header row" }, { label: "No", description: "First row is data" }],
+    { placeHolder: "Is the first CSV row a header row?" },
+  );
+  if (!headerPick) {
+    return;
+  }
+  if (headerPick.label === "No") {
+    hostEditor.showWarning("CSV import requires a header row. Please add one, then retry.");
+    return;
+  }
+
+  const headers = normalizeTabularHeaders(rows[0]);
+  const bodyRows = rows.slice(1).map((row) => normalizeRowWidth(row, headers.length));
+  await createDatabaseFromTabularData(document, position, { headers, rows: bodyRows }, "csv");
 }
 
 // ── Log entry flow ─────────────────────────────────────────────────

@@ -190,3 +190,26 @@ export function clearPropertyFields(content: string, fieldNames: string[]): stri
   const after = lines.slice(region.endIdx + 1);
   return [...before, tableStr, ...after].join("\n");
 }
+
+/**
+ * Remove property-table rows for the specified field names.
+ */
+export function removePropertyFields(content: string, fieldNames: string[]): string {
+  const lines = content.split(Regex.lineBreakSplit);
+  const region = findPropertyTableRegion(lines);
+  if (!region) {
+    return content;
+  }
+
+  const fieldSet = new Set(fieldNames);
+  for (const key of Object.keys(region.props)) {
+    if (fieldSet.has(key)) {
+      delete region.props[key];
+    }
+  }
+
+  const tableStr = buildPropertyTable(region.props);
+  const before = lines.slice(0, region.startIdx);
+  const after = lines.slice(region.endIdx + 1);
+  return [...before, tableStr, ...after].join("\n");
+}

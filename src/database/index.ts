@@ -5,6 +5,8 @@ export {
   handleNewViewCommand,
   handleNewFieldCommand,
   handleDeleteFieldCommand,
+  handleTableToDbCommand,
+  handleCsvToDbCommand,
   promptForColumnValue,
   parseSchemaFromFile,
   parsePropertyTable,
@@ -23,6 +25,8 @@ import {
   NEW_VIEW_SLASH_COMMAND,
   NEW_FIELD_SLASH_COMMAND,
   DELETE_FIELD_SLASH_COMMAND,
+  TABLE_TO_DB_SLASH_COMMAND,
+  CSV_TO_DB_SLASH_COMMAND,
 } from "./dbCommands";
 import { VIEW_DATABASE_SLASH_COMMAND } from "./dbWebview";
 
@@ -33,4 +37,6 @@ export const DATABASE_SLASH_COMMANDS: SlashCommand[] = [
   NEW_VIEW_SLASH_COMMAND,
   NEW_FIELD_SLASH_COMMAND,
   DELETE_FIELD_SLASH_COMMAND,
+  TABLE_TO_DB_SLASH_COMMAND,
+  CSV_TO_DB_SLASH_COMMAND,
 ];
