@@ -108,7 +108,6 @@
 
 ### src/blocks/lockBlock.ts (17 matches)
 
-- Lines 1-4 duplicate 4 lines with `src/editor/snippetExpander.ts` (lines 1-4), format: typescript
 - Lines 4-9 duplicate 6 lines with `src/media/pdfExport.ts` (lines 4-9), format: typescript
 - Lines 77-80 duplicate 4 lines with `src/editor/date/dateCodeLens.ts` (lines 24-98), format: typescript
 - Lines 105-111 duplicate 7 lines with `src/editor/date/dateCodeLens.ts` (lines 24-83), format: typescript
@@ -128,7 +127,6 @@
 
 ### src/blocks/moveBlock.ts (11 matches)
 
-- Lines 1-8 duplicate 8 lines with `src/links/openLink.ts` (lines 2-8), format: typescript
 - Lines 7-13 duplicate 7 lines with `src/navigation/turnInto.ts` (lines 8-14), format: typescript
 - Lines 41-46 duplicate 6 lines with `src/links/openLink.ts` (lines 36-40), format: typescript
 - Lines 42-52 duplicate 11 lines with `src/media/gif/gifCommand.ts` (lines 169-179), format: typescript
@@ -246,12 +244,10 @@
 
 ### src/editor/codeContext.ts (2 matches)
 
-- Lines 1-9 duplicate 9 lines with `src/editor/copyCode.ts` (lines 5-9), format: typescript
 - Lines 28-31 duplicate 4 lines with `src/formatting/smartTypography.ts` (lines 69-72), format: typescript
 
 ### src/editor/comments/commentCommands.ts (3 matches)
 
-- Lines 1-4 duplicate 4 lines with `src/editor/date/dateCommands.ts` (lines 1-4), format: typescript
 - Lines 30-40 duplicate 8 lines with `src/editor/processor.ts` (lines 248-255), format: typescript
 - Lines 42-632 duplicate 8 lines with `src/blocks/lockBlock.ts` (lines 648-655), format: typescript
 
@@ -288,7 +284,6 @@
 
 ### src/editor/date/dateCommands.ts (1 matches)
 
-- Lines 1-4 duplicate 4 lines with `src/editor/comments/commentCommands.ts` (lines 1-4), format: typescript
 
 ### src/editor/date/dateFormat.ts (1 matches)
 
@@ -309,7 +304,6 @@
 
 ### src/editor/editorDecorations.ts (8 matches)
 
-- Lines 1-6 duplicate 6 lines with `src/formatting/headingColors.ts` (lines 1-5), format: typescript
 - Lines 99-105 duplicate 7 lines with `src/formatting/headingColors.ts` (lines 18-46), format: typescript
 - Lines 115-120 duplicate 5 lines with `src/__tests__/editorDecorations.test.ts` (lines 123-127), format: typescript
 - Lines 118-123 duplicate 6 lines with `src/links/backlinks.ts` (lines 68-97), format: typescript
@@ -352,7 +346,6 @@
 
 ### src/editor/processor.ts (13 matches)
 
-- Lines 1-7 duplicate 7 lines with `src/media/graph.ts` (lines 2-6), format: typescript
 - Lines 57-60 duplicate 4 lines with `src/editor/comments/commentModel.ts` (lines 24-27), format: typescript
 - Lines 64-75 duplicate 12 lines with `src/editor/comments/commentModel.ts` (lines 31-42), format: typescript
 - Lines 76-81 duplicate 6 lines with `src/editor/comments/commentModel.ts` (lines 43-48), format: typescript
@@ -378,8 +371,6 @@
 
 ### src/editor/snippetExpander.ts (4 matches)
 
-- Lines 1-4 duplicate 4 lines with `src/blocks/lockBlock.ts` (lines 1-4), format: typescript
-- Lines 1-6 duplicate 5 lines with `src/editor/codeBlock.ts` (lines 2-6), format: typescript
 - Lines 1-29 duplicate 29 lines with `src/productivity/gitCommit.ts` (lines 1-18), format: typescript
 - Lines 39-44 duplicate 6 lines with `src/navigation/headingNav.ts` (lines 13-18), format: typescript
 
@@ -393,7 +384,6 @@
 
 ### src/editor/toc.ts (6 matches)
 
-- Lines 1-6 duplicate 6 lines with `src/lists/listModel.ts` (lines 2-7), format: typescript
 - Lines 27-30 duplicate 4 lines with `src/media/graph.ts` (lines 179-183), format: typescript
 - Lines 30-92 duplicate 5 lines with `src/core/structureLint.ts` (lines 32-36), format: typescript
 - Lines 42-45 duplicate 4 lines with `src/navigation/headingNav.ts` (lines 72-75), format: typescript
@@ -402,7 +392,6 @@
 
 ### src/formatting/headingColors.ts (7 matches)
 
-- Lines 1-5 duplicate 6 lines with `src/editor/editorDecorations.ts` (lines 1-6), format: typescript
 - Lines 1-14 duplicate 14 lines with `src/navigation/headingAnchor.ts` (lines 1-5), format: typescript
 - Lines 18-46 duplicate 7 lines with `src/editor/editorDecorations.ts` (lines 99-105), format: typescript
 - Lines 46-52 duplicate 7 lines with `src/navigation/headingAnchor.ts` (lines 18-21), format: typescript
@@ -501,7 +490,6 @@
 
 ### src/links/linkInsert.ts (5 matches)
 
-- Lines 1-7 duplicate 7 lines with `src/links/openLink.ts` (lines 2-8), format: typescript
 - Lines 4-9 duplicate 6 lines with `src/media/pdfExport.ts` (lines 4-9), format: typescript
 - Lines 24-29 duplicate 6 lines with `src/links/openLink.ts` (lines 36-40), format: typescript
 - Lines 37-41 duplicate 5 lines with `src/productivity/fireInto.ts` (lines 11-16), format: typescript
@@ -548,7 +536,6 @@
 
 ### src/lists/cleanList.ts (3 matches)
 
-- Lines 1-7 duplicate 7 lines with `src/navigation/page.ts` (lines 1-4), format: typescript
 - Lines 126-131 duplicate 6 lines with `src/lists/listModel.ts` (lines 314-319), format: typescript
 - Lines 136-142 duplicate 7 lines with `src/lists/listModel.ts` (lines 245-304), format: typescript
 
@@ -659,7 +646,6 @@
 
 ### src/media/image.ts (14 matches)
 
-- Lines 1-6 duplicate 6 lines with `src/navigation/page.ts` (lines 1-6), format: typescript
 - Lines 9-14 duplicate 6 lines with `src/media/pdfExport.ts` (lines 4-9), format: typescript
 - Lines 42-51 duplicate 10 lines with `src/media/imageDrop.ts` (lines 62-71), format: typescript
 - Lines 47-52 duplicate 6 lines with `src/media/resource.ts` (lines 54-60), format: typescript
@@ -697,7 +683,6 @@
 
 ### src/media/pdfExport.ts (9 matches)
 
-- Lines 1-7 duplicate 7 lines with `src/navigation/tagIndex.ts` (lines 1-7), format: typescript
 - Lines 4-9 duplicate 6 lines with `src/blocks/lockBlock.ts` (lines 4-9), format: typescript
 - Lines 4-9 duplicate 6 lines with `src/editor/emoji.ts` (lines 4-9), format: typescript
 - Lines 4-9 duplicate 6 lines with `src/links/linkInsert.ts` (lines 4-9), format: typescript
@@ -709,7 +694,6 @@
 
 ### src/media/resource.ts (14 matches)
 
-- Lines 1-4 duplicate 4 lines with `src/navigation/page.ts` (lines 1-4), format: typescript
 - Lines 2-6 duplicate 5 lines with `src/navigation/movePage.ts` (lines 4-8), format: typescript
 - Lines 5-10 duplicate 6 lines with `src/media/carousel.ts` (lines 6-11), format: typescript
 - Lines 22-157 duplicate 10 lines with `src/media/carousel.ts` (lines 42-51), format: typescript
@@ -726,13 +710,11 @@
 
 ### src/media/unusedImages.ts (3 matches)
 
-- Lines 1-6 duplicate 6 lines with `src/navigation/tagIndex.ts` (lines 1-11), format: typescript
 - Lines 13-20 duplicate 8 lines with `src/productivity/dailyNote.ts` (lines 11-18), format: typescript
 - Lines 31-35 duplicate 5 lines with `src/navigation/tagIndex.ts` (lines 21-26), format: typescript
 
 ### src/navigation/breadcrumb.ts (7 matches)
 
-- Lines 1-4 duplicate 4 lines with `src/views/wordCount.ts` (lines 1-4), format: typescript
 - Lines 2-5 duplicate 4 lines with `src/navigation/wikiSearch.ts` (lines 1-4), format: typescript
 - Lines 3-8 duplicate 10 lines with `src/links/backlinkCodeLens.ts` (lines 4-13), format: typescript
 - Lines 29-37 duplicate 9 lines with `src/views/wordCount.ts` (lines 26-34), format: typescript
@@ -742,7 +724,6 @@
 
 ### src/navigation/extractSubpage.ts (8 matches)
 
-- Lines 1-8 duplicate 8 lines with `src/navigation/page.ts` (lines 1-8), format: typescript
 - Lines 17-22 duplicate 6 lines with `src/blocks/selectBlock.ts` (lines 12-17), format: typescript
 - Lines 17-21 duplicate 5 lines with `src/views/pageIcon.ts` (lines 31-36), format: typescript
 - Lines 50-59 duplicate 10 lines with `src/media/gif/gifCommand.ts` (lines 170-179), format: typescript
@@ -753,7 +734,6 @@
 
 ### src/navigation/headingAnchor.ts (5 matches)
 
-- Lines 1-5 duplicate 14 lines with `src/formatting/headingColors.ts` (lines 1-14), format: typescript
 - Lines 18-21 duplicate 7 lines with `src/formatting/headingColors.ts` (lines 46-52), format: typescript
 - Lines 21-26 duplicate 6 lines with `src/navigation/headingNav.ts` (lines 13-18), format: typescript
 - Lines 26-29 duplicate 4 lines with `src/navigation/headingNav.ts` (lines 70-72), format: typescript
@@ -776,7 +756,6 @@
 
 ### src/navigation/movePage.ts (10 matches)
 
-- Lines 1-4 duplicate 5 lines with `src/media/pdfExport.ts` (lines 5-9), format: typescript
 - Lines 4-8 duplicate 5 lines with `src/media/resource.ts` (lines 2-6), format: typescript
 - Lines 20-26 duplicate 12 lines with `src/links/backlinkCodeLens.ts` (lines 47-58), format: typescript
 - Lines 20-47 duplicate 28 lines with `src/navigation/pageRelink.ts` (lines 15-42), format: typescript
@@ -789,7 +768,6 @@
 
 ### src/navigation/orphanPages.ts (5 matches)
 
-- Lines 1-6 duplicate 6 lines with `src/navigation/tagIndex.ts` (lines 1-11), format: typescript
 - Lines 11-18 duplicate 8 lines with `src/productivity/dailyNote.ts` (lines 11-18), format: typescript
 - Lines 18-24 duplicate 7 lines with `src/productivity/fireInto.ts` (lines 8-21), format: typescript
 - Lines 37-38 duplicate 4 lines with `src/links/linkValidator.ts` (lines 73-76), format: typescript
@@ -797,13 +775,6 @@
 
 ### src/navigation/page.ts (14 matches)
 
-- Lines 1-4 duplicate 7 lines with `src/lists/cleanList.ts` (lines 1-7), format: typescript
-- Lines 1-8 duplicate 8 lines with `src/media/carousel.ts` (lines 2-9), format: typescript
-- Lines 1-6 duplicate 6 lines with `src/media/graph.ts` (lines 2-7), format: typescript
-- Lines 1-6 duplicate 6 lines with `src/media/image.ts` (lines 1-6), format: typescript
-- Lines 1-4 duplicate 4 lines with `src/media/resource.ts` (lines 1-4), format: typescript
-- Lines 1-8 duplicate 8 lines with `src/navigation/extractSubpage.ts` (lines 1-8), format: typescript
-- Lines 1-4 duplicate 4 lines with `src/productivity/gitCommit.ts` (lines 1-4), format: typescript
 - Lines 2-7 duplicate 6 lines with `src/productivity/bookmarks.ts` (lines 2-7), format: typescript
 - Lines 6-12 duplicate 7 lines with `src/navigation/renamePage.ts` (lines 4-9), format: typescript
 - Lines 23-179 duplicate 8 lines with `src/media/image.ts` (lines 148-155), format: typescript
@@ -814,7 +785,6 @@
 
 ### src/navigation/pageRelink.ts (7 matches)
 
-- Lines 1-6 duplicate 6 lines with `src/navigation/renamePage.ts` (lines 1-11), format: typescript
 - Lines 15-42 duplicate 28 lines with `src/navigation/movePage.ts` (lines 20-47), format: typescript
 - Lines 26-35 duplicate 10 lines with `src/links/backlinkCodeLens.ts` (lines 38-47), format: typescript
 - Lines 121-124 duplicate 4 lines with `src/productivity/dailyNote.ts` (lines 11-49), format: typescript
@@ -824,7 +794,6 @@
 
 ### src/navigation/quickSwitch.ts (5 matches)
 
-- Lines 1-6 duplicate 6 lines with `src/navigation/tagIndex.ts` (lines 1-11), format: typescript
 - Lines 11-20 duplicate 10 lines with `src/navigation/tagIndex.ts` (lines 14-16), format: typescript
 - Lines 20-32 duplicate 13 lines with `src/productivity/fireInto.ts` (lines 16-28), format: typescript
 - Lines 33-69 duplicate 14 lines with `src/navigation/orphanPages.ts` (lines 87-100), format: typescript
@@ -840,7 +809,6 @@
 ### src/navigation/renamePage.ts (14 matches)
 
 - Lines 1-11 duplicate 6 lines with `src/navigation/pageRelink.ts` (lines 1-6), format: typescript
-- Lines 1-5 duplicate 5 lines with `src/productivity/bookmarks.ts` (lines 2-6), format: typescript
 - Lines 4-9 duplicate 7 lines with `src/navigation/page.ts` (lines 6-12), format: typescript
 - Lines 14-46 duplicate 5 lines with `src/navigation/breadcrumb.ts` (lines 47-51), format: typescript
 - Lines 28-37 duplicate 11 lines with `src/navigation/movePage.ts` (lines 131-141), format: typescript
@@ -856,11 +824,9 @@
 
 ### src/navigation/tagIndex.ts (12 matches)
 
-- Lines 1-7 duplicate 7 lines with `src/media/pdfExport.ts` (lines 1-7), format: typescript
 - Lines 1-11 duplicate 6 lines with `src/media/unusedImages.ts` (lines 1-6), format: typescript
 - Lines 1-11 duplicate 6 lines with `src/navigation/orphanPages.ts` (lines 1-6), format: typescript
 - Lines 1-11 duplicate 6 lines with `src/navigation/quickSwitch.ts` (lines 1-6), format: typescript
-- Lines 1-6 duplicate 6 lines with `src/navigation/wikiSearch.ts` (lines 1-11), format: typescript
 - Lines 14-16 duplicate 10 lines with `src/navigation/quickSwitch.ts` (lines 11-20), format: typescript
 - Lines 21-26 duplicate 5 lines with `src/links/linkValidator.ts` (lines 49-53), format: typescript
 - Lines 21-26 duplicate 5 lines with `src/media/unusedImages.ts` (lines 31-35), format: typescript
@@ -892,7 +858,6 @@
 
 ### src/navigation/wikiSearch.ts (8 matches)
 
-- Lines 1-4 duplicate 4 lines with `src/navigation/breadcrumb.ts` (lines 2-5), format: typescript
 - Lines 1-11 duplicate 10 lines with `src/navigation/recentPages.ts` (lines 1-10), format: typescript
 - Lines 1-11 duplicate 6 lines with `src/navigation/tagIndex.ts` (lines 1-6), format: typescript
 - Lines 41-46 duplicate 6 lines with `src/links/backlinkCodeLens.ts` (lines 98-103), format: typescript
@@ -925,9 +890,6 @@
 
 ### src/productivity/dailyNote.ts (7 matches)
 
-- Lines 1-8 duplicate 6 lines with `src/editor/smartPaste.ts` (lines 2-7), format: typescript
-- Lines 1-6 duplicate 4 lines with `src/media/clipboard.ts` (lines 2-5), format: typescript
-- Lines 1-5 duplicate 4 lines with `src/productivity/bookmarks.ts` (lines 3-6), format: typescript
 - Lines 11-14 duplicate 4 lines with `src/links/backlinkCodeLens.ts` (lines 90-93), format: typescript
 - Lines 11-18 duplicate 8 lines with `src/media/unusedImages.ts` (lines 13-20), format: typescript
 - Lines 11-18 duplicate 8 lines with `src/navigation/orphanPages.ts` (lines 11-18), format: typescript
@@ -949,23 +911,17 @@
 
 ### src/productivity/gitCommit.ts (7 matches)
 
-- Lines 1-9 duplicate 8 lines with `src/editor/footnote.ts` (lines 2-9), format: typescript
 - Lines 1-18 duplicate 29 lines with `src/editor/snippetExpander.ts` (lines 1-29), format: typescript
-- Lines 1-9 duplicate 10 lines with `src/links/openLink.ts` (lines 2-11), format: typescript
-- Lines 1-4 duplicate 4 lines with `src/lists/listModel.ts` (lines 2-5), format: typescript
-- Lines 1-4 duplicate 4 lines with `src/navigation/page.ts` (lines 1-4), format: typescript
 - Lines 104-107 duplicate 4 lines with `src/editor/processor.ts` (lines 208-211), format: typescript
 - Lines 168-171 duplicate 4 lines with `src/productivity/gitCommit.ts` (lines 104-107), format: typescript
 
 ### src/productivity/pomodoro.ts (3 matches)
 
-- Lines 1-4 duplicate 4 lines with `src/views/wordCount.ts` (lines 1-4), format: typescript
 - Lines 88-92 duplicate 5 lines with `src/productivity/pomodoro.ts` (lines 44-48), format: typescript
 - Lines 95-99 duplicate 5 lines with `src/productivity/pomodoro.ts` (lines 43-47), format: typescript
 
 ### src/productivity/taskProgress.ts (4 matches)
 
-- Lines 1-6 duplicate 6 lines with `src/views/wordCount.ts` (lines 1-6), format: typescript
 - Lines 21-26 duplicate 6 lines with `src/views/wordCount.ts` (lines 21-26), format: typescript
 - Lines 26-34 duplicate 9 lines with `src/views/wordCount.ts` (lines 26-34), format: typescript
 - Lines 34-45 duplicate 12 lines with `src/views/wordCount.ts` (lines 34-46), format: typescript
@@ -1013,9 +969,6 @@
 
 ### src/views/wordCount.ts (11 matches)
 
-- Lines 1-4 duplicate 4 lines with `src/navigation/breadcrumb.ts` (lines 1-4), format: typescript
-- Lines 1-4 duplicate 4 lines with `src/productivity/pomodoro.ts` (lines 1-4), format: typescript
-- Lines 1-6 duplicate 6 lines with `src/productivity/taskProgress.ts` (lines 1-6), format: typescript
 - Lines 21-26 duplicate 6 lines with `src/productivity/taskProgress.ts` (lines 21-26), format: typescript
 - Lines 23-26 duplicate 4 lines with `src/navigation/headingAnchor.ts` (lines 62-65), format: typescript
 - Lines 23-26 duplicate 4 lines with `src/productivity/taskStrikethrough.ts` (lines 28-31), format: typescript
@@ -1027,7 +980,6 @@
 
 ### src/webview/apps/commentApp.css (3 matches)
 
-- Lines 1-8 duplicate 8 lines with `src/webview/apps/dateApp.css` (lines 1-8), format: css
 - Lines 9-27 duplicate 19 lines with `src/webview/apps/dateApp.css` (lines 9-27), format: css
 - Lines 87-92 duplicate 6 lines with `src/webview/apps/dbApp.css` (lines 42-119), format: css
 
@@ -1037,7 +989,6 @@
 
 ### src/webview/apps/dateApp.css (4 matches)
 
-- Lines 1-8 duplicate 8 lines with `src/webview/apps/commentApp.css` (lines 1-8), format: css
 - Lines 9-27 duplicate 19 lines with `src/webview/apps/commentApp.css` (lines 9-27), format: css
 - Lines 37-41 duplicate 5 lines with `src/webview/apps/dbApp.css` (lines 119-123), format: css
 - Lines 67-72 duplicate 6 lines with `src/webview/apps/dbApp.css` (lines 42-119), format: css
