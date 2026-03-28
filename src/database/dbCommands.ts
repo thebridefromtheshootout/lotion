@@ -6,7 +6,16 @@ import { hostEditor } from "../hostEditor/HostingEditor";
 import { getCwd } from "../core/cwd";
 import { DbColumn, DbSchema, SCHEMA_FENCE_START, SCHEMA_FENCE_END, parseSchemaFromText, serializeSchema } from "./dbSchema";
 import { DbFilterOperator, DbView, DbViewFilter, parseViewsFromFile, saveViewsToFile, serializeViews } from "./dbViews";
-import { parsePropertyTable, updateEntryProperty, buildPropertyTable, appendToLogTable, clearPropertyFields, removePropertyFields } from "./dbFrontmatter";
+import {
+  parsePropertyTable,
+  updateEntryProperty,
+  buildPropertyTable,
+  appendToLogTable,
+  clearPropertyFields,
+  removePropertyFields,
+  renamePropertyField,
+  syncPropertyFieldOrder,
+} from "./dbFrontmatter";
 import { Cmd } from "../core/commands";
 import { Regex } from "../core/regex";
 import { toPathSlug } from "../core/slug";
@@ -70,6 +79,30 @@ export const DELETE_FIELD_SLASH_COMMAND: SlashCommand = {
   dbOnly: true,
   kind: 4,
   handler: handleDeleteFieldCommand,
+};
+
+export const RENAME_FIELD_SLASH_COMMAND: SlashCommand = {
+  label: "/rename-field",
+  insertText: "",
+  detail: "✏️ Rename a schema field across entries",
+  isAction: true,
+  commandId: Cmd.dbRenameField,
+  when: cursorInDb,
+  dbOnly: true,
+  kind: 4,
+  handler: handleRenameFieldCommand,
+};
+
+export const SYNC_FIELD_ORDER_SLASH_COMMAND: SlashCommand = {
+  label: "/sync-field-order",
+  insertText: "",
+  detail: "🔁 Sync entry field order to schema",
+  isAction: true,
+  commandId: Cmd.dbSyncFieldOrder,
+  when: cursorInDb,
+  dbOnly: true,
+  kind: 21,
+  handler: handleSyncFieldOrderCommand,
 };
 
 export const TABLE_TO_DB_SLASH_COMMAND: SlashCommand = {
@@ -442,14 +475,20 @@ async function promptDbEntryInput(
 
 // ── Column value prompters ─────────────────────────────────────────
 
-export async function promptForColumnValue(col: DbColumn, defaultValue?: string): Promise<string | undefined> {
+export async function promptForColumnValue(
+  col: DbColumn,
+  defaultValue?: string,
+  purpose: "entry" | "backfill" = "entry",
+): Promise<string | undefined> {
+  const promptLabel = purpose === "backfill" ? `Backfill default for "${col.name}"` : col.name;
+
   switch (col.type) {
     case "text":
     case "number":
     case "url":
       return hostEditor
         .showInputBox({
-          prompt: `${col.name} (${col.type})`,
+          prompt: `${promptLabel} (${col.type})`,
           value: defaultValue,
           placeHolder: col.type === "number" ? "0" : "",
           validateInput:
@@ -470,7 +509,7 @@ export async function promptForColumnValue(col: DbColumn, defaultValue?: string)
     case "date":
       return hostEditor
         .showInputBox({
-          prompt: `${col.name} (YYYY-MM-DD)`,
+          prompt: `${promptLabel} (YYYY-MM-DD)`,
           value: defaultValue,
           placeHolder: new Date().toISOString().slice(0, 10),
           validateInput: (v) => {
@@ -487,7 +526,7 @@ export async function promptForColumnValue(col: DbColumn, defaultValue?: string)
 
     case "checkbox":
       return hostEditor
-        .showQuickPick([{ label: "true" }, { label: "false" }], { placeHolder: col.name })
+        .showQuickPick([{ label: "true" }, { label: "false" }], { placeHolder: promptLabel })
         .then((v) => v?.label);
 
     case "select":
@@ -495,17 +534,17 @@ export async function promptForColumnValue(col: DbColumn, defaultValue?: string)
         return hostEditor
           .showQuickPick(
             col.options.map((o) => ({ label: o })),
-            { placeHolder: col.name },
+            { placeHolder: promptLabel },
           )
           .then((v) => v?.label);
       }
-      return hostEditor.showInputBox({ prompt: col.name, value: defaultValue }).then((v) => v ?? undefined);
+      return hostEditor.showInputBox({ prompt: promptLabel, value: defaultValue }).then((v) => v ?? undefined);
 
     case "multi-select":
       if (col.options && col.options.length > 0) {
         const picks = await hostEditor.showQuickPick(
           col.options.map((o) => ({ label: o })),
-          { placeHolder: `${col.name} (select at least one)`, canPickMany: true },
+          { placeHolder: `${promptLabel} (select at least one)`, canPickMany: true },
         );
         if (!picks || picks.length === 0) {
           hostEditor.showWarning(`${col.name} requires at least one selection.`);
@@ -515,7 +554,7 @@ export async function promptForColumnValue(col: DbColumn, defaultValue?: string)
       }
       return hostEditor
         .showInputBox({
-          prompt: `${col.name} (comma-separated)`,
+          prompt: `${promptLabel} (comma-separated)`,
           value: defaultValue,
           validateInput: (v) => (!v || v.trim().length === 0 ? `${col.name} is required` : undefined),
         })
@@ -524,7 +563,7 @@ export async function promptForColumnValue(col: DbColumn, defaultValue?: string)
     case "image":
       return hostEditor
         .showInputBox({
-          prompt: `${col.name} — path to image in .rsrc (e.g. .rsrc/photo.png)`,
+          prompt: `${promptLabel} — path to image in .rsrc (e.g. .rsrc/photo.png)`,
           value: defaultValue,
           placeHolder: ".rsrc/image.png",
         })
@@ -533,7 +572,7 @@ export async function promptForColumnValue(col: DbColumn, defaultValue?: string)
     case "coordinates":
       return hostEditor
         .showInputBox({
-          prompt: `${col.name} (lat, lng)`,
+          prompt: `${promptLabel} (lat, lng)`,
           value: defaultValue,
           placeHolder: "48.8566, 2.3522",
           validateInput: (v) => {
@@ -658,7 +697,7 @@ export async function handleNewFieldCommand(document: TextDocument, _position: P
   }
 
   // 3c. Mandatory typed default backfill for existing entries
-  const backfillValue = await promptForColumnValue(col);
+  const backfillValue = await promptForColumnValue(col, undefined, "backfill");
   if (backfillValue === undefined || backfillValue.trim().length === 0) {
     hostEditor.showWarning(`Cannot add "${col.name}" without a default backfill value for existing entries.`);
     return;
@@ -758,6 +797,133 @@ export async function handleDeleteFieldCommand(document: TextDocument, _position
   }
 
   hostEditor.showInformation(`Field "${pick.label}" removed from schema and ${entries.length} entr${entries.length === 1 ? "y" : "ies"}.`);
+}
+
+// ── /rename-field handler ──────────────────────────────────────────
+
+export async function handleRenameFieldCommand(document: TextDocument, _position: Position): Promise<void> {
+  const schema = parseSchemaFromText(document.getText());
+  if (!schema) {
+    hostEditor.showError("Lotion: no lotion-db schema found in this file.");
+    return;
+  }
+
+  if (schema.columns.length === 0) {
+    hostEditor.showInformation("No fields to rename.");
+    return;
+  }
+
+  const fromPick = await hostEditor.showQuickPick(
+    schema.columns.map((c) => ({
+      label: c.name,
+      description: c.type + (c.options ? ` [${c.options.join(", ")}]` : ""),
+    })),
+    { placeHolder: "Select field to rename" },
+  );
+  if (!fromPick) {
+    return;
+  }
+
+  const fromName = fromPick.label;
+  const toNameInput = await hostEditor.showInputBox({
+    prompt: `Rename "${fromName}" to`,
+    value: fromName,
+    placeHolder: "New field name",
+    validateInput: (v) => {
+      const next = (v ?? "").trim();
+      if (next.length === 0) {
+        return "Name is required";
+      }
+      if (next !== fromName && schema.columns.some((c) => c.name === next)) {
+        return "A field with that name already exists";
+      }
+      return undefined;
+    },
+  });
+  if (!toNameInput) {
+    return;
+  }
+
+  const toName = toNameInput.trim();
+  if (toName === fromName) {
+    hostEditor.showInformation("Field name unchanged.");
+    return;
+  }
+
+  schema.columns = schema.columns.map((c) => (c.name === fromName ? { ...c, name: toName } : c));
+  if (schema.titleField === fromName) {
+    schema.titleField = toName;
+  }
+
+  const blockRange = findSchemaBlockRange(document);
+  if (!blockRange) {
+    return;
+  }
+  if (!hostEditor.isActiveEditorDocumentEqualTo(document)) {
+    return;
+  }
+
+  const range = new Range(blockRange.startLine + 1, 0, blockRange.endLine, 0);
+  const newYaml = serializeSchema(schema) + "\n";
+  await hostEditor.replaceRange(range, newYaml);
+  await hostEditor.saveActiveDocument();
+
+  const dbDir = path.dirname(document.uri.fsPath);
+  const entries = readDbEntries(dbDir);
+  let updatedEntries = 0;
+  for (const entry of entries) {
+    const entryPath = path.join(dbDir, entry.relativePath);
+    if (!fs.existsSync(entryPath)) {
+      continue;
+    }
+    const content = fs.readFileSync(entryPath, "utf-8");
+    const next = renamePropertyField(content, fromName, toName);
+    if (next !== content) {
+      fs.writeFileSync(entryPath, next, "utf-8");
+      updatedEntries++;
+    }
+  }
+
+  hostEditor.showInformation(
+    `Field "${fromName}" renamed to "${toName}". Updated ${updatedEntries} entr${updatedEntries === 1 ? "y" : "ies"}.`,
+  );
+}
+
+// ── /sync-field-order handler ──────────────────────────────────────
+
+export async function handleSyncFieldOrderCommand(document: TextDocument, _position: Position): Promise<void> {
+  const schema = parseSchemaFromText(document.getText());
+  if (!schema) {
+    hostEditor.showError("Lotion: no lotion-db schema found in this file.");
+    return;
+  }
+
+  if (schema.columns.length === 0) {
+    hostEditor.showInformation("No schema columns found to sync.");
+    return;
+  }
+
+  const orderedFields = schema.columns.map((c) => c.name);
+  const dbDir = path.dirname(document.uri.fsPath);
+  const entries = readDbEntries(dbDir);
+
+  let updatedEntries = 0;
+  for (const entry of entries) {
+    const entryPath = path.join(dbDir, entry.relativePath);
+    if (!fs.existsSync(entryPath)) {
+      continue;
+    }
+    const content = fs.readFileSync(entryPath, "utf-8");
+    const next = syncPropertyFieldOrder(content, orderedFields);
+    if (next !== content) {
+      fs.writeFileSync(entryPath, next, "utf-8");
+      updatedEntries++;
+    }
+  }
+
+  hostEditor.showInformation(
+    `Field order synced to schema for ${updatedEntries} entr${updatedEntries === 1 ? "y" : "ies"}.`,
+  );
 }
 
 // ── /new-view handler ──────────────────────────────────────────────

@@ -18,7 +18,16 @@ export {
   saveViewsToFile,
 } from "./dbViews";
 
-export { parsePropertyTable, updateEntryProperty, buildPropertyTable, appendToLogTable, clearPropertyFields, removePropertyFields } from "./dbFrontmatter";
+export {
+  parsePropertyTable,
+  updateEntryProperty,
+  buildPropertyTable,
+  appendToLogTable,
+  clearPropertyFields,
+  removePropertyFields,
+  renamePropertyField,
+  syncPropertyFieldOrder,
+} from "./dbFrontmatter";
 
 export { DbEntry, readDbEntries, isDbFile, cursorInDb } from "./dbEntries";
 
@@ -27,7 +36,9 @@ export {
   handleDbEntryCommand,
   promptForColumnValue,
   handleNewFieldCommand,
+  handleRenameFieldCommand,
   handleDeleteFieldCommand,
+  handleSyncFieldOrderCommand,
   handleTableToDbCommand,
   handleCsvToDbCommand,
   handleNewViewCommand,
