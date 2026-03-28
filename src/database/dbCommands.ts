@@ -191,39 +191,15 @@ export async function handleDatabaseCommand(document: TextDocument, position: Po
   // 4. For each column, ask for type
   const columns: DbColumn[] = [];
   for (const name of colNames) {
-    const typePick = await hostEditor.showQuickPick(
-      [
-        { label: "text", description: "Free text" },
-        { label: "number", description: "Numeric value" },
-        { label: "select", description: "Single choice from options" },
-        { label: "multi-select", description: "Multiple choices from options" },
-        { label: "date", description: "Date value (YYYY-MM-DD)" },
-        { label: "checkbox", description: "True / false" },
-        { label: "url", description: "URL / link" },
-        { label: "coordinates", description: "Geographic coordinates (lat, lng)" },
-      ],
-      { placeHolder: `Type for column "${name}"` },
-    );
-    if (!typePick) {
+    const col = await promptColumnDefinition(name, {
+      includeImageType: false,
+      requireOptionsForSelect: false,
+      includeImageDimensions: false,
+      typePlaceholder: `Type for column "${name}"`,
+    });
+    if (!col) {
       return;
     }
-
-    const col: DbColumn = { name, type: typePick.label as DbColumn["type"] };
-
-    // Ask for options if select/multi-select
-    if (col.type === "select" || col.type === "multi-select") {
-      const optionsInput = await hostEditor.showInputBox({
-        prompt: `Options for "${name}" (comma-separated)`,
-        placeHolder: "Option 1, Option 2, Option 3",
-      });
-      if (optionsInput) {
-        col.options = optionsInput
-          .split(",")
-          .map((s) => s.trim())
-          .filter((s) => s.length > 0);
-      }
-    }
-
     columns.push(col);
   }
 
@@ -688,60 +664,15 @@ export async function handleNewFieldCommand(document: TextDocument, _position: P
     return;
   }
 
-  // 2. Ask for type
-  const typePick = await hostEditor.showQuickPick(
-    [
-      { label: "text", description: "Free text" },
-      { label: "number", description: "Numeric value" },
-      { label: "select", description: "Single choice from options" },
-      { label: "multi-select", description: "Multiple choices from options" },
-      { label: "date", description: "Date value (YYYY-MM-DD)" },
-      { label: "checkbox", description: "True / false" },
-      { label: "url", description: "URL / link" },
-      { label: "image", description: "Image path (relative to .rsrc)" },
-      { label: "coordinates", description: "Geographic coordinates (lat, lng)" },
-    ],
-    { placeHolder: `Type for "${name.trim()}"` },
-  );
-  if (!typePick) {
+  // 2. Ask for type + settings (options/image dimensions)
+  const col = await promptColumnDefinition(name.trim(), {
+    includeImageType: true,
+    requireOptionsForSelect: true,
+    includeImageDimensions: true,
+    typePlaceholder: `Type for "${name.trim()}"`,
+  });
+  if (!col) {
     return;
-  }
-
-  const col: DbColumn = { name: name.trim(), type: typePick.label as DbColumn["type"] };
-
-  // 3. Ask for options if select/multi-select
-  if (col.type === "select" || col.type === "multi-select") {
-    const optionsInput = await hostEditor.showInputBox({
-      prompt: `Options for "${col.name}" (comma-separated)`,
-      placeHolder: "Option 1, Option 2, Option 3",
-      validateInput: (v) => (!v || v.trim().length === 0 ? "At least one option is required" : undefined),
-    });
-    if (!optionsInput) {
-      return;
-    }
-    col.options = optionsInput
-      .split(",")
-      .map((s) => s.trim())
-      .filter((s) => s.length > 0);
-  }
-
-  // 3b. Ask for maxWidth/maxHeight if image
-  if (col.type === "image") {
-    const mw = await hostEditor.showInputBox({
-      prompt: `Max image width in px for "${col.name}" (leave blank for default 120)`,
-      placeHolder: "120",
-    });
-    if (mw && /^\d+$/.test(mw.trim())) {
-      col.maxWidth = parseInt(mw.trim(), 10);
-    }
-
-    const mh = await hostEditor.showInputBox({
-      prompt: `Max image height in px for "${col.name}" (leave blank for default 80)`,
-      placeHolder: "80",
-    });
-    if (mh && /^\d+$/.test(mh.trim())) {
-      col.maxHeight = parseInt(mh.trim(), 10);
-    }
   }
 
   // 3c. Mandatory typed default backfill for existing entries
@@ -1242,21 +1173,53 @@ function parseCsvText(text: string): string[][] {
 
   return rows;
 }
-// TODO why are there three separate methods prompting the same list of arrays. wtf.
-async function promptColumnDefinition(name: string): Promise<DbColumn | undefined> {
+
+interface PromptColumnDefinitionOptions {
+  includeImageType?: boolean;
+  requireOptionsForSelect?: boolean;
+  includeImageDimensions?: boolean;
+  typePlaceholder?: string;
+}
+
+const BASE_COLUMN_TYPE_PICK_ITEMS: Array<{ label: DbColumn["type"]; description: string }> = [
+  { label: "text", description: "Free text" },
+  { label: "number", description: "Numeric value" },
+  { label: "select", description: "Single choice from options" },
+  { label: "multi-select", description: "Multiple choices from options" },
+  { label: "date", description: "Date value (YYYY-MM-DD)" },
+  { label: "checkbox", description: "True / false" },
+  { label: "url", description: "URL / link" },
+  { label: "coordinates", description: "Geographic coordinates (lat, lng)" },
+];
+
+const IMAGE_TYPE_PICK_ITEM: { label: DbColumn["type"]; description: string } = {
+  label: "image",
+  description: "Image path (relative to .rsrc)",
+};
+
+function columnTypePickItems(includeImageType: boolean): Array<{ label: DbColumn["type"]; description: string }> {
+  return includeImageType ? [...BASE_COLUMN_TYPE_PICK_ITEMS, IMAGE_TYPE_PICK_ITEM] : BASE_COLUMN_TYPE_PICK_ITEMS;
+}
+
+function parseCommaSeparated(input: string): string[] {
+  return input
+    .split(",")
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0);
+}
+
+async function promptColumnDefinition(
+  name: string,
+  options: PromptColumnDefinitionOptions = {},
+): Promise<DbColumn | undefined> {
+  const includeImageType = options.includeImageType ?? true;
+  const requireOptionsForSelect = options.requireOptionsForSelect ?? true;
+  const includeImageDimensions = options.includeImageDimensions ?? true;
+  const typePlaceholder = options.typePlaceholder ?? `Type for column "${name}"`;
+
   const typePick = await hostEditor.showQuickPick(
-    [
-      { label: "text", description: "Free text" },
-      { label: "number", description: "Numeric value" },
-      { label: "select", description: "Single choice from options" },
-      { label: "multi-select", description: "Multiple choices from options" },
-      { label: "date", description: "Date value (YYYY-MM-DD)" },
-      { label: "checkbox", description: "True / false" },
-      { label: "url", description: "URL / link" },
-      { label: "image", description: "Image path (relative to .rsrc)" },
-      { label: "coordinates", description: "Geographic coordinates (lat, lng)" },
-    ],
-    { placeHolder: `Type for column "${name}"` },
+    columnTypePickItems(includeImageType),
+    { placeHolder: typePlaceholder },
   );
   if (!typePick) {
     return undefined;
@@ -1268,18 +1231,19 @@ async function promptColumnDefinition(name: string): Promise<DbColumn | undefine
     const optionsInput = await hostEditor.showInputBox({
       prompt: `Options for "${name}" (comma-separated)`,
       placeHolder: "Option 1, Option 2, Option 3",
-      validateInput: (v) => (!v || v.trim().length === 0 ? "At least one option is required" : undefined),
+      validateInput: requireOptionsForSelect
+        ? (v) => (!v || v.trim().length === 0 ? "At least one option is required" : undefined)
+        : undefined,
     });
-    if (!optionsInput) {
+    if (requireOptionsForSelect && !optionsInput) {
       return undefined;
     }
-    col.options = optionsInput
-      .split(",")
-      .map((s) => s.trim())
-      .filter((s) => s.length > 0);
+    if (optionsInput) {
+      col.options = parseCommaSeparated(optionsInput);
+    }
   }
 
-  if (col.type === "image") {
+  if (col.type === "image" && includeImageDimensions) {
     const mw = await hostEditor.showInputBox({
       prompt: `Max image width in px for "${col.name}" (leave blank for default 120)`,
       placeHolder: "120",
