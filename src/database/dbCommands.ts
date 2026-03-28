@@ -1268,7 +1268,7 @@ function parseCsvText(text: string): string[][] {
 
   return rows;
 }
-
+// TODO why are there three separate methods prompting the same list of arrays. wtf.
 async function promptColumnDefinition(name: string): Promise<DbColumn | undefined> {
   const typePick = await hostEditor.showQuickPick(
     [
@@ -1375,7 +1375,7 @@ async function createDatabaseFromTabularData(
   if (titleColIndex < 0) {
     return;
   }
-
+  // tODO this whole flow to get a schema object should be reused across db creationflows.
   const columns: DbColumn[] = [];
   for (let i = 0; i < data.headers.length; i++) {
     const header = data.headers[i];
@@ -1394,6 +1394,7 @@ async function createDatabaseFromTabularData(
   }
 
   const schema: DbSchema = { titleField: data.headers[titleColIndex], columns };
+  // TODO this whole flow is just creating a lotion page. all such flows should use a single centralized create child page method
   const dbSlug = toPathSlug(dbName);
   const dbDir = path.join(cwd, dbSlug);
   const dbFilePath = path.join(dbDir, "index.md");
@@ -1471,6 +1472,7 @@ async function createDatabaseFromTabularData(
 }
 
 export async function handleTableToDbCommand(document: TextDocument, position: Position): Promise<void> {
+  // TODO update this method to use parseTable from table.ts for table parsing logic.
   const parsed = parseMarkdownTableAtCursor(document, position);
   if (!parsed) {
     hostEditor.showWarning("Place cursor inside a valid markdown table to import.");
