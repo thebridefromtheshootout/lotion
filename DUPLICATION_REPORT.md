@@ -534,63 +534,63 @@
 
 ### src/lists/checkbox.ts (2 matches)
 
-- Lines 2-6 duplicate 5 lines with `src/lists/listToggle.ts` (lines 2-6), format: typescript
-- Lines 12-18 duplicate 7 lines with `src/views/pageIcon.ts` (lines 25-31), format: typescript
+- [false alarm] Lines 2-6 duplicate 5 lines with `src/lists/listToggle.ts` (lines 2-6), format: typescript
+- [false alarm] Lines 12-18 duplicate 7 lines with `src/views/pageIcon.ts` (lines 25-31), format: typescript
 
 ### src/lists/cleanList.ts (3 matches)
 
-- Lines 126-131 duplicate 6 lines with `src/lists/listModel.ts` (lines 314-319), format: typescript
-- Lines 136-142 duplicate 7 lines with `src/lists/listModel.ts` (lines 245-304), format: typescript
+- [false alarm] Lines 126-131 duplicate 6 lines with `src/lists/listModel.ts` (lines 314-319), format: typescript
+- [false alarm] Lines 136-142 duplicate 7 lines with `src/lists/listModel.ts` (lines 245-304), format: typescript
 
 ### src/lists/listContinue.ts (7 matches)
 
-- Lines 4-16 duplicate 13 lines with `src/lists/listIndent.ts` (lines 3-7), format: typescript
-- Lines 63-67 duplicate 5 lines with `src/lists/listContinue.ts` (lines 50-54), format: typescript
-- Lines 132-136 duplicate 5 lines with `src/lists/listContinue.ts` (lines 93-96), format: typescript
-- Lines 136-139 duplicate 4 lines with `src/lists/listContinue.ts` (lines 116-119), format: typescript
-- Lines 141-146 duplicate 6 lines with `src/lists/listContinue.ts` (lines 120-125), format: typescript
-- Lines 147-151 duplicate 5 lines with `src/lists/listContinue.ts` (lines 125-129), format: typescript
-- Lines 154-159 duplicate 6 lines with `src/lists/listContinue.ts` (lines 54-62), format: typescript
+- [false alarm] Lines 4-16 duplicate 13 lines with `src/lists/listIndent.ts` (lines 3-7), format: typescript
+- [false alarm] Lines 63-67 duplicate 5 lines with `src/lists/listContinue.ts` (lines 50-54), format: typescript
+- [false alarm] Lines 132-136 duplicate 5 lines with `src/lists/listContinue.ts` (lines 93-96), format: typescript
+- [false alarm] Lines 136-139 duplicate 4 lines with `src/lists/listContinue.ts` (lines 116-119), format: typescript
+- [false alarm] Lines 141-146 duplicate 6 lines with `src/lists/listContinue.ts` (lines 120-125), format: typescript
+- [false alarm] Lines 147-151 duplicate 5 lines with `src/lists/listContinue.ts` (lines 125-129), format: typescript
+- [false alarm] Lines 154-159 duplicate 6 lines with `src/lists/listContinue.ts` (lines 54-62), format: typescript
 
 ### src/lists/listIndent.ts (6 matches)
 
-- Lines 3-7 duplicate 13 lines with `src/lists/listContinue.ts` (lines 4-16), format: typescript
-- Lines 100-106 duplicate 7 lines with `src/lists/listToggle.ts` (lines 27-34), format: typescript
-- Lines 117-123 duplicate 7 lines with `src/lists/listIndent.ts` (lines 30-37), format: typescript
-- Lines 123-133 duplicate 11 lines with `src/lists/listIndent.ts` (lines 38-48), format: typescript
-- Lines 140-143 duplicate 4 lines with `src/lists/listIndent.ts` (lines 58-61), format: typescript
-- Lines 209-218 duplicate 10 lines with `src/lists/listToggle.ts` (lines 24-107), format: typescript
+- [false alarm] Lines 3-7 duplicate 13 lines with `src/lists/listContinue.ts` (lines 4-16), format: typescript
+- [false alarm] Lines 100-106 duplicate 7 lines with `src/lists/listToggle.ts` (lines 27-34), format: typescript
+- [false alarm] Lines 117-123 duplicate 7 lines with `src/lists/listIndent.ts` (lines 30-37), format: typescript
+- [false alarm] Lines 123-133 duplicate 11 lines with `src/lists/listIndent.ts` (lines 38-48), format: typescript
+- [false alarm] Lines 140-143 duplicate 4 lines with `src/lists/listIndent.ts` (lines 58-61), format: typescript
+- [false alarm] Lines 209-218 duplicate 10 lines with `src/lists/listToggle.ts` (lines 24-107), format: typescript
 
 ### src/lists/listModel.ts (13 matches)
 
-- Lines 2-7 duplicate 6 lines with `src/editor/toc.ts` (lines 1-6), format: typescript
-- Lines 2-5 duplicate 4 lines with `src/productivity/gitCommit.ts` (lines 1-4), format: typescript
-- Lines 3-7 duplicate 5 lines with `src/views/outline.ts` (lines 13-18), format: typescript
-- Lines 4-9 duplicate 6 lines with `src/media/pdfExport.ts` (lines 4-9), format: typescript
-- Lines 124-141 duplicate 18 lines with `src/lists/listModel.ts` (lines 89-106), format: typescript
-- Lines 245-304 duplicate 7 lines with `src/lists/cleanList.ts` (lines 136-142), format: typescript
-- Lines 270-280 duplicate 11 lines with `src/lists/listModel.ts` (lines 245-255), format: typescript
-- Lines 298-303 duplicate 6 lines with `src/lists/listModel.ts` (lines 245-250), format: typescript
-- Lines 314-319 duplicate 6 lines with `src/lists/cleanList.ts` (lines 126-131), format: typescript
-- Lines 316-319 duplicate 4 lines with `src/lists/listModel.ts` (lines 100-104), format: typescript
-- Lines 333-336 duplicate 4 lines with `src/lists/listModel.ts` (lines 122-127), format: typescript
-- Lines 334-341 duplicate 8 lines with `src/lists/listModel.ts` (lines 314-321), format: typescript
-- Lines 345-352 duplicate 8 lines with `src/lists/listModel.ts` (lines 325-332), format: typescript
+- [false alarm] Lines 2-7 duplicate 6 lines with `src/editor/toc.ts` (lines 1-6), format: typescript
+- [false alarm] Lines 2-5 duplicate 4 lines with `src/productivity/gitCommit.ts` (lines 1-4), format: typescript
+- [false alarm] Lines 3-7 duplicate 5 lines with `src/views/outline.ts` (lines 13-18), format: typescript
+- [false alarm] Lines 4-9 duplicate 6 lines with `src/media/pdfExport.ts` (lines 4-9), format: typescript
+- [false alarm] Lines 124-141 duplicate 18 lines with `src/lists/listModel.ts` (lines 89-106), format: typescript
+- [false alarm] Lines 245-304 duplicate 7 lines with `src/lists/cleanList.ts` (lines 136-142), format: typescript
+- [false alarm] Lines 270-280 duplicate 11 lines with `src/lists/listModel.ts` (lines 245-255), format: typescript
+- [false alarm] Lines 298-303 duplicate 6 lines with `src/lists/listModel.ts` (lines 245-250), format: typescript
+- [false alarm] Lines 314-319 duplicate 6 lines with `src/lists/cleanList.ts` (lines 126-131), format: typescript
+- [false alarm] Lines 316-319 duplicate 4 lines with `src/lists/listModel.ts` (lines 100-104), format: typescript
+- [false alarm] Lines 333-336 duplicate 4 lines with `src/lists/listModel.ts` (lines 122-127), format: typescript
+- [false alarm] Lines 334-341 duplicate 8 lines with `src/lists/listModel.ts` (lines 314-321), format: typescript
+- [false alarm] Lines 345-352 duplicate 8 lines with `src/lists/listModel.ts` (lines 325-332), format: typescript
 
 ### src/lists/listRenumber.ts (3 matches)
 
-- Lines 15-21 duplicate 8 lines with `src/editor/tableAlignOnSave.ts` (lines 11-18), format: typescript
-- Lines 15-21 duplicate 8 lines with `src/editor/toc.ts` (lines 83-90), format: typescript
-- Lines 18-21 duplicate 4 lines with `src/core/trailingNewline.ts` (lines 11-14), format: typescript
+- [false alarm] Lines 15-21 duplicate 8 lines with `src/editor/tableAlignOnSave.ts` (lines 11-18), format: typescript
+- [false alarm] Lines 15-21 duplicate 8 lines with `src/editor/toc.ts` (lines 83-90), format: typescript
+- [false alarm] Lines 18-21 duplicate 4 lines with `src/core/trailingNewline.ts` (lines 11-14), format: typescript
 
 ### src/lists/listToggle.ts (6 matches)
 
-- Lines 2-6 duplicate 5 lines with `src/formatting/headingLevel.ts` (lines 2-6), format: typescript
-- Lines 2-6 duplicate 5 lines with `src/lists/checkbox.ts` (lines 2-6), format: typescript
-- Lines 19-24 duplicate 6 lines with `src/views/pageIcon.ts` (lines 31-36), format: typescript
-- Lines 24-107 duplicate 10 lines with `src/lists/listIndent.ts` (lines 209-218), format: typescript
-- Lines 27-34 duplicate 7 lines with `src/lists/listIndent.ts` (lines 100-106), format: typescript
-- Lines 47-51 duplicate 5 lines with `src/lists/listToggle.ts` (lines 40-44), format: typescript
+- [false alarm] Lines 2-6 duplicate 5 lines with `src/formatting/headingLevel.ts` (lines 2-6), format: typescript
+- [false alarm] Lines 2-6 duplicate 5 lines with `src/lists/checkbox.ts` (lines 2-6), format: typescript
+- [false alarm] Lines 19-24 duplicate 6 lines with `src/views/pageIcon.ts` (lines 31-36), format: typescript
+- [false alarm] Lines 24-107 duplicate 10 lines with `src/lists/listIndent.ts` (lines 209-218), format: typescript
+- [false alarm] Lines 27-34 duplicate 7 lines with `src/lists/listIndent.ts` (lines 100-106), format: typescript
+- [false alarm] Lines 47-51 duplicate 5 lines with `src/lists/listToggle.ts` (lines 40-44), format: typescript
 
 ### src/media/carousel.ts (5 matches)
 
