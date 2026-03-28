@@ -128,6 +128,7 @@ function DayNameHeadings() {
 }
 
 function DateColumnSelection(dateColumn: string, onCalendarDateColChange: (col: string) => void, dateCols: DbColumn[], endCol: string, onCalendarEndDateColChange: (col: string | undefined) => void) {
+  const dateColumnOptions = renderColumnOptions(dateCols);
   return <>
     <label className="view-control-label">Date column:</label>
     <select
@@ -135,11 +136,7 @@ function DateColumnSelection(dateColumn: string, onCalendarDateColChange: (col: 
       onChange={(e) => onCalendarDateColChange(e.target.value)}
       className="view-control-select"
     >
-      {dateCols.map((c) => (
-        <option key={c.name} value={c.name}>
-          {c.name}
-        </option>
-      ))}
+      {dateColumnOptions}
     </select>
 
     {dateCols.length > 1 && (
@@ -151,14 +148,18 @@ function DateColumnSelection(dateColumn: string, onCalendarDateColChange: (col: 
           className="view-control-select"
         >
           <option value="">— none —</option>
-          {dateCols.map((c) => (
-            <option key={c.name} value={c.name}>
-              {c.name}
-            </option>
-          ))}
+          {dateColumnOptions}
         </select>
       </>
     )}
   </>;
+}
+
+function renderColumnOptions(columns: DbColumn[]) {
+  return columns.map((column) => (
+    <option key={column.name} value={column.name}>
+      {column.name}
+    </option>
+  ));
 }
 
