@@ -62,7 +62,7 @@ import {
 
 import {
   createBookmarkTreeView,
-  createClipboardHistoryTracker,
+  // createClipboardHistoryTracker, // disabled
   // createPomodoroStatusBar, // disabled
   // createTaskProgressStatusBar, // disabled
   createStrikethroughDecorations,
@@ -243,7 +243,7 @@ export function activate(context: ExtensionContext) {
     createRecentPagesTracker(),
     createPageIconProvider(),
     createBookmarkTreeView(),
-    createClipboardHistoryTracker(),
+    // createClipboardHistoryTracker(), // disabled
   );
 
   // Refresh DB webviews on save

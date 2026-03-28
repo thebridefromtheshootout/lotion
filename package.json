@@ -669,18 +669,6 @@
         "category": "Lotion"
       },
       {
-        "command": "lotion.copyToClipboard",
-        "title": "Lotion: Copy (with history)",
-        "icon": "$(copy)",
-        "category": "Lotion"
-      },
-      {
-        "command": "lotion.cutToClipboard",
-        "title": "Lotion: Cut (with history)",
-        "icon": "$(clippy)",
-        "category": "Lotion"
-      },
-      {
         "command": "lotion.cleanList",
         "title": "Lotion: Clean List",
         "icon": "$(clear-all)",
@@ -915,18 +903,6 @@
         "key": "alt+r",
         "mac": "alt+r",
         "when": "editorLangId == markdown"
-      },
-      {
-        "command": "lotion.copyToClipboard",
-        "key": "ctrl+c",
-        "mac": "cmd+c",
-        "when": "editorTextFocus && editorLangId == markdown"
-      },
-      {
-        "command": "lotion.cutToClipboard",
-        "key": "ctrl+x",
-        "mac": "cmd+x",
-        "when": "editorTextFocus && editorLangId == markdown"
       }
     ],
     "configuration": {
