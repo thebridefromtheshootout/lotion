@@ -162,11 +162,11 @@
 
 ### src/contracts/databaseTypes.ts (1 matches)
 
-- Lines 66-70 duplicate 5 lines with `src/contracts/messages/dbPanelMessages.ts` (lines 50-54), format: typescript
+- [fixed] Lines 66-70 duplicate 5 lines with `src/contracts/messages/dbPanelMessages.ts` (lines 50-54), format: typescript
 
 ### src/contracts/messages/dbPanelMessages.ts (1 matches)
 
-- Lines 50-54 duplicate 5 lines with `src/contracts/databaseTypes.ts` (lines 66-70), format: typescript
+- [fixed] Lines 50-54 duplicate 5 lines with `src/contracts/databaseTypes.ts` (lines 66-70), format: typescript
 
 ### src/core/fileHashTracker.ts (1 matches)
 
@@ -213,15 +213,15 @@
 
 ### src/database/dbSchema.ts (3 matches)
 
-- Lines 69-74 duplicate 6 lines with `src/database/dbViews.ts` (lines 31-36), format: typescript
-- Lines 81-86 duplicate 6 lines with `src/database/dbViews.ts` (lines 37-42), format: typescript
+- [fixed] Lines 69-74 duplicate 6 lines with `src/database/dbViews.ts` (lines 31-36), format: typescript
+- [fixed] Lines 81-86 duplicate 6 lines with `src/database/dbViews.ts` (lines 37-42), format: typescript
 - Lines 119-123 duplicate 5 lines with `src/database/dbSchema.ts` (lines 86-89), format: typescript
 
 ### src/database/dbViews.ts (3 matches)
 
-- Lines 31-36 duplicate 6 lines with `src/database/dbSchema.ts` (lines 69-74), format: typescript
-- Lines 37-42 duplicate 6 lines with `src/database/dbSchema.ts` (lines 81-86), format: typescript
-- Lines 124-131 duplicate 8 lines with `src/database/dbViews.ts` (lines 42-48), format: typescript
+- [fixed] Lines 31-36 duplicate 6 lines with `src/database/dbSchema.ts` (lines 69-74), format: typescript
+- [fixed] Lines 37-42 duplicate 6 lines with `src/database/dbSchema.ts` (lines 81-86), format: typescript
+- [fixed] Lines 124-131 duplicate 8 lines with `src/database/dbViews.ts` (lines 42-48), format: typescript
 
 ### src/database/dbWebview.ts (3 matches)
 
@@ -1045,9 +1045,9 @@
 ### src/webview/components/database/calendarview/CalendarView.tsx (4 matches)
 
 - Lines 135-149 duplicate 17 lines with `src/webview/components/database/KanbanView.tsx` (lines 72-88), format: javascript
-- Lines 138-145 duplicate 7 lines with `src/webview/components/database/KanbanView.tsx` (lines 75-81), format: tsx
-- Lines 138-145 duplicate 7 lines with `src/webview/components/FilterBar.tsx` (lines 183-189), format: tsx
-- Lines 153-160 duplicate 8 lines with `src/webview/components/database/calendarview/CalendarView.tsx` (lines 137-145), format: tsx
+- [fixed] Lines 138-145 duplicate 7 lines with `src/webview/components/database/KanbanView.tsx` (lines 75-81), format: tsx
+- [fixed] Lines 138-145 duplicate 7 lines with `src/webview/components/FilterBar.tsx` (lines 183-189), format: tsx
+- [fixed] Lines 153-160 duplicate 8 lines with `src/webview/components/database/calendarview/CalendarView.tsx` (lines 137-145), format: tsx
 
 ### src/webview/components/database/calendarview/RenderWeek.tsx (1 matches)
 
@@ -1056,7 +1056,7 @@
 ### src/webview/components/database/KanbanView.tsx (3 matches)
 
 - Lines 72-88 duplicate 17 lines with `src/webview/components/database/calendarview/CalendarView.tsx` (lines 135-149), format: javascript
-- Lines 75-81 duplicate 7 lines with `src/webview/components/database/calendarview/CalendarView.tsx` (lines 138-145), format: tsx
+- [fixed] Lines 75-81 duplicate 7 lines with `src/webview/components/database/calendarview/CalendarView.tsx` (lines 138-145), format: tsx
 - Lines 126-132 duplicate 7 lines with `src/webview/components/database/tableview/TableView.tsx` (lines 130-133), format: javascript
 
 ### src/webview/components/database/tableview/TableView.tsx (2 matches)
@@ -1070,11 +1070,11 @@
 
 ### src/webview/components/FilterBar.tsx (5 matches)
 
-- Lines 97-100 duplicate 4 lines with `src/webview/components/FilterBar.tsx` (lines 88-91), format: tsx
-- Lines 150-155 duplicate 6 lines with `src/webview/components/FilterBar.tsx` (lines 144-149), format: tsx
+- [fixed] Lines 97-100 duplicate 4 lines with `src/webview/components/FilterBar.tsx` (lines 88-91), format: tsx
+- [fixed] Lines 150-155 duplicate 6 lines with `src/webview/components/FilterBar.tsx` (lines 144-149), format: tsx
 - Lines 155-159 duplicate 5 lines with `src/webview/components/FilterBar.tsx` (lines 55-59), format: tsx
-- Lines 183-189 duplicate 7 lines with `src/webview/components/database/calendarview/CalendarView.tsx` (lines 138-145), format: tsx
-- Lines 278-283 duplicate 6 lines with `src/webview/components/FilterBar.tsx` (lines 217-222), format: tsx
+- [fixed] Lines 183-189 duplicate 7 lines with `src/webview/components/database/calendarview/CalendarView.tsx` (lines 138-145), format: tsx
+- [fixed] Lines 278-283 duplicate 6 lines with `src/webview/components/FilterBar.tsx` (lines 217-222), format: tsx
 
 ### src/webview/utils/calendarUtils.ts (1 matches)
 
