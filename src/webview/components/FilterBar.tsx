@@ -2,6 +2,7 @@ import React, { useRef, useState } from "react";
 import { DbColumn, FilterNode, FilterGroup, FilterLeaf, isLeaf } from "../types";
 import { pruneEmptyGroups } from "../utils/filterSort";
 import type { DbFilterOperator } from "../../contracts/databaseTypes";
+import { ColumnNameOptions } from "./ColumnNameOptions";
 
 interface FilterBarProps {
   schema: DbColumn[];
@@ -192,11 +193,7 @@ export function FilterBar({ schema, titleFieldLabel, filterTree, setFilterTree }
         <div className="filter-bar-inputs">
           <select ref={colRef} id="filterCol">
             <option value="__title">{titleFieldLabel}</option>
-            {schema.map((c) => (
-              <option key={c.name} value={c.name}>
-                {c.name}
-              </option>
-            ))}
+            <ColumnNameOptions columns={schema} />
           </select>
           <select ref={opRef} id="filterOp">
             {OPERATORS.map((o) => (

@@ -3,6 +3,7 @@ import { DbEntryData } from "../../types";
 import { KanbanViewProps } from "../../types/KanbanTypes";
 import { FormatCell } from "./tableview/FormatCell";
 import type { DbPanelToExtensionCommunicator } from "../../communicators/DbPanelToExtensionCommunicator";
+import { ColumnNameOptions } from "../ColumnNameOptions";
 
 export function KanbanView({
   entries,
@@ -72,11 +73,7 @@ export function KanbanView({
           onChange={(e) => onKanbanGroupColChange(e.target.value)}
           className="view-control-select"
         >
-          {selectCols.map((c) => (
-            <option key={c.name} value={c.name}>
-              {c.name}
-            </option>
-          ))}
+          <ColumnNameOptions columns={selectCols} />
         </select>
       </div>
       <div className="kanban-board">

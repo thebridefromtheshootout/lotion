@@ -8,6 +8,7 @@ import {
 import { RenderWeek } from "./RenderWeek";
 import { DAY_NAMES, dfmt, getMonthProfile, getWeekProfile, MONTH_NAMES, parseDate } from "../../../utils/calendarUtils";
 import { DbColumn } from "../../../types";
+import { ColumnNameOptions } from "../../ColumnNameOptions";
 
 export const SLOT_H = 22;
 export const DAY_NUM_H = 26;
@@ -128,7 +129,6 @@ function DayNameHeadings() {
 }
 
 function DateColumnSelection(dateColumn: string, onCalendarDateColChange: (col: string) => void, dateCols: DbColumn[], endCol: string, onCalendarEndDateColChange: (col: string | undefined) => void) {
-  const dateColumnOptions = renderColumnOptions(dateCols);
   return <>
     <label className="view-control-label">Date column:</label>
     <select
@@ -136,7 +136,7 @@ function DateColumnSelection(dateColumn: string, onCalendarDateColChange: (col: 
       onChange={(e) => onCalendarDateColChange(e.target.value)}
       className="view-control-select"
     >
-      {dateColumnOptions}
+      <ColumnNameOptions columns={dateCols} />
     </select>
 
     {dateCols.length > 1 && (
@@ -148,18 +148,10 @@ function DateColumnSelection(dateColumn: string, onCalendarDateColChange: (col: 
           className="view-control-select"
         >
           <option value="">— none —</option>
-          {dateColumnOptions}
+          <ColumnNameOptions columns={dateCols} />
         </select>
       </>
     )}
   </>;
-}
-
-function renderColumnOptions(columns: DbColumn[]) {
-  return columns.map((column) => (
-    <option key={column.name} value={column.name}>
-      {column.name}
-    </option>
-  ));
 }
 
