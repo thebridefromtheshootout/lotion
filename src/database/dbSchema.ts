@@ -111,9 +111,7 @@ function parseSimpleYaml(lines: string[]): DbSchema | undefined {
 
     const dashName = line.match(Regex.dbDashNameLine);
     if (dashName) {
-      if (current && current.name && current.type) {
-        columns.push(current as DbColumn);
-      }
+      appendColumnIfComplete(columns, current);
       current = { name: dashName[1].trim() };
       continue;
     }
@@ -144,14 +142,18 @@ function parseSimpleYaml(lines: string[]): DbSchema | undefined {
   }
 
   // Push last column
-  if (current && current.name && current.type) {
-    columns.push(current as DbColumn);
-  }
+  appendColumnIfComplete(columns, current);
 
   if (columns.length === 0) {
     return undefined;
   }
   return { columns, titleField };
+}
+
+function appendColumnIfComplete(columns: DbColumn[], column: Partial<DbColumn> | null): void {
+  if (column && column.name && column.type) {
+    columns.push(column as DbColumn);
+  }
 }
 
 // ── Schema serialization ───────────────────────────────────────────
