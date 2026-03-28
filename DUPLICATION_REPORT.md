@@ -432,24 +432,24 @@
 
 ### src/hostEditor/HostingEditor.ts (18 matches)
 
-- Lines 153-159 duplicate 7 lines with `src/hostEditor/HostingEditor.ts` (lines 142-148), format: typescript
-- Lines 164-170 duplicate 7 lines with `src/hostEditor/HostingEditor.ts` (lines 142-148), format: typescript
-- Lines 179-184 duplicate 6 lines with `src/hostEditor/HostingEditor.ts` (lines 143-148), format: typescript
-- Lines 191-197 duplicate 7 lines with `src/hostEditor/HostingEditor.ts` (lines 159-164), format: typescript
-- Lines 202-212 duplicate 11 lines with `src/hostEditor/HostingEditor.ts` (lines 175-185), format: typescript
-- Lines 218-224 duplicate 7 lines with `src/hostEditor/HostingEditor.ts` (lines 142-148), format: typescript
-- Lines 230-238 duplicate 9 lines with `src/hostEditor/HostingEditor.ts` (lines 176-184), format: typescript
-- Lines 246-254 duplicate 9 lines with `src/hostEditor/HostingEditor.ts` (lines 176-184), format: typescript
-- Lines 271-276 duplicate 6 lines with `src/hostEditor/HostingEditor.ts` (lines 147-218), format: typescript
-- Lines 310-315 duplicate 6 lines with `src/hostEditor/HostingEditor.ts` (lines 142-147), format: typescript
-- Lines 426-431 duplicate 6 lines with `src/hostEditor/HostingEditor.ts` (lines 417-422), format: typescript
-- Lines 444-449 duplicate 6 lines with `src/hostEditor/HostingEditor.ts` (lines 280-285), format: typescript
-- Lines 453-458 duplicate 6 lines with `src/hostEditor/HostingEditor.ts` (lines 280-285), format: typescript
-- Lines 471-476 duplicate 6 lines with `src/hostEditor/HostingEditor.ts` (lines 417-422), format: typescript
-- Lines 480-485 duplicate 6 lines with `src/hostEditor/HostingEditor.ts` (lines 417-476), format: typescript
-- Lines 498-503 duplicate 6 lines with `src/hostEditor/HostingEditor.ts` (lines 289-294), format: typescript
-- Lines 507-512 duplicate 6 lines with `src/hostEditor/HostingEditor.ts` (lines 285-453), format: typescript
-- Lines 516-521 duplicate 6 lines with `src/hostEditor/HostingEditor.ts` (lines 435-440), format: typescript
+- [false alarm] Lines 153-159 duplicate 7 lines with `src/hostEditor/HostingEditor.ts` (lines 142-148), format: typescript
+- [false alarm] Lines 164-170 duplicate 7 lines with `src/hostEditor/HostingEditor.ts` (lines 142-148), format: typescript
+- [false alarm] Lines 179-184 duplicate 6 lines with `src/hostEditor/HostingEditor.ts` (lines 143-148), format: typescript
+- [false alarm] Lines 191-197 duplicate 7 lines with `src/hostEditor/HostingEditor.ts` (lines 159-164), format: typescript
+- [false alarm] Lines 202-212 duplicate 11 lines with `src/hostEditor/HostingEditor.ts` (lines 175-185), format: typescript
+- [false alarm] Lines 218-224 duplicate 7 lines with `src/hostEditor/HostingEditor.ts` (lines 142-148), format: typescript
+- [false alarm] Lines 230-238 duplicate 9 lines with `src/hostEditor/HostingEditor.ts` (lines 176-184), format: typescript
+- [false alarm] Lines 246-254 duplicate 9 lines with `src/hostEditor/HostingEditor.ts` (lines 176-184), format: typescript
+- [false alarm] Lines 271-276 duplicate 6 lines with `src/hostEditor/HostingEditor.ts` (lines 147-218), format: typescript
+- [false alarm] Lines 310-315 duplicate 6 lines with `src/hostEditor/HostingEditor.ts` (lines 142-147), format: typescript
+- [false alarm] Lines 426-431 duplicate 6 lines with `src/hostEditor/HostingEditor.ts` (lines 417-422), format: typescript
+- [false alarm] Lines 444-449 duplicate 6 lines with `src/hostEditor/HostingEditor.ts` (lines 280-285), format: typescript
+- [false alarm] Lines 453-458 duplicate 6 lines with `src/hostEditor/HostingEditor.ts` (lines 280-285), format: typescript
+- [false alarm] Lines 471-476 duplicate 6 lines with `src/hostEditor/HostingEditor.ts` (lines 417-422), format: typescript
+- [false alarm] Lines 480-485 duplicate 6 lines with `src/hostEditor/HostingEditor.ts` (lines 417-476), format: typescript
+- [false alarm] Lines 498-503 duplicate 6 lines with `src/hostEditor/HostingEditor.ts` (lines 289-294), format: typescript
+- [false alarm] Lines 507-512 duplicate 6 lines with `src/hostEditor/HostingEditor.ts` (lines 285-453), format: typescript
+- [false alarm] Lines 516-521 duplicate 6 lines with `src/hostEditor/HostingEditor.ts` (lines 435-440), format: typescript
 
 ### src/links/backlinkCodeLens.ts (7 matches)
 
@@ -507,21 +507,21 @@
 
 ### src/links/openLink.ts (15 matches)
 
-- Lines 2-8 duplicate 8 lines with `src/blocks/moveBlock.ts` (lines 1-8), format: typescript
-- Lines 2-5 duplicate 4 lines with `src/core/simpleCommands.ts` (lines 4-7), format: typescript
-- Lines 2-8 duplicate 7 lines with `src/links/linkInsert.ts` (lines 1-7), format: typescript
-- Lines 2-11 duplicate 10 lines with `src/productivity/gitCommit.ts` (lines 1-9), format: typescript
-- Lines 25-40 duplicate 6 lines with `src/core/slashCommands.ts` (lines 78-83), format: typescript
-- Lines 32-40 duplicate 6 lines with `src/editor/copyCode.ts` (lines 20-25), format: typescript
-- Lines 36-40 duplicate 6 lines with `src/blocks/lockBlock.ts` (lines 453-458), format: typescript
-- Lines 36-40 duplicate 6 lines with `src/blocks/lockBlock.ts` (lines 583-588), format: typescript
-- Lines 36-40 duplicate 6 lines with `src/blocks/moveBlock.ts` (lines 41-46), format: typescript
-- Lines 36-40 duplicate 6 lines with `src/links/linkInsert.ts` (lines 24-29), format: typescript
-- Lines 40-460 duplicate 8 lines with `src/blocks/lockBlock.ts` (lines 519-526), format: typescript
-- Lines 40-45 duplicate 6 lines with `src/views/pageIcon.ts` (lines 31-36), format: typescript
-- Lines 57-61 duplicate 5 lines with `src/links/searchLinks.ts` (lines 25-150), format: typescript
-- Lines 62-67 duplicate 6 lines with `src/links/linkHover.ts` (lines 33-38), format: typescript
-- Lines 127-135 duplicate 9 lines with `src/links/linkHover.ts` (lines 74-82), format: typescript
+- [false alarm] Lines 2-8 duplicate 8 lines with `src/blocks/moveBlock.ts` (lines 1-8), format: typescript
+- [false alarm] Lines 2-5 duplicate 4 lines with `src/core/simpleCommands.ts` (lines 4-7), format: typescript
+- [false alarm] Lines 2-8 duplicate 7 lines with `src/links/linkInsert.ts` (lines 1-7), format: typescript
+- [false alarm] Lines 2-11 duplicate 10 lines with `src/productivity/gitCommit.ts` (lines 1-9), format: typescript
+- [false alarm] Lines 25-40 duplicate 6 lines with `src/core/slashCommands.ts` (lines 78-83), format: typescript
+- [false alarm] Lines 32-40 duplicate 6 lines with `src/editor/copyCode.ts` (lines 20-25), format: typescript
+- [false alarm] Lines 36-40 duplicate 6 lines with `src/blocks/lockBlock.ts` (lines 453-458), format: typescript
+- [false alarm] Lines 36-40 duplicate 6 lines with `src/blocks/lockBlock.ts` (lines 583-588), format: typescript
+- [false alarm] Lines 36-40 duplicate 6 lines with `src/blocks/moveBlock.ts` (lines 41-46), format: typescript
+- [false alarm] Lines 36-40 duplicate 6 lines with `src/links/linkInsert.ts` (lines 24-29), format: typescript
+- [false alarm] Lines 40-460 duplicate 8 lines with `src/blocks/lockBlock.ts` (lines 519-526), format: typescript
+- [false alarm] Lines 40-45 duplicate 6 lines with `src/views/pageIcon.ts` (lines 31-36), format: typescript
+- [false alarm] Lines 57-61 duplicate 5 lines with `src/links/searchLinks.ts` (lines 25-150), format: typescript
+- [false alarm] Lines 62-67 duplicate 6 lines with `src/links/linkHover.ts` (lines 33-38), format: typescript
+- [false alarm] Lines 127-135 duplicate 9 lines with `src/links/linkHover.ts` (lines 74-82), format: typescript
 
 ### src/links/searchLinks.ts (6 matches)
 
@@ -609,19 +609,19 @@
 
 ### src/media/gif/gifCommand.ts (13 matches)
 
-- Lines 4-7 duplicate 6 lines with `src/media/imageDrop.ts` (lines 3-8), format: typescript
-- Lines 4-7 duplicate 4 lines with `src/navigation/turnInto.ts` (lines 3-6), format: typescript
-- Lines 122-126 duplicate 5 lines with `src/links/searchLinks.ts` (lines 238-242), format: typescript
-- Lines 142-154 duplicate 13 lines with `src/editor/emoji.ts` (lines 91-103), format: typescript
-- Lines 142-148 duplicate 7 lines with `src/links/searchLinks.ts` (lines 250-256), format: typescript
-- Lines 148-157 duplicate 10 lines with `src/links/searchLinks.ts` (lines 257-266), format: typescript
-- Lines 169-179 duplicate 11 lines with `src/blocks/moveBlock.ts` (lines 42-52), format: typescript
-- Lines 170-179 duplicate 10 lines with `src/navigation/extractSubpage.ts` (lines 50-59), format: typescript
-- Lines 173-179 duplicate 7 lines with `src/navigation/turnInto.ts` (lines 289-295), format: typescript
-- Lines 181-189 duplicate 9 lines with `src/media/resource.ts` (lines 41-49), format: typescript
-- Lines 184-189 duplicate 5 lines with `src/media/graph.ts` (lines 80-84), format: typescript
-- Lines 185-189 duplicate 5 lines with `src/media/image.ts` (lines 158-162), format: typescript
-- Lines 185-189 duplicate 5 lines with `src/media/imageDrop.ts` (lines 58-62), format: typescript
+- [false alarm] Lines 4-7 duplicate 6 lines with `src/media/imageDrop.ts` (lines 3-8), format: typescript
+- [false alarm] Lines 4-7 duplicate 4 lines with `src/navigation/turnInto.ts` (lines 3-6), format: typescript
+- [false alarm] Lines 122-126 duplicate 5 lines with `src/links/searchLinks.ts` (lines 238-242), format: typescript
+- [false alarm] Lines 142-154 duplicate 13 lines with `src/editor/emoji.ts` (lines 91-103), format: typescript
+- [false alarm] Lines 142-148 duplicate 7 lines with `src/links/searchLinks.ts` (lines 250-256), format: typescript
+- [false alarm] Lines 148-157 duplicate 10 lines with `src/links/searchLinks.ts` (lines 257-266), format: typescript
+- [false alarm] Lines 169-179 duplicate 11 lines with `src/blocks/moveBlock.ts` (lines 42-52), format: typescript
+- [false alarm] Lines 170-179 duplicate 10 lines with `src/navigation/extractSubpage.ts` (lines 50-59), format: typescript
+- [false alarm] Lines 173-179 duplicate 7 lines with `src/navigation/turnInto.ts` (lines 289-295), format: typescript
+- [false alarm] Lines 181-189 duplicate 9 lines with `src/media/resource.ts` (lines 41-49), format: typescript
+- [false alarm] Lines 184-189 duplicate 5 lines with `src/media/graph.ts` (lines 80-84), format: typescript
+- [false alarm] Lines 185-189 duplicate 5 lines with `src/media/image.ts` (lines 158-162), format: typescript
+- [false alarm] Lines 185-189 duplicate 5 lines with `src/media/imageDrop.ts` (lines 58-62), format: typescript
 
 ### src/media/gif/gifDownload.ts (3 matches)
 
@@ -840,24 +840,24 @@
 
 ### src/navigation/turnInto.ts (18 matches)
 
-- Lines 2-6 duplicate 5 lines with `src/productivity/bookmarks.ts` (lines 2-6), format: typescript
-- Lines 3-6 duplicate 4 lines with `src/media/gif/gifCommand.ts` (lines 4-7), format: typescript
-- Lines 8-14 duplicate 7 lines with `src/blocks/moveBlock.ts` (lines 7-13), format: typescript
-- Lines 179-288 duplicate 8 lines with `src/media/resource.ts` (lines 22-29), format: typescript
-- Lines 179-288 duplicate 8 lines with `src/navigation/page.ts` (lines 23-30), format: typescript
-- Lines 219-225 duplicate 7 lines with `src/navigation/turnInto.ts` (lines 88-94), format: typescript
-- Lines 226-234 duplicate 9 lines with `src/navigation/turnInto.ts` (lines 96-103), format: typescript
-- Lines 235-238 duplicate 4 lines with `src/navigation/turnInto.ts` (lines 95-98), format: typescript
-- Lines 236-243 duplicate 8 lines with `src/navigation/turnInto.ts` (lines 106-114), format: typescript
-- Lines 255-259 duplicate 5 lines with `src/navigation/turnInto.ts` (lines 164-168), format: typescript
-- Lines 260-267 duplicate 8 lines with `src/navigation/turnInto.ts` (lines 169-176), format: typescript
-- Lines 289-295 duplicate 7 lines with `src/media/gif/gifCommand.ts` (lines 173-179), format: typescript
-- Lines 297-322 duplicate 26 lines with `src/navigation/turnInto.ts` (lines 151-176), format: typescript
-- Lines 338-342 duplicate 5 lines with `src/navigation/extractSubpage.ts` (lines 85-89), format: typescript
-- Lines 338-342 duplicate 5 lines with `src/navigation/page.ts` (lines 56-60), format: typescript
-- Lines 369-374 duplicate 6 lines with `src/navigation/turnInto.ts` (lines 180-185), format: typescript
-- Lines 384-391 duplicate 8 lines with `src/navigation/turnInto.ts` (lines 86-92), format: typescript
-- Lines 414-417 duplicate 4 lines with `src/navigation/turnInto.ts` (lines 288-291), format: typescript
+- [false alarm] Lines 2-6 duplicate 5 lines with `src/productivity/bookmarks.ts` (lines 2-6), format: typescript
+- [false alarm] Lines 3-6 duplicate 4 lines with `src/media/gif/gifCommand.ts` (lines 4-7), format: typescript
+- [false alarm] Lines 8-14 duplicate 7 lines with `src/blocks/moveBlock.ts` (lines 7-13), format: typescript
+- [false alarm] Lines 179-288 duplicate 8 lines with `src/media/resource.ts` (lines 22-29), format: typescript
+- [false alarm] Lines 179-288 duplicate 8 lines with `src/navigation/page.ts` (lines 23-30), format: typescript
+- [false alarm] Lines 219-225 duplicate 7 lines with `src/navigation/turnInto.ts` (lines 88-94), format: typescript
+- [false alarm] Lines 226-234 duplicate 9 lines with `src/navigation/turnInto.ts` (lines 96-103), format: typescript
+- [false alarm] Lines 235-238 duplicate 4 lines with `src/navigation/turnInto.ts` (lines 95-98), format: typescript
+- [false alarm] Lines 236-243 duplicate 8 lines with `src/navigation/turnInto.ts` (lines 106-114), format: typescript
+- [false alarm] Lines 255-259 duplicate 5 lines with `src/navigation/turnInto.ts` (lines 164-168), format: typescript
+- [false alarm] Lines 260-267 duplicate 8 lines with `src/navigation/turnInto.ts` (lines 169-176), format: typescript
+- [false alarm] Lines 289-295 duplicate 7 lines with `src/media/gif/gifCommand.ts` (lines 173-179), format: typescript
+- [false alarm] Lines 297-322 duplicate 26 lines with `src/navigation/turnInto.ts` (lines 151-176), format: typescript
+- [false alarm] Lines 338-342 duplicate 5 lines with `src/navigation/extractSubpage.ts` (lines 85-89), format: typescript
+- [false alarm] Lines 338-342 duplicate 5 lines with `src/navigation/page.ts` (lines 56-60), format: typescript
+- [false alarm] Lines 369-374 duplicate 6 lines with `src/navigation/turnInto.ts` (lines 180-185), format: typescript
+- [false alarm] Lines 384-391 duplicate 8 lines with `src/navigation/turnInto.ts` (lines 86-92), format: typescript
+- [false alarm] Lines 414-417 duplicate 4 lines with `src/navigation/turnInto.ts` (lines 288-291), format: typescript
 
 ### src/navigation/wikiSearch.ts (8 matches)
 
@@ -871,20 +871,20 @@
 
 ### src/productivity/bookmarks.ts (14 matches)
 
-- Lines 2-8 duplicate 7 lines with `src/editor/dictate.ts` (lines 3-9), format: typescript
-- Lines 2-11 duplicate 6 lines with `src/links/backlinks.ts` (lines 2-7), format: typescript
-- Lines 2-7 duplicate 6 lines with `src/navigation/page.ts` (lines 2-7), format: typescript
-- Lines 2-6 duplicate 5 lines with `src/navigation/renamePage.ts` (lines 1-5), format: typescript
-- Lines 2-6 duplicate 5 lines with `src/navigation/turnInto.ts` (lines 2-6), format: typescript
-- Lines 3-6 duplicate 4 lines with `src/productivity/dailyNote.ts` (lines 1-5), format: typescript
-- Lines 34-44 duplicate 11 lines with `src/editor/comments/commentModel.ts` (lines 32-42), format: typescript
-- Lines 49-53 duplicate 5 lines with `src/editor/comments/commentModel.ts` (lines 44-48), format: typescript
-- Lines 111-114 duplicate 4 lines with `src/productivity/bookmarks.ts` (lines 84-87), format: typescript
-- Lines 115-118 duplicate 4 lines with `src/productivity/bookmarks.ts` (lines 63-65), format: typescript
-- Lines 119-122 duplicate 4 lines with `src/productivity/bookmarks.ts` (lines 91-94), format: typescript
-- Lines 126-134 duplicate 9 lines with `src/navigation/recentPages.ts` (lines 71-79), format: typescript
-- Lines 126-131 duplicate 6 lines with `src/navigation/wikiSearch.ts` (lines 93-98), format: typescript
-- Lines 141-148 duplicate 8 lines with `src/views/outline.ts` (lines 60-67), format: typescript
+- [false alarm] Lines 2-8 duplicate 7 lines with `src/editor/dictate.ts` (lines 3-9), format: typescript
+- [false alarm] Lines 2-11 duplicate 6 lines with `src/links/backlinks.ts` (lines 2-7), format: typescript
+- [false alarm] Lines 2-7 duplicate 6 lines with `src/navigation/page.ts` (lines 2-7), format: typescript
+- [false alarm] Lines 2-6 duplicate 5 lines with `src/navigation/renamePage.ts` (lines 1-5), format: typescript
+- [false alarm] Lines 2-6 duplicate 5 lines with `src/navigation/turnInto.ts` (lines 2-6), format: typescript
+- [false alarm] Lines 3-6 duplicate 4 lines with `src/productivity/dailyNote.ts` (lines 1-5), format: typescript
+- [false alarm] Lines 34-44 duplicate 11 lines with `src/editor/comments/commentModel.ts` (lines 32-42), format: typescript
+- [false alarm] Lines 49-53 duplicate 5 lines with `src/editor/comments/commentModel.ts` (lines 44-48), format: typescript
+- [false alarm] Lines 111-114 duplicate 4 lines with `src/productivity/bookmarks.ts` (lines 84-87), format: typescript
+- [false alarm] Lines 115-118 duplicate 4 lines with `src/productivity/bookmarks.ts` (lines 63-65), format: typescript
+- [false alarm] Lines 119-122 duplicate 4 lines with `src/productivity/bookmarks.ts` (lines 91-94), format: typescript
+- [false alarm] Lines 126-134 duplicate 9 lines with `src/navigation/recentPages.ts` (lines 71-79), format: typescript
+- [false alarm] Lines 126-131 duplicate 6 lines with `src/navigation/wikiSearch.ts` (lines 93-98), format: typescript
+- [false alarm] Lines 141-148 duplicate 8 lines with `src/views/outline.ts` (lines 60-67), format: typescript
 
 ### src/productivity/clipHistory.ts (2 matches)
 
@@ -945,26 +945,26 @@
 
 ### src/views/pageIcon.ts (20 matches)
 
-- Lines 2-10 duplicate 10 lines with `src/editor/frontmatterEditor.ts` (lines 3-12), format: typescript
-- Lines 2-10 duplicate 12 lines with `src/links/linkConvert.ts` (lines 2-13), format: typescript
-- Lines 18-31 duplicate 6 lines with `src/blocks/blockSwap.ts` (lines 25-30), format: typescript
-- Lines 18-31 duplicate 7 lines with `src/blocks/duplicateBlock.ts` (lines 18-24), format: typescript
-- Lines 18-31 duplicate 8 lines with `src/formatting/wrapWith.ts` (lines 35-42), format: typescript
-- Lines 18-31 duplicate 6 lines with `src/links/linkConvert.ts` (lines 19-24), format: typescript
-- Lines 18-31 duplicate 7 lines with `src/navigation/headingNav.ts` (lines 60-66), format: typescript
-- Lines 20-31 duplicate 8 lines with `src/navigation/headingNav.ts` (lines 36-43), format: typescript
-- Lines 25-31 duplicate 7 lines with `src/lists/checkbox.ts` (lines 12-18), format: typescript
-- Lines 30-31 duplicate 17 lines with `src/formatting/headingLevel.ts` (lines 39-55), format: typescript
-- Lines 31-48 duplicate 7 lines with `src/editor/frontmatterEditor.ts` (lines 46-52), format: typescript
-- Lines 31-35 duplicate 16 lines with `src/formatting/headingLevel.ts` (lines 14-29), format: typescript
-- Lines 31-48 duplicate 8 lines with `src/links/linkConvert.ts` (lines 67-74), format: typescript
-- Lines 31-36 duplicate 6 lines with `src/links/openLink.ts` (lines 40-45), format: typescript
-- Lines 31-36 duplicate 6 lines with `src/lists/listToggle.ts` (lines 19-24), format: typescript
-- Lines 31-36 duplicate 5 lines with `src/navigation/extractSubpage.ts` (lines 17-21), format: typescript
-- Lines 31-36 duplicate 5 lines with `src/navigation/headingNav.ts` (lines 13-17), format: typescript
-- Lines 31-36 duplicate 6 lines with `src/productivity/clipHistory.ts` (lines 32-37), format: typescript
-- Lines 44-48 duplicate 4 lines with `src/links/linkConvert.ts` (lines 22-25), format: typescript
-- Lines 121-126 duplicate 6 lines with `src/links/backlinkCodeLens.ts` (lines 174-179), format: typescript
+- [false alarm] Lines 2-10 duplicate 10 lines with `src/editor/frontmatterEditor.ts` (lines 3-12), format: typescript
+- [false alarm] Lines 2-10 duplicate 12 lines with `src/links/linkConvert.ts` (lines 2-13), format: typescript
+- [false alarm] Lines 18-31 duplicate 6 lines with `src/blocks/blockSwap.ts` (lines 25-30), format: typescript
+- [false alarm] Lines 18-31 duplicate 7 lines with `src/blocks/duplicateBlock.ts` (lines 18-24), format: typescript
+- [false alarm] Lines 18-31 duplicate 8 lines with `src/formatting/wrapWith.ts` (lines 35-42), format: typescript
+- [false alarm] Lines 18-31 duplicate 6 lines with `src/links/linkConvert.ts` (lines 19-24), format: typescript
+- [false alarm] Lines 18-31 duplicate 7 lines with `src/navigation/headingNav.ts` (lines 60-66), format: typescript
+- [false alarm] Lines 20-31 duplicate 8 lines with `src/navigation/headingNav.ts` (lines 36-43), format: typescript
+- [false alarm] Lines 25-31 duplicate 7 lines with `src/lists/checkbox.ts` (lines 12-18), format: typescript
+- [false alarm] Lines 30-31 duplicate 17 lines with `src/formatting/headingLevel.ts` (lines 39-55), format: typescript
+- [false alarm] Lines 31-48 duplicate 7 lines with `src/editor/frontmatterEditor.ts` (lines 46-52), format: typescript
+- [false alarm] Lines 31-35 duplicate 16 lines with `src/formatting/headingLevel.ts` (lines 14-29), format: typescript
+- [false alarm] Lines 31-48 duplicate 8 lines with `src/links/linkConvert.ts` (lines 67-74), format: typescript
+- [false alarm] Lines 31-36 duplicate 6 lines with `src/links/openLink.ts` (lines 40-45), format: typescript
+- [false alarm] Lines 31-36 duplicate 6 lines with `src/lists/listToggle.ts` (lines 19-24), format: typescript
+- [false alarm] Lines 31-36 duplicate 5 lines with `src/navigation/extractSubpage.ts` (lines 17-21), format: typescript
+- [false alarm] Lines 31-36 duplicate 5 lines with `src/navigation/headingNav.ts` (lines 13-17), format: typescript
+- [false alarm] Lines 31-36 duplicate 6 lines with `src/productivity/clipHistory.ts` (lines 32-37), format: typescript
+- [false alarm] Lines 44-48 duplicate 4 lines with `src/links/linkConvert.ts` (lines 22-25), format: typescript
+- [false alarm] Lines 121-126 duplicate 6 lines with `src/links/backlinkCodeLens.ts` (lines 174-179), format: typescript
 
 ### src/views/readingProgress.ts (1 matches)
 
