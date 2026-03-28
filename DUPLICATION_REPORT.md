@@ -594,18 +594,18 @@
 
 ### src/media/carousel.ts (5 matches)
 
-- Lines 2-9 duplicate 8 lines with `src/navigation/page.ts` (lines 1-8), format: typescript
-- Lines 6-11 duplicate 6 lines with `src/media/resource.ts` (lines 5-10), format: typescript
-- Lines 22-25 duplicate 4 lines with `src/media/imageDrop.ts` (lines 6-12), format: typescript
-- Lines 42-51 duplicate 10 lines with `src/media/resource.ts` (lines 22-157), format: typescript
-- Lines 129-133 duplicate 5 lines with `src/blocks/lockBlock.ts` (lines 601-605), format: typescript
+- [false alarm] Lines 2-9 duplicate 8 lines with `src/navigation/page.ts` (lines 1-8), format: typescript
+- [false alarm] Lines 6-11 duplicate 6 lines with `src/media/resource.ts` (lines 5-10), format: typescript
+- [false alarm] Lines 22-25 duplicate 4 lines with `src/media/imageDrop.ts` (lines 6-12), format: typescript
+- [false alarm] Lines 42-51 duplicate 10 lines with `src/media/resource.ts` (lines 22-157), format: typescript
+- [false alarm] Lines 129-133 duplicate 5 lines with `src/blocks/lockBlock.ts` (lines 601-605), format: typescript
 
 ### src/media/clipboard.ts (4 matches)
 
-- Lines 2-5 duplicate 4 lines with `src/productivity/dailyNote.ts` (lines 1-6), format: typescript
-- Lines 24-48 duplicate 25 lines with `src/editor/dictate.ts` (lines 37-61), format: typescript
-- Lines 29-35 duplicate 7 lines with `src/editor/processor.ts` (lines 94-100), format: typescript
-- Lines 35-48 duplicate 14 lines with `src/editor/processor.ts` (lines 100-113), format: typescript
+- [false alarm] Lines 2-5 duplicate 4 lines with `src/productivity/dailyNote.ts` (lines 1-6), format: typescript
+- [false alarm] Lines 24-48 duplicate 25 lines with `src/editor/dictate.ts` (lines 37-61), format: typescript
+- [false alarm] Lines 29-35 duplicate 7 lines with `src/editor/processor.ts` (lines 94-100), format: typescript
+- [false alarm] Lines 35-48 duplicate 14 lines with `src/editor/processor.ts` (lines 100-113), format: typescript
 
 ### src/media/gif/gifCommand.ts (13 matches)
 
@@ -625,96 +625,96 @@
 
 ### src/media/gif/gifDownload.ts (3 matches)
 
-- Lines 5-15 duplicate 11 lines with `src/media/image.ts` (lines 113-123), format: typescript
-- Lines 18-31 duplicate 13 lines with `src/media/image.ts` (lines 127-139), format: typescript
-- Lines 31-36 duplicate 6 lines with `src/media/image.ts` (lines 140-145), format: typescript
+- [false alarm] Lines 5-15 duplicate 11 lines with `src/media/image.ts` (lines 113-123), format: typescript
+- [false alarm] Lines 18-31 duplicate 13 lines with `src/media/image.ts` (lines 127-139), format: typescript
+- [false alarm] Lines 31-36 duplicate 6 lines with `src/media/image.ts` (lines 140-145), format: typescript
 
 ### src/media/gif/gifSearch.ts (3 matches)
 
-- Lines 40-43 duplicate 4 lines with `src/media/gif/gifSearch.ts` (lines 4-7), format: typescript
-- Lines 48-55 duplicate 8 lines with `src/media/gif/gifSearch.ts` (lines 13-20), format: typescript
-- Lines 68-81 duplicate 14 lines with `src/media/gif/gifSearch.ts` (lines 27-40), format: typescript
+- [false alarm] Lines 40-43 duplicate 4 lines with `src/media/gif/gifSearch.ts` (lines 4-7), format: typescript
+- [false alarm] Lines 48-55 duplicate 8 lines with `src/media/gif/gifSearch.ts` (lines 13-20), format: typescript
+- [false alarm] Lines 68-81 duplicate 14 lines with `src/media/gif/gifSearch.ts` (lines 27-40), format: typescript
 
 ### src/media/graph.ts (9 matches)
 
-- Lines 2-6 duplicate 7 lines with `src/editor/processor.ts` (lines 1-7), format: typescript
-- Lines 2-7 duplicate 6 lines with `src/navigation/page.ts` (lines 1-6), format: typescript
-- Lines 8-12 duplicate 6 lines with `src/database/dbCodeLens.ts` (lines 6-11), format: typescript
-- Lines 80-84 duplicate 5 lines with `src/media/gif/gifCommand.ts` (lines 184-189), format: typescript
-- Lines 100-107 duplicate 8 lines with `src/media/resource.ts` (lines 22-179), format: typescript
-- Lines 116-121 duplicate 5 lines with `src/editor/processor.ts` (lines 424-428), format: typescript
-- Lines 126-133 duplicate 8 lines with `src/media/resource.ts` (lines 22-179), format: typescript
-- Lines 178-182 duplicate 5 lines with `src/editor/date/dateCodeLens.ts` (lines 23-27), format: typescript
-- Lines 179-183 duplicate 4 lines with `src/editor/toc.ts` (lines 27-30), format: typescript
+- [false alarm] Lines 2-6 duplicate 7 lines with `src/editor/processor.ts` (lines 1-7), format: typescript
+- [false alarm] Lines 2-7 duplicate 6 lines with `src/navigation/page.ts` (lines 1-6), format: typescript
+- [false alarm] Lines 8-12 duplicate 6 lines with `src/database/dbCodeLens.ts` (lines 6-11), format: typescript
+- [false alarm] Lines 80-84 duplicate 5 lines with `src/media/gif/gifCommand.ts` (lines 184-189), format: typescript
+- [false alarm] Lines 100-107 duplicate 8 lines with `src/media/resource.ts` (lines 22-179), format: typescript
+- [false alarm] Lines 116-121 duplicate 5 lines with `src/editor/processor.ts` (lines 424-428), format: typescript
+- [false alarm] Lines 126-133 duplicate 8 lines with `src/media/resource.ts` (lines 22-179), format: typescript
+- [false alarm] Lines 178-182 duplicate 5 lines with `src/editor/date/dateCodeLens.ts` (lines 23-27), format: typescript
+- [false alarm] Lines 179-183 duplicate 4 lines with `src/editor/toc.ts` (lines 27-30), format: typescript
 
 ### src/media/image.ts (14 matches)
 
-- Lines 9-14 duplicate 6 lines with `src/media/pdfExport.ts` (lines 4-9), format: typescript
-- Lines 42-51 duplicate 10 lines with `src/media/imageDrop.ts` (lines 62-71), format: typescript
-- Lines 47-52 duplicate 6 lines with `src/media/resource.ts` (lines 54-60), format: typescript
-- Lines 54-177 duplicate 18 lines with `src/editor/smartPaste.ts` (lines 124-141), format: typescript
-- Lines 59-62 duplicate 4 lines with `src/navigation/renamePage.ts` (lines 64-67), format: typescript
-- Lines 88-95 duplicate 8 lines with `src/media/resource.ts` (lines 50-71), format: typescript
-- Lines 113-123 duplicate 11 lines with `src/media/gif/gifDownload.ts` (lines 5-15), format: typescript
-- Lines 127-139 duplicate 13 lines with `src/media/gif/gifDownload.ts` (lines 18-31), format: typescript
-- Lines 140-145 duplicate 6 lines with `src/media/gif/gifDownload.ts` (lines 31-36), format: typescript
-- Lines 148-155 duplicate 8 lines with `src/navigation/page.ts` (lines 23-179), format: typescript
-- Lines 158-162 duplicate 5 lines with `src/media/gif/gifCommand.ts` (lines 185-189), format: typescript
-- Lines 177-186 duplicate 10 lines with `src/media/imageDrop.ts` (lines 36-46), format: typescript
-- Lines 186-194 duplicate 9 lines with `src/media/imageDrop.ts` (lines 46-54), format: typescript
+- [false alarm] Lines 9-14 duplicate 6 lines with `src/media/pdfExport.ts` (lines 4-9), format: typescript
+- [false alarm] Lines 42-51 duplicate 10 lines with `src/media/imageDrop.ts` (lines 62-71), format: typescript
+- [false alarm] Lines 47-52 duplicate 6 lines with `src/media/resource.ts` (lines 54-60), format: typescript
+- [false alarm] Lines 54-177 duplicate 18 lines with `src/editor/smartPaste.ts` (lines 124-141), format: typescript
+- [false alarm] Lines 59-62 duplicate 4 lines with `src/navigation/renamePage.ts` (lines 64-67), format: typescript
+- [false alarm] Lines 88-95 duplicate 8 lines with `src/media/resource.ts` (lines 50-71), format: typescript
+- [false alarm] Lines 113-123 duplicate 11 lines with `src/media/gif/gifDownload.ts` (lines 5-15), format: typescript
+- [false alarm] Lines 127-139 duplicate 13 lines with `src/media/gif/gifDownload.ts` (lines 18-31), format: typescript
+- [false alarm] Lines 140-145 duplicate 6 lines with `src/media/gif/gifDownload.ts` (lines 31-36), format: typescript
+- [false alarm] Lines 148-155 duplicate 8 lines with `src/navigation/page.ts` (lines 23-179), format: typescript
+- [false alarm] Lines 158-162 duplicate 5 lines with `src/media/gif/gifCommand.ts` (lines 185-189), format: typescript
+- [false alarm] Lines 177-186 duplicate 10 lines with `src/media/imageDrop.ts` (lines 36-46), format: typescript
+- [false alarm] Lines 186-194 duplicate 9 lines with `src/media/imageDrop.ts` (lines 46-54), format: typescript
 
 ### src/media/imageDrop.ts (8 matches)
 
-- Lines 3-8 duplicate 6 lines with `src/media/gif/gifCommand.ts` (lines 4-7), format: typescript
-- Lines 3-6 duplicate 4 lines with `src/media/imageHover.ts` (lines 3-6), format: typescript
-- Lines 6-12 duplicate 4 lines with `src/media/carousel.ts` (lines 22-25), format: typescript
-- Lines 36-46 duplicate 10 lines with `src/media/image.ts` (lines 177-186), format: typescript
-- Lines 41-44 duplicate 4 lines with `src/navigation/renamePage.ts` (lines 64-67), format: typescript
-- Lines 46-54 duplicate 9 lines with `src/media/image.ts` (lines 186-194), format: typescript
-- Lines 58-62 duplicate 5 lines with `src/media/gif/gifCommand.ts` (lines 185-189), format: typescript
-- Lines 62-71 duplicate 10 lines with `src/media/image.ts` (lines 42-51), format: typescript
+- [false alarm] Lines 3-8 duplicate 6 lines with `src/media/gif/gifCommand.ts` (lines 4-7), format: typescript
+- [false alarm] Lines 3-6 duplicate 4 lines with `src/media/imageHover.ts` (lines 3-6), format: typescript
+- [false alarm] Lines 6-12 duplicate 4 lines with `src/media/carousel.ts` (lines 22-25), format: typescript
+- [false alarm] Lines 36-46 duplicate 10 lines with `src/media/image.ts` (lines 177-186), format: typescript
+- [false alarm] Lines 41-44 duplicate 4 lines with `src/navigation/renamePage.ts` (lines 64-67), format: typescript
+- [false alarm] Lines 46-54 duplicate 9 lines with `src/media/image.ts` (lines 186-194), format: typescript
+- [false alarm] Lines 58-62 duplicate 5 lines with `src/media/gif/gifCommand.ts` (lines 185-189), format: typescript
+- [false alarm] Lines 62-71 duplicate 10 lines with `src/media/image.ts` (lines 42-51), format: typescript
 
 ### src/media/imageHover.ts (7 matches)
 
-- Lines 3-11 duplicate 12 lines with `src/links/linkHover.ts` (lines 3-14), format: typescript
-- Lines 3-11 duplicate 6 lines with `src/links/linkValidator.ts` (lines 3-8), format: typescript
-- Lines 3-6 duplicate 4 lines with `src/media/imageDrop.ts` (lines 3-6), format: typescript
-- Lines 21-25 duplicate 4 lines with `src/links/linkHover.ts` (lines 25-28), format: typescript
-- Lines 21-25 duplicate 4 lines with `src/links/searchLinks.ts` (lines 150-153), format: typescript
-- Lines 48-52 duplicate 5 lines with `src/media/imageHover.ts` (lines 38-42), format: typescript
-- Lines 61-66 duplicate 6 lines with `src/media/imageHover.ts` (lines 38-42), format: typescript
+- [false alarm] Lines 3-11 duplicate 12 lines with `src/links/linkHover.ts` (lines 3-14), format: typescript
+- [false alarm] Lines 3-11 duplicate 6 lines with `src/links/linkValidator.ts` (lines 3-8), format: typescript
+- [false alarm] Lines 3-6 duplicate 4 lines with `src/media/imageDrop.ts` (lines 3-6), format: typescript
+- [false alarm] Lines 21-25 duplicate 4 lines with `src/links/linkHover.ts` (lines 25-28), format: typescript
+- [false alarm] Lines 21-25 duplicate 4 lines with `src/links/searchLinks.ts` (lines 150-153), format: typescript
+- [false alarm] Lines 48-52 duplicate 5 lines with `src/media/imageHover.ts` (lines 38-42), format: typescript
+- [false alarm] Lines 61-66 duplicate 6 lines with `src/media/imageHover.ts` (lines 38-42), format: typescript
 
 ### src/media/pdfExport.ts (9 matches)
 
-- Lines 4-9 duplicate 6 lines with `src/blocks/lockBlock.ts` (lines 4-9), format: typescript
-- Lines 4-9 duplicate 6 lines with `src/editor/emoji.ts` (lines 4-9), format: typescript
-- Lines 4-9 duplicate 6 lines with `src/links/linkInsert.ts` (lines 4-9), format: typescript
-- Lines 4-9 duplicate 6 lines with `src/lists/listModel.ts` (lines 4-9), format: typescript
-- Lines 4-9 duplicate 6 lines with `src/media/image.ts` (lines 9-14), format: typescript
-- Lines 5-9 duplicate 5 lines with `src/navigation/movePage.ts` (lines 1-4), format: typescript
-- Lines 143-153 duplicate 9 lines with `src/core/webviewShell.ts` (lines 35-43), format: typescript
-- Lines 145-153 duplicate 7 lines with `src/editor/smartPaste.ts` (lines 173-179), format: typescript
+- [false alarm] Lines 4-9 duplicate 6 lines with `src/blocks/lockBlock.ts` (lines 4-9), format: typescript
+- [false alarm] Lines 4-9 duplicate 6 lines with `src/editor/emoji.ts` (lines 4-9), format: typescript
+- [false alarm] Lines 4-9 duplicate 6 lines with `src/links/linkInsert.ts` (lines 4-9), format: typescript
+- [false alarm] Lines 4-9 duplicate 6 lines with `src/lists/listModel.ts` (lines 4-9), format: typescript
+- [false alarm] Lines 4-9 duplicate 6 lines with `src/media/image.ts` (lines 9-14), format: typescript
+- [false alarm] Lines 5-9 duplicate 5 lines with `src/navigation/movePage.ts` (lines 1-4), format: typescript
+- [false alarm] Lines 143-153 duplicate 9 lines with `src/core/webviewShell.ts` (lines 35-43), format: typescript
+- [false alarm] Lines 145-153 duplicate 7 lines with `src/editor/smartPaste.ts` (lines 173-179), format: typescript
 
 ### src/media/resource.ts (14 matches)
 
-- Lines 2-6 duplicate 5 lines with `src/navigation/movePage.ts` (lines 4-8), format: typescript
-- Lines 5-10 duplicate 6 lines with `src/media/carousel.ts` (lines 6-11), format: typescript
-- Lines 22-157 duplicate 10 lines with `src/media/carousel.ts` (lines 42-51), format: typescript
-- Lines 22-179 duplicate 8 lines with `src/media/graph.ts` (lines 100-107), format: typescript
-- Lines 22-179 duplicate 8 lines with `src/media/graph.ts` (lines 126-133), format: typescript
-- Lines 22-29 duplicate 8 lines with `src/navigation/turnInto.ts` (lines 179-288), format: typescript
-- Lines 40-187 duplicate 8 lines with `src/editor/smartPaste.ts` (lines 114-121), format: typescript
-- Lines 41-49 duplicate 9 lines with `src/media/gif/gifCommand.ts` (lines 181-189), format: typescript
-- Lines 50-71 duplicate 8 lines with `src/media/image.ts` (lines 88-95), format: typescript
-- Lines 54-60 duplicate 6 lines with `src/media/image.ts` (lines 47-52), format: typescript
-- Lines 58-211 duplicate 8 lines with `src/editor/toc.ts` (lines 70-77), format: typescript
-- Lines 60-211 duplicate 7 lines with `src/editor/callout.ts` (lines 60-66), format: typescript
-- Lines 60-211 duplicate 6 lines with `src/editor/emoji.ts` (lines 107-112), format: typescript
+- [false alarm] Lines 2-6 duplicate 5 lines with `src/navigation/movePage.ts` (lines 4-8), format: typescript
+- [false alarm] Lines 5-10 duplicate 6 lines with `src/media/carousel.ts` (lines 6-11), format: typescript
+- [false alarm] Lines 22-157 duplicate 10 lines with `src/media/carousel.ts` (lines 42-51), format: typescript
+- [false alarm] Lines 22-179 duplicate 8 lines with `src/media/graph.ts` (lines 100-107), format: typescript
+- [false alarm] Lines 22-179 duplicate 8 lines with `src/media/graph.ts` (lines 126-133), format: typescript
+- [false alarm] Lines 22-29 duplicate 8 lines with `src/navigation/turnInto.ts` (lines 179-288), format: typescript
+- [false alarm] Lines 40-187 duplicate 8 lines with `src/editor/smartPaste.ts` (lines 114-121), format: typescript
+- [false alarm] Lines 41-49 duplicate 9 lines with `src/media/gif/gifCommand.ts` (lines 181-189), format: typescript
+- [false alarm] Lines 50-71 duplicate 8 lines with `src/media/image.ts` (lines 88-95), format: typescript
+- [false alarm] Lines 54-60 duplicate 6 lines with `src/media/image.ts` (lines 47-52), format: typescript
+- [false alarm] Lines 58-211 duplicate 8 lines with `src/editor/toc.ts` (lines 70-77), format: typescript
+- [false alarm] Lines 60-211 duplicate 7 lines with `src/editor/callout.ts` (lines 60-66), format: typescript
+- [false alarm] Lines 60-211 duplicate 6 lines with `src/editor/emoji.ts` (lines 107-112), format: typescript
 
 ### src/media/unusedImages.ts (3 matches)
 
-- Lines 13-20 duplicate 8 lines with `src/productivity/dailyNote.ts` (lines 11-18), format: typescript
-- Lines 31-35 duplicate 5 lines with `src/navigation/tagIndex.ts` (lines 21-26), format: typescript
+- [false alarm] Lines 13-20 duplicate 8 lines with `src/productivity/dailyNote.ts` (lines 11-18), format: typescript
+- [false alarm] Lines 31-35 duplicate 5 lines with `src/navigation/tagIndex.ts` (lines 21-26), format: typescript
 
 ### src/navigation/breadcrumb.ts (7 matches)
 
