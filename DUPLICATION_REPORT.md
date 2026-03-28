@@ -983,8 +983,8 @@
 
 ### src/webview/apps/commentApp.css (3 matches)
 
-- Lines 9-27 duplicate 19 lines with `src/webview/apps/dateApp.css` (lines 9-27), format: css
-- Lines 87-92 duplicate 6 lines with `src/webview/apps/dbApp.css` (lines 42-119), format: css
+- [false alarm] Lines 9-27 duplicate 19 lines with `src/webview/apps/dateApp.css` (lines 9-27), format: css
+- [false alarm] Lines 87-92 duplicate 6 lines with `src/webview/apps/dbApp.css` (lines 42-119), format: css
 
 ### src/webview/apps/commentApp.tsx (1 matches)
 
@@ -992,9 +992,9 @@
 
 ### src/webview/apps/dateApp.css (4 matches)
 
-- Lines 9-27 duplicate 19 lines with `src/webview/apps/commentApp.css` (lines 9-27), format: css
-- Lines 37-41 duplicate 5 lines with `src/webview/apps/dbApp.css` (lines 119-123), format: css
-- Lines 67-72 duplicate 6 lines with `src/webview/apps/dbApp.css` (lines 42-119), format: css
+- [false alarm] Lines 9-27 duplicate 19 lines with `src/webview/apps/commentApp.css` (lines 9-27), format: css
+- [false alarm] Lines 37-41 duplicate 5 lines with `src/webview/apps/dbApp.css` (lines 119-123), format: css
+- [false alarm] Lines 67-72 duplicate 6 lines with `src/webview/apps/dbApp.css` (lines 42-119), format: css
 
 ### src/webview/apps/dateApp.tsx (1 matches)
 
@@ -1002,18 +1002,18 @@
 
 ### src/webview/apps/dbApp.css (12 matches)
 
-- Lines 42-119 duplicate 6 lines with `src/webview/apps/commentApp.css` (lines 87-92), format: css
-- Lines 42-119 duplicate 6 lines with `src/webview/apps/dateApp.css` (lines 67-72), format: css
-- Lines 94-98 duplicate 5 lines with `src/webview/apps/dbApp.css` (lines 44-48), format: css
-- Lines 119-123 duplicate 5 lines with `src/webview/apps/dateApp.css` (lines 37-41), format: css
-- Lines 279-288 duplicate 10 lines with `src/webview/apps/dbApp.css` (lines 254-263), format: css
-- Lines 348-352 duplicate 5 lines with `src/webview/apps/dbApp.css` (lines 44-48), format: css
-- Lines 444-448 duplicate 5 lines with `src/webview/apps/dbApp.css` (lines 307-311), format: css
-- Lines 474-477 duplicate 4 lines with `src/webview/apps/dbApp.css` (lines 119-122), format: css
-- Lines 655-658 duplicate 4 lines with `src/webview/apps/dbApp.css` (lines 350-353), format: css
-- Lines 744-749 duplicate 6 lines with `src/webview/apps/dbApp.css` (lines 457-462), format: css
-- Lines 814-821 duplicate 8 lines with `src/webview/apps/dbApp.css` (lines 759-766), format: css
-- Lines 861-869 duplicate 9 lines with `src/webview/apps/dbApp.css` (lines 827-835), format: css
+- [false alarm] Lines 42-119 duplicate 6 lines with `src/webview/apps/commentApp.css` (lines 87-92), format: css
+- [false alarm] Lines 42-119 duplicate 6 lines with `src/webview/apps/dateApp.css` (lines 67-72), format: css
+- [false alarm] Lines 94-98 duplicate 5 lines with `src/webview/apps/dbApp.css` (lines 44-48), format: css
+- [false alarm] Lines 119-123 duplicate 5 lines with `src/webview/apps/dateApp.css` (lines 37-41), format: css
+- [false alarm] Lines 279-288 duplicate 10 lines with `src/webview/apps/dbApp.css` (lines 254-263), format: css
+- [false alarm] Lines 348-352 duplicate 5 lines with `src/webview/apps/dbApp.css` (lines 44-48), format: css
+- [false alarm] Lines 444-448 duplicate 5 lines with `src/webview/apps/dbApp.css` (lines 307-311), format: css
+- [false alarm] Lines 474-477 duplicate 4 lines with `src/webview/apps/dbApp.css` (lines 119-122), format: css
+- [false alarm] Lines 655-658 duplicate 4 lines with `src/webview/apps/dbApp.css` (lines 350-353), format: css
+- [false alarm] Lines 744-749 duplicate 6 lines with `src/webview/apps/dbApp.css` (lines 457-462), format: css
+- [false alarm] Lines 814-821 duplicate 8 lines with `src/webview/apps/dbApp.css` (lines 759-766), format: css
+- [false alarm] Lines 861-869 duplicate 9 lines with `src/webview/apps/dbApp.css` (lines 827-835), format: css
 
 ### src/webview/apps/dbApp.tsx (1 matches)
 
