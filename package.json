@@ -833,7 +833,6 @@
         "mac": "cmd+shift+d",
         "when": "editorTextFocus && editorLangId == markdown"
       },
-
       {
         "command": "lotion.toggleCheckbox",
         "key": "alt+d",
@@ -937,7 +936,11 @@
         },
         "lotion.ligatureStyle": {
           "type": "string",
-          "enum": ["off", "unicode", "emoji"],
+          "enum": [
+            "off",
+            "unicode",
+            "emoji"
+          ],
           "default": "unicode",
           "description": "Replace common arrow ligatures like ->, <-, and <-> with unicode or emoji arrows."
         },
@@ -958,7 +961,10 @@
         },
         "lotion.gifProvider": {
           "type": "string",
-          "enum": ["giphy", "klipy"],
+          "enum": [
+            "giphy",
+            "klipy"
+          ],
           "default": "",
           "description": "GIF search provider: 'giphy' or 'klipy'."
         },
@@ -991,7 +997,7 @@
     }
   },
   "scripts": {
-    "package":"npx vsce package",
+    "package": "npx vsce package",
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./ && node esbuild.webview.mjs",
     "compile:webview": "node esbuild.webview.mjs",
@@ -1007,6 +1013,7 @@
     "@types/node": "^25.2.3",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
+    "@types/sql.js": "^1.4.11",
     "@types/vscode": "^1.80.0",
     "esbuild": "^0.27.3",
     "jest": "^30.2.0",
@@ -1022,6 +1029,7 @@
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "sherpa-onnx-node": "^1.12.25",
+    "sql.js": "^1.14.1",
     "unicode-emoji-json": "^0.8.0"
   }
 }
