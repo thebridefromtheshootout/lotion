@@ -47,7 +47,7 @@ Phase 1 (stability + quick wins)
     - `alt+up/down` no longer triggers heading navigation outside tables.
     - `alt+j/k` triggers heading navigation outside tables.
 
-- [P1] Page rename slug default bug / page title lost.
+- ✅ [P1] Page rename slug default bug / page title lost.
   - Scope:
     - Ensure rename keeps/sets first H1 correctly and consistently.
     - Validate slug/title flow for default rename path.

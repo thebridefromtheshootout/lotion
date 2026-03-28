@@ -48,10 +48,20 @@ export async function renamePage(): Promise<void> {
   if (!workspaceRoot) {
     return;
   }
+  const currentText = hostEditor.getDocumentText();
+  const currentLines = currentText.split(Regex.lineBreakSplit);
+  let currentTitle = currentFolderName;
+  for (const line of currentLines) {
+    const m = line.match(Regex.headingLineWithText);
+    if (m && m[1].length === 1) {
+      currentTitle = m[2].trim();
+      break;
+    }
+  }
 
   const newName = await hostEditor.showInputBox({
     prompt: "New page name",
-    value: currentFolderName,
+    value: currentTitle,
     validateInput: (value) => {
       if (!value || value.trim().length === 0) {
         return "Name cannot be empty";
@@ -63,38 +73,50 @@ export async function renamePage(): Promise<void> {
     },
   });
 
-  if (!newName || newName === currentFolderName) {
+  if (!newName) {
     return;
   }
 
-  const newFolderName = toKebabCaseLower(newName);
+  const desiredTitle = newName.trim();
+  const newFolderName = toKebabCaseLower(desiredTitle);
+  const shouldRenameFolder = newFolderName !== currentFolderName;
+  const shouldUpdateTitle = desiredTitle !== currentTitle;
+
+  if (!shouldRenameFolder && !shouldUpdateTitle) {
+    return;
+  }
+
   const parentDir = path.dirname(currentDir);
   const newDir = path.join(parentDir, newFolderName);
 
-  if (fs.existsSync(newDir)) {
+  if (shouldRenameFolder && fs.existsSync(newDir)) {
     hostEditor.showError(`Folder '${newFolderName}' already exists.`);
     return;
   }
 
-  // Compute old and new relative paths for link updates
-  const oldRelFromRoot = path.relative(workspaceRoot, currentDir).replace(Regex.windowsSlash, "/");
-  const newRelFromRoot = path.relative(workspaceRoot, newDir).replace(Regex.windowsSlash, "/");
+  let updatedCount = 0;
+  let finalIndexPath = currentPath;
 
-  // Close the current document first
-  await hostEditor.executeCommand("workbench.action.closeActiveEditor");
+  if (shouldRenameFolder) {
+    // Compute old and new relative paths for link updates
+    const oldRelFromRoot = path.relative(workspaceRoot, currentDir).replace(Regex.windowsSlash, "/");
+    const newRelFromRoot = path.relative(workspaceRoot, newDir).replace(Regex.windowsSlash, "/");
 
-  // Rename the folder
-  fs.renameSync(currentDir, newDir);
+    // Close the current document first
+    await hostEditor.executeCommand("workbench.action.closeActiveEditor");
 
-  // Update all markdown links/backlinks across workspace
-  const updatedCount = await relinkWorkspacePagePaths(oldRelFromRoot, newRelFromRoot);
+    // Rename the folder
+    fs.renameSync(currentDir, newDir);
 
-  // Update the heading in the renamed page's index.md
-  const newIndexPath = path.join(newDir, "index.md");
-  if (fs.existsSync(newIndexPath)) {
-    const doc = await hostEditor.openTextDocument(newIndexPath);
+    // Update all markdown links/backlinks across workspace
+    updatedCount = await relinkWorkspacePagePaths(oldRelFromRoot, newRelFromRoot);
+    finalIndexPath = path.join(newDir, "index.md");
+  }
+
+  // Update the heading in the page's index.md
+  if (fs.existsSync(finalIndexPath)) {
+    const doc = await hostEditor.openTextDocument(finalIndexPath);
     const text = doc.getText();
-    const desiredTitle = newName.trim();
     const lines = text.split(Regex.lineBreakSplit);
     const firstH1Index = lines.findIndex((line) => {
       const m = line.match(Regex.headingLineWithText);
@@ -131,5 +153,10 @@ export async function renamePage(): Promise<void> {
     await hostEditor.showTextDocument(doc);
   }
 
-  hostEditor.showInformation(`Renamed to '${newFolderName}'. Updated ${updatedCount} file(s).`);
+  if (shouldRenameFolder) {
+    hostEditor.showInformation(`Renamed to '${newFolderName}'. Updated ${updatedCount} file(s).`);
+    return;
+  }
+
+  hostEditor.showInformation(`Updated page title to '${desiredTitle}'.`);
 }
