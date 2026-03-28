@@ -1,6 +1,7 @@
 import { CellData, CalEvent, WeekEvent, Assignment, IWeekProfile, IMonthProfile } from "../types/CalendarTypes";
 import { SLOT_H } from "../components/database/calendarview/CalendarView";
 import { Regex } from "../../core/regex";
+import { MONTH_NAMES, DAY_NAMES } from "../../core/dateNames";
 
 const MAX_SLOTS = 50;
 export function dfmt(d: Date): string {
@@ -31,21 +32,7 @@ export function parseDate(s: string): Date | null {
   return isNaN(dv.getTime()) ? null : dv;
 }
 
-export const MONTH_NAMES = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
-];
-export const DAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+export { MONTH_NAMES, DAY_NAMES };
 export function getMonthProfile(calYear: number, calMonth: number): IMonthProfile {
   const firstDay = new Date(calYear, calMonth, 1);
   const lastDay = new Date(calYear, calMonth + 1, 0);

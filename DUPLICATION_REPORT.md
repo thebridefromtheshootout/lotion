@@ -290,7 +290,7 @@
 
 ### src/editor/date/dateFormat.ts (1 matches)
 
-- Lines 4-19 duplicate 16 lines with `src/webview/utils/calendarUtils.ts` (lines 34-48), format: typescript
+- [fixed] Lines 4-19 duplicate 16 lines with `src/webview/utils/calendarUtils.ts` (lines 34-48), format: typescript
 
 ### src/editor/date/datePanel.ts (3 matches)
 
@@ -1081,7 +1081,7 @@
 
 ### src/webview/utils/calendarUtils.ts (1 matches)
 
-- Lines 34-48 duplicate 16 lines with `src/editor/date/dateFormat.ts` (lines 4-19), format: typescript
+- [fixed] Lines 34-48 duplicate 16 lines with `src/editor/date/dateFormat.ts` (lines 4-19), format: typescript
 
 ### src/webview/utils/filterSort.ts (1 matches)
 

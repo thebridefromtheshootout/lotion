@@ -1,22 +1,6 @@
 // ── Tiny date formatter (no deps) ─────────────────────────────────
 import { Regex } from "../../core/regex";
-
-const MONTHS = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
-];
-
-const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+import { MONTH_NAMES, DAY_NAMES } from "../../core/dateNames";
 
 export function pad(n: number): string {
   return n < 10 ? "0" + n : String(n);
@@ -27,8 +11,8 @@ export function formatDate(d: Date, fmt: string): string {
   const MM = pad(d.getMonth() + 1);
   const DD = pad(d.getDate());
   const D = String(d.getDate());
-  const MMMM = MONTHS[d.getMonth()];
-  const ddd = DAYS[d.getDay()];
+  const MMMM = MONTH_NAMES[d.getMonth()];
+  const ddd = DAY_NAMES[d.getDay()];
   const HH = pad(d.getHours());
   const mm = pad(d.getMinutes());
 
