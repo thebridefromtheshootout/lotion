@@ -1,5 +1,10 @@
 import * as fs from "fs";
-import { extractFencedLines, SCHEMA_FENCE_START, SCHEMA_FENCE_END } from "./dbSchema";
+import {
+  parseFencedBlockFromFile,
+  parseFencedBlockFromText,
+  SCHEMA_FENCE_START,
+  SCHEMA_FENCE_END,
+} from "./dbSchema";
 import type { DbFilterOperator, DbViewFilter, DbFilterClause, DbView, LayoutKind } from "../contracts/databaseTypes";
 import { Regex } from "../core/regex";
 
@@ -10,19 +15,11 @@ export type { DbFilterOperator, DbViewFilter, DbFilterClause, DbView, LayoutKind
 const VIEWS_FENCE_START = Regex.dbViewsFenceStart;
 
 export function parseViewsFromFile(filePath: string): DbView[] {
-  if (!fs.existsSync(filePath)) {
-    return [];
-  }
-  const content = fs.readFileSync(filePath, "utf-8");
-  return parseViewsFromText(content);
+  return parseFencedBlockFromFile<DbView[]>(filePath, VIEWS_FENCE_START, parseViewsYaml, []);
 }
 
 export function parseViewsFromText(text: string): DbView[] {
-  const yamlLines = extractFencedLines(text, VIEWS_FENCE_START);
-  if (yamlLines.length === 0) {
-    return [];
-  }
-  return parseViewsYaml(yamlLines);
+  return parseFencedBlockFromText<DbView[]>(text, VIEWS_FENCE_START, parseViewsYaml, []);
 }
 
 function parseViewsYaml(lines: string[]): DbView[] {

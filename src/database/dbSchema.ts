@@ -31,6 +31,32 @@ export function extractFencedLines(text: string, startPattern: RegExp): string[]
   return result;
 }
 
+export function parseFencedBlockFromFile<T>(
+  filePath: string,
+  startPattern: RegExp,
+  parse: (lines: string[]) => T,
+  emptyValue: T,
+): T {
+  if (!fs.existsSync(filePath)) {
+    return emptyValue;
+  }
+  const content = fs.readFileSync(filePath, "utf-8");
+  return parseFencedBlockFromText(content, startPattern, parse, emptyValue);
+}
+
+export function parseFencedBlockFromText<T>(
+  text: string,
+  startPattern: RegExp,
+  parse: (lines: string[]) => T,
+  emptyValue: T,
+): T {
+  const yamlLines = extractFencedLines(text, startPattern);
+  if (yamlLines.length === 0) {
+    return emptyValue;
+  }
+  return parse(yamlLines);
+}
+
 // ── Schema parsing ─────────────────────────────────────────────────
 
 /**
@@ -38,19 +64,21 @@ export function extractFencedLines(text: string, startPattern: RegExp): string[]
  * Returns the schema and the line range of the code block.
  */
 export function parseSchemaFromFile(filePath: string): DbSchema | undefined {
-  if (!fs.existsSync(filePath)) {
-    return undefined;
-  }
-  const content = fs.readFileSync(filePath, "utf-8");
-  return parseSchemaFromText(content);
+  return parseFencedBlockFromFile<DbSchema | undefined>(
+    filePath,
+    SCHEMA_FENCE_START,
+    parseSimpleYaml,
+    undefined,
+  );
 }
 
 export function parseSchemaFromText(text: string): DbSchema | undefined {
-  const yamlLines = extractFencedLines(text, SCHEMA_FENCE_START);
-  if (yamlLines.length === 0) {
-    return undefined;
-  }
-  return parseSimpleYaml(yamlLines);
+  return parseFencedBlockFromText<DbSchema | undefined>(
+    text,
+    SCHEMA_FENCE_START,
+    parseSimpleYaml,
+    undefined,
+  );
 }
 
 /**
