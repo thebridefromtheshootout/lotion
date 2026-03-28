@@ -1,10 +1,6 @@
 import React from "react";
-import { createRoot } from "react-dom/client";
 import { DatePicker } from "../components/DatePicker";
+import { bootstrapRoot } from "./bootstrapRoot";
 import "./dateApp.css";
 
-const container = document.getElementById("root");
-if (container) {
-  const root = createRoot(container);
-  root.render(<DatePicker />);
-}
+bootstrapRoot(<DatePicker />);

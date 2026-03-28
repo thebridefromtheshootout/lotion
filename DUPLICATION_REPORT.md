@@ -985,7 +985,7 @@
 
 ### src/webview/apps/commentApp.tsx (1 matches)
 
-- Lines 4-9 duplicate 6 lines with `src/webview/apps/gifApp.tsx` (lines 4-9), format: tsx
+- [fixed] Lines 4-9 duplicate 6 lines with `src/webview/apps/gifApp.tsx` (lines 4-9), format: tsx
 
 ### src/webview/apps/dateApp.css (4 matches)
 
@@ -995,7 +995,7 @@
 
 ### src/webview/apps/dateApp.tsx (1 matches)
 
-- Lines 4-9 duplicate 6 lines with `src/webview/apps/gifApp.tsx` (lines 4-9), format: tsx
+- [fixed] Lines 4-9 duplicate 6 lines with `src/webview/apps/gifApp.tsx` (lines 4-9), format: tsx
 
 ### src/webview/apps/dbApp.css (12 matches)
 
@@ -1014,18 +1014,18 @@
 
 ### src/webview/apps/dbApp.tsx (1 matches)
 
-- Lines 4-9 duplicate 6 lines with `src/webview/apps/gifApp.tsx` (lines 4-9), format: tsx
+- [fixed] Lines 4-9 duplicate 6 lines with `src/webview/apps/gifApp.tsx` (lines 4-9), format: tsx
 
 ### src/webview/apps/dictateApp.tsx (1 matches)
 
-- Lines 4-9 duplicate 6 lines with `src/webview/apps/gifApp.tsx` (lines 4-9), format: tsx
+- [fixed] Lines 4-9 duplicate 6 lines with `src/webview/apps/gifApp.tsx` (lines 4-9), format: tsx
 
 ### src/webview/apps/gifApp.tsx (4 matches)
 
-- Lines 4-9 duplicate 6 lines with `src/webview/apps/commentApp.tsx` (lines 4-9), format: tsx
-- Lines 4-9 duplicate 6 lines with `src/webview/apps/dateApp.tsx` (lines 4-9), format: tsx
-- Lines 4-9 duplicate 6 lines with `src/webview/apps/dbApp.tsx` (lines 4-9), format: tsx
-- Lines 4-9 duplicate 6 lines with `src/webview/apps/dictateApp.tsx` (lines 4-9), format: tsx
+- [fixed] Lines 4-9 duplicate 6 lines with `src/webview/apps/commentApp.tsx` (lines 4-9), format: tsx
+- [fixed] Lines 4-9 duplicate 6 lines with `src/webview/apps/dateApp.tsx` (lines 4-9), format: tsx
+- [fixed] Lines 4-9 duplicate 6 lines with `src/webview/apps/dbApp.tsx` (lines 4-9), format: tsx
+- [fixed] Lines 4-9 duplicate 6 lines with `src/webview/apps/dictateApp.tsx` (lines 4-9), format: tsx
 
 ### src/webview/communicators/DatePanelToExtensionCommunicator.ts (1 matches)
 
@@ -1083,4 +1083,3 @@
 ### src/webview/utils/filterSort.ts (1 matches)
 
 - Lines 72-76 duplicate 5 lines with `src/webview/utils/filterSort.ts` (lines 67-71), format: typescript
-
