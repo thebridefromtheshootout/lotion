@@ -87,68 +87,68 @@
 
 ### src/blocks/blockSwap.ts (8 matches)
 
-- Lines 2-9 duplicate 8 lines with `src/blocks/selectBlock.ts` (lines 2-6), format: typescript
-- Lines 15-18 duplicate 4 lines with `src/editor/focusMode.ts` (lines 151-155), format: typescript
-- Lines 19-22 duplicate 4 lines with `src/editor/focusMode.ts` (lines 156-160), format: typescript
-- Lines 25-30 duplicate 6 lines with `src/views/pageIcon.ts` (lines 18-31), format: typescript
-- Lines 27-31 duplicate 5 lines with `src/editor/focusMode.ts` (lines 102-107), format: typescript
-- Lines 83-89 duplicate 7 lines with `src/blocks/blockSwap.ts` (lines 43-49), format: typescript
-- Lines 93-98 duplicate 6 lines with `src/blocks/blockSwap.ts` (lines 54-59), format: typescript
-- Lines 106-110 duplicate 5 lines with `src/blocks/blockSwap.ts` (lines 68-71), format: typescript
+- [false alarm] Lines 2-9 duplicate 8 lines with `src/blocks/selectBlock.ts` (lines 2-6), format: typescript
+- [false alarm] Lines 15-18 duplicate 4 lines with `src/editor/focusMode.ts` (lines 151-155), format: typescript
+- [false alarm] Lines 19-22 duplicate 4 lines with `src/editor/focusMode.ts` (lines 156-160), format: typescript
+- [false alarm] Lines 25-30 duplicate 6 lines with `src/views/pageIcon.ts` (lines 18-31), format: typescript
+- [false alarm] Lines 27-31 duplicate 5 lines with `src/editor/focusMode.ts` (lines 102-107), format: typescript
+- [false alarm] Lines 83-89 duplicate 7 lines with `src/blocks/blockSwap.ts` (lines 43-49), format: typescript
+- [false alarm] Lines 93-98 duplicate 6 lines with `src/blocks/blockSwap.ts` (lines 54-59), format: typescript
+- [false alarm] Lines 106-110 duplicate 5 lines with `src/blocks/blockSwap.ts` (lines 68-71), format: typescript
 
 ### src/blocks/duplicateBlock.ts (7 matches)
 
-- Lines 2-5 duplicate 4 lines with `src/blocks/selectBlock.ts` (lines 2-5), format: typescript
-- Lines 18-24 duplicate 7 lines with `src/views/pageIcon.ts` (lines 18-31), format: typescript
-- Lines 68-74 duplicate 7 lines with `src/blocks/moveBlock.ts` (lines 137-143), format: typescript
-- Lines 77-84 duplicate 8 lines with `src/blocks/moveBlock.ts` (lines 146-153), format: typescript
-- Lines 85-92 duplicate 8 lines with `src/blocks/moveBlock.ts` (lines 154-161), format: typescript
-- Lines 96-99 duplicate 4 lines with `src/blocks/moveBlock.ts` (lines 165-168), format: typescript
-- Lines 99-104 duplicate 6 lines with `src/blocks/moveBlock.ts` (lines 168-173), format: typescript
+- [false alarm] Lines 2-5 duplicate 4 lines with `src/blocks/selectBlock.ts` (lines 2-5), format: typescript
+- [false alarm] Lines 18-24 duplicate 7 lines with `src/views/pageIcon.ts` (lines 18-31), format: typescript
+- [false alarm] Lines 68-74 duplicate 7 lines with `src/blocks/moveBlock.ts` (lines 137-143), format: typescript
+- [false alarm] Lines 77-84 duplicate 8 lines with `src/blocks/moveBlock.ts` (lines 146-153), format: typescript
+- [false alarm] Lines 85-92 duplicate 8 lines with `src/blocks/moveBlock.ts` (lines 154-161), format: typescript
+- [false alarm] Lines 96-99 duplicate 4 lines with `src/blocks/moveBlock.ts` (lines 165-168), format: typescript
+- [false alarm] Lines 99-104 duplicate 6 lines with `src/blocks/moveBlock.ts` (lines 168-173), format: typescript
 
 ### src/blocks/lockBlock.ts (17 matches)
 
-- Lines 4-9 duplicate 6 lines with `src/media/pdfExport.ts` (lines 4-9), format: typescript
-- Lines 77-80 duplicate 4 lines with `src/editor/date/dateCodeLens.ts` (lines 24-98), format: typescript
-- Lines 105-111 duplicate 7 lines with `src/editor/date/dateCodeLens.ts` (lines 24-83), format: typescript
-- Lines 111-115 duplicate 5 lines with `src/blocks/lockBlock.ts` (lines 84-88), format: typescript
-- Lines 231-236 duplicate 6 lines with `src/blocks/lockBlock.ts` (lines 164-169), format: typescript
-- Lines 371-377 duplicate 7 lines with `src/blocks/lockBlock.ts` (lines 363-369), format: typescript
-- Lines 415-418 duplicate 4 lines with `src/blocks/lockBlock.ts` (lines 396-399), format: typescript
-- Lines 453-458 duplicate 6 lines with `src/links/openLink.ts` (lines 36-40), format: typescript
-- Lines 519-526 duplicate 8 lines with `src/links/openLink.ts` (lines 40-460), format: typescript
-- Lines 543-555 duplicate 13 lines with `src/blocks/lockBlock.ts` (lines 485-496), format: typescript
-- Lines 567-571 duplicate 5 lines with `src/blocks/lockBlock.ts` (lines 507-511), format: typescript
-- Lines 583-588 duplicate 6 lines with `src/links/openLink.ts` (lines 36-40), format: typescript
-- Lines 601-605 duplicate 5 lines with `src/media/carousel.ts` (lines 129-133), format: typescript
-- Lines 648-655 duplicate 8 lines with `src/editor/comments/commentCommands.ts` (lines 42-632), format: typescript
-- Lines 687-690 duplicate 4 lines with `src/blocks/lockBlock.ts` (lines 502-505), format: typescript
-- Lines 688-694 duplicate 7 lines with `src/blocks/lockBlock.ts` (lines 506-571), format: typescript
+- [false alarm] Lines 4-9 duplicate 6 lines with `src/media/pdfExport.ts` (lines 4-9), format: typescript
+- [false alarm] Lines 77-80 duplicate 4 lines with `src/editor/date/dateCodeLens.ts` (lines 24-98), format: typescript
+- [false alarm] Lines 105-111 duplicate 7 lines with `src/editor/date/dateCodeLens.ts` (lines 24-83), format: typescript
+- [false alarm] Lines 111-115 duplicate 5 lines with `src/blocks/lockBlock.ts` (lines 84-88), format: typescript
+- [false alarm] Lines 231-236 duplicate 6 lines with `src/blocks/lockBlock.ts` (lines 164-169), format: typescript
+- [false alarm] Lines 371-377 duplicate 7 lines with `src/blocks/lockBlock.ts` (lines 363-369), format: typescript
+- [false alarm] Lines 415-418 duplicate 4 lines with `src/blocks/lockBlock.ts` (lines 396-399), format: typescript
+- [false alarm] Lines 453-458 duplicate 6 lines with `src/links/openLink.ts` (lines 36-40), format: typescript
+- [false alarm] Lines 519-526 duplicate 8 lines with `src/links/openLink.ts` (lines 40-460), format: typescript
+- [false alarm] Lines 543-555 duplicate 13 lines with `src/blocks/lockBlock.ts` (lines 485-496), format: typescript
+- [false alarm] Lines 567-571 duplicate 5 lines with `src/blocks/lockBlock.ts` (lines 507-511), format: typescript
+- [false alarm] Lines 583-588 duplicate 6 lines with `src/links/openLink.ts` (lines 36-40), format: typescript
+- [false alarm] Lines 601-605 duplicate 5 lines with `src/media/carousel.ts` (lines 129-133), format: typescript
+- [false alarm] Lines 648-655 duplicate 8 lines with `src/editor/comments/commentCommands.ts` (lines 42-632), format: typescript
+- [false alarm] Lines 687-690 duplicate 4 lines with `src/blocks/lockBlock.ts` (lines 502-505), format: typescript
+- [false alarm] Lines 688-694 duplicate 7 lines with `src/blocks/lockBlock.ts` (lines 506-571), format: typescript
 
 ### src/blocks/moveBlock.ts (11 matches)
 
-- Lines 7-13 duplicate 7 lines with `src/navigation/turnInto.ts` (lines 8-14), format: typescript
-- Lines 41-46 duplicate 6 lines with `src/links/openLink.ts` (lines 36-40), format: typescript
-- Lines 42-52 duplicate 11 lines with `src/media/gif/gifCommand.ts` (lines 169-179), format: typescript
-- Lines 137-143 duplicate 7 lines with `src/blocks/duplicateBlock.ts` (lines 68-74), format: typescript
-- Lines 146-153 duplicate 8 lines with `src/blocks/duplicateBlock.ts` (lines 77-84), format: typescript
-- Lines 154-161 duplicate 8 lines with `src/blocks/duplicateBlock.ts` (lines 85-92), format: typescript
-- Lines 154-158 duplicate 5 lines with `src/navigation/extractSubpage.ts` (lines 140-144), format: typescript
-- Lines 165-168 duplicate 4 lines with `src/blocks/duplicateBlock.ts` (lines 96-99), format: typescript
-- Lines 168-173 duplicate 6 lines with `src/blocks/duplicateBlock.ts` (lines 99-104), format: typescript
-- Lines 246-252 duplicate 7 lines with `src/productivity/fireInto.ts` (lines 51-65), format: typescript
+- [false alarm] Lines 7-13 duplicate 7 lines with `src/navigation/turnInto.ts` (lines 8-14), format: typescript
+- [false alarm] Lines 41-46 duplicate 6 lines with `src/links/openLink.ts` (lines 36-40), format: typescript
+- [false alarm] Lines 42-52 duplicate 11 lines with `src/media/gif/gifCommand.ts` (lines 169-179), format: typescript
+- [false alarm] Lines 137-143 duplicate 7 lines with `src/blocks/duplicateBlock.ts` (lines 68-74), format: typescript
+- [false alarm] Lines 146-153 duplicate 8 lines with `src/blocks/duplicateBlock.ts` (lines 77-84), format: typescript
+- [false alarm] Lines 154-161 duplicate 8 lines with `src/blocks/duplicateBlock.ts` (lines 85-92), format: typescript
+- [false alarm] Lines 154-158 duplicate 5 lines with `src/navigation/extractSubpage.ts` (lines 140-144), format: typescript
+- [false alarm] Lines 165-168 duplicate 4 lines with `src/blocks/duplicateBlock.ts` (lines 96-99), format: typescript
+- [false alarm] Lines 168-173 duplicate 6 lines with `src/blocks/duplicateBlock.ts` (lines 99-104), format: typescript
+- [false alarm] Lines 246-252 duplicate 7 lines with `src/productivity/fireInto.ts` (lines 51-65), format: typescript
 
 ### src/blocks/selectBlock.ts (9 matches)
 
-- Lines 2-6 duplicate 8 lines with `src/blocks/blockSwap.ts` (lines 2-9), format: typescript
-- Lines 2-5 duplicate 4 lines with `src/blocks/duplicateBlock.ts` (lines 2-5), format: typescript
-- Lines 12-17 duplicate 6 lines with `src/navigation/extractSubpage.ts` (lines 17-22), format: typescript
-- Lines 40-46 duplicate 7 lines with `src/editor/focusMode.ts` (lines 150-156), format: typescript
-- Lines 46-53 duplicate 8 lines with `src/editor/focusMode.ts` (lines 156-163), format: typescript
-- Lines 86-97 duplicate 12 lines with `src/editor/focusMode.ts` (lines 165-176), format: typescript
-- Lines 97-100 duplicate 4 lines with `src/editor/focusMode.ts` (lines 168-177), format: typescript
-- Lines 108-116 duplicate 9 lines with `src/editor/focusMode.ts` (lines 191-199), format: typescript
-- Lines 116-121 duplicate 6 lines with `src/editor/focusMode.ts` (lines 204-209), format: typescript
+- [false alarm] Lines 2-6 duplicate 8 lines with `src/blocks/blockSwap.ts` (lines 2-9), format: typescript
+- [false alarm] Lines 2-5 duplicate 4 lines with `src/blocks/duplicateBlock.ts` (lines 2-5), format: typescript
+- [false alarm] Lines 12-17 duplicate 6 lines with `src/navigation/extractSubpage.ts` (lines 17-22), format: typescript
+- [false alarm] Lines 40-46 duplicate 7 lines with `src/editor/focusMode.ts` (lines 150-156), format: typescript
+- [false alarm] Lines 46-53 duplicate 8 lines with `src/editor/focusMode.ts` (lines 156-163), format: typescript
+- [false alarm] Lines 86-97 duplicate 12 lines with `src/editor/focusMode.ts` (lines 165-176), format: typescript
+- [false alarm] Lines 97-100 duplicate 4 lines with `src/editor/focusMode.ts` (lines 168-177), format: typescript
+- [false alarm] Lines 108-116 duplicate 9 lines with `src/editor/focusMode.ts` (lines 191-199), format: typescript
+- [false alarm] Lines 116-121 duplicate 6 lines with `src/editor/focusMode.ts` (lines 204-209), format: typescript
 
 ### src/communicators/extensionToPanelCommunicator.ts (3 matches)
 
