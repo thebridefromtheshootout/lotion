@@ -54,12 +54,12 @@ export function FilterBar({ schema, titleFieldLabel, filterTree, setFilterTree }
   const [stagedTiles, setStagedTiles] = useState<FilterLeaf[]>([]);
 
   function createFilterTile() {
-    const col = colRef.current!.value;
-    const op = opRef.current!.value as DbFilterOperator;
-    const val = valRef.current!.value.trim();
-    if (!val && op !== "isempty" && op !== "isnotempty") return;
-    setStagedTiles((prev) => [...prev, { col, op, value: val }]);
-    valRef.current!.value = "";
+    const nextLeaf = readFilterLeafInput();
+    if (!nextLeaf || !isValidLeafValue(nextLeaf)) {
+      return;
+    }
+    setStagedTiles((prev) => [...prev, nextLeaf]);
+    clearValueInput();
   }
 
   function removeStagedTile(index: number) {
@@ -166,25 +166,46 @@ export function FilterBar({ schema, titleFieldLabel, filterTree, setFilterTree }
   }
 
   function addConditionToPath(path: number[]) {
-    const col = colRef.current!.value;
-    const op = opRef.current!.value as DbFilterOperator;
-    const val = valRef.current!.value.trim();
-    if (!val && op !== "isempty" && op !== "isnotempty") {
-      // Flash the filter bar to indicate the user needs to fill in a value first
-      const bar = document.querySelector(".filter-bar");
-      if (bar) {
-        bar.classList.add("filter-bar-flash");
-        setTimeout(() => bar.classList.remove("filter-bar-flash"), 600);
-      }
+    const nextLeaf = readFilterLeafInput();
+    if (!nextLeaf || !isValidLeafValue(nextLeaf)) {
+      flashFilterBar();
       valRef.current?.focus();
       return;
     }
     const next = deepClone(filterTree);
     const group = getNodeByPath(next, path) as FilterGroup;
-    group.clauses.push({ col, op, value: val });
+    group.clauses.push(nextLeaf);
     ensureRootAnd(next);
-    valRef.current!.value = "";
+    clearValueInput();
     setFilterTree(next);
+  }
+
+  function clearValueInput() {
+    valRef.current!.value = "";
+  }
+
+  function readFilterLeafInput(): FilterLeaf | null {
+    if (!colRef.current || !opRef.current || !valRef.current) {
+      return null;
+    }
+    return {
+      col: colRef.current.value,
+      op: opRef.current.value as DbFilterOperator,
+      value: valRef.current.value.trim(),
+    };
+  }
+
+  function isValidLeafValue(leaf: FilterLeaf): boolean {
+    return leaf.value.length > 0 || leaf.op === "isempty" || leaf.op === "isnotempty";
+  }
+
+  function flashFilterBar() {
+    // Flash the filter bar to indicate the user needs to fill in a value first
+    const bar = document.querySelector(".filter-bar");
+    if (bar) {
+      bar.classList.add("filter-bar-flash");
+      setTimeout(() => bar.classList.remove("filter-bar-flash"), 600);
+    }
   }
 
   return (

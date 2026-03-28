@@ -1047,7 +1047,7 @@
 
 ### src/webview/components/database/calendarview/CalendarView.tsx (4 matches)
 
-- Lines 135-149 duplicate 17 lines with `src/webview/components/database/KanbanView.tsx` (lines 72-88), format: javascript
+- [fixed] Lines 135-149 duplicate 17 lines with `src/webview/components/database/KanbanView.tsx` (lines 72-88), format: javascript
 - [fixed] Lines 138-145 duplicate 7 lines with `src/webview/components/database/KanbanView.tsx` (lines 75-81), format: tsx
 - [fixed] Lines 138-145 duplicate 7 lines with `src/webview/components/FilterBar.tsx` (lines 183-189), format: tsx
 - [fixed] Lines 153-160 duplicate 8 lines with `src/webview/components/database/calendarview/CalendarView.tsx` (lines 137-145), format: tsx
@@ -1058,7 +1058,7 @@
 
 ### src/webview/components/database/KanbanView.tsx (3 matches)
 
-- Lines 72-88 duplicate 17 lines with `src/webview/components/database/calendarview/CalendarView.tsx` (lines 135-149), format: javascript
+- [fixed] Lines 72-88 duplicate 17 lines with `src/webview/components/database/calendarview/CalendarView.tsx` (lines 135-149), format: javascript
 - [fixed] Lines 75-81 duplicate 7 lines with `src/webview/components/database/calendarview/CalendarView.tsx` (lines 138-145), format: tsx
 - [fixed] Lines 126-132 duplicate 7 lines with `src/webview/components/database/tableview/TableView.tsx` (lines 130-133), format: javascript
 
@@ -1075,7 +1075,7 @@
 
 - [fixed] Lines 97-100 duplicate 4 lines with `src/webview/components/FilterBar.tsx` (lines 88-91), format: tsx
 - [fixed] Lines 150-155 duplicate 6 lines with `src/webview/components/FilterBar.tsx` (lines 144-149), format: tsx
-- Lines 155-159 duplicate 5 lines with `src/webview/components/FilterBar.tsx` (lines 55-59), format: tsx
+- [fixed] Lines 155-159 duplicate 5 lines with `src/webview/components/FilterBar.tsx` (lines 55-59), format: tsx
 - [fixed] Lines 183-189 duplicate 7 lines with `src/webview/components/database/calendarview/CalendarView.tsx` (lines 138-145), format: tsx
 - [fixed] Lines 278-283 duplicate 6 lines with `src/webview/components/FilterBar.tsx` (lines 217-222), format: tsx
 

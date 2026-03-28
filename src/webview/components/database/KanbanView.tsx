@@ -4,6 +4,7 @@ import { KanbanViewProps } from "../../types/KanbanTypes";
 import type { DbPanelToExtensionCommunicator } from "../../communicators/DbPanelToExtensionCommunicator";
 import { ColumnNameOptions } from "../ColumnNameOptions";
 import { ColumnValueCell } from "./ColumnValueCell";
+import { ViewControlSelect } from "./ViewControlSelect";
 
 export function KanbanView({
   entries,
@@ -67,14 +68,9 @@ export function KanbanView({
   return (
     <>
       <div className="filter-bar view-controls">
-        <label className="view-control-label">Group by:</label>
-        <select
-          value={groupCol}
-          onChange={(e) => onKanbanGroupColChange(e.target.value)}
-          className="view-control-select"
-        >
+        <ViewControlSelect label="Group by:" value={groupCol} onChange={onKanbanGroupColChange}>
           <ColumnNameOptions columns={selectCols} />
-        </select>
+        </ViewControlSelect>
       </div>
       <div className="kanban-board">
         {uniqueLanes.map((lane) => {

@@ -9,6 +9,7 @@ import { RenderWeek } from "./RenderWeek";
 import { DAY_NAMES, dfmt, getMonthProfile, getWeekProfile, MONTH_NAMES, parseDate } from "../../../utils/calendarUtils";
 import { DbColumn } from "../../../types";
 import { ColumnNameOptions } from "../../ColumnNameOptions";
+import { ViewControlSelect } from "../ViewControlSelect";
 
 export const SLOT_H = 22;
 export const DAY_NUM_H = 26;
@@ -130,26 +131,20 @@ function DayNameHeadings() {
 
 function DateColumnSelection(dateColumn: string, onCalendarDateColChange: (col: string) => void, dateCols: DbColumn[], endCol: string, onCalendarEndDateColChange: (col: string | undefined) => void) {
   return <>
-    <label className="view-control-label">Date column:</label>
-    <select
-      value={dateColumn}
-      onChange={(e) => onCalendarDateColChange(e.target.value)}
-      className="view-control-select"
-    >
+    <ViewControlSelect label="Date column:" value={dateColumn} onChange={onCalendarDateColChange}>
       <ColumnNameOptions columns={dateCols} />
-    </select>
+    </ViewControlSelect>
 
     {dateCols.length > 1 && (
       <>
-        <label className="view-control-label">End date:</label>
-        <select
+        <ViewControlSelect
+          label="End date:"
           value={endCol}
-          onChange={(e) => onCalendarEndDateColChange(e.target.value || undefined)}
-          className="view-control-select"
+          onChange={(value) => onCalendarEndDateColChange(value || undefined)}
         >
           <option value="">— none —</option>
           <ColumnNameOptions columns={dateCols} />
-        </select>
+        </ViewControlSelect>
       </>
     )}
   </>;
