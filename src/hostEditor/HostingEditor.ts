@@ -553,6 +553,11 @@ class HostingEditor {
     return workspace.workspaceFolders;
   }
 
+  /** Get extension global storage directory path (private extension data). */
+  getGlobalStoragePath(): string | undefined {
+    return this.context?.globalStorageUri?.fsPath;
+  }
+
   /** Search for files matching a glob pattern. */
   async findFiles(include: GlobPattern, exclude?: GlobPattern | null, maxResults?: number): Promise<Uri[]> {
     return await workspace.findFiles(include, exclude ?? undefined, maxResults);

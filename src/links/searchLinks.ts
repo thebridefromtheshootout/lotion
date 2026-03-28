@@ -1,5 +1,6 @@
 import * as fs from "fs";
 import * as path from "path";
+import { createHash } from "crypto";
 import { Uri } from "../hostEditor/EditorTypes";
 import type { QuickPickItem } from "../hostEditor/EditorTypes";
 import { hostEditor } from "../hostEditor/HostingEditor";
@@ -15,6 +16,82 @@ interface LinkRecord {
 
 interface LinkPickItem extends QuickPickItem {
   record: LinkRecord;
+}
+
+interface LinkCachePayload {
+  version: number;
+  workspaceRoot: string;
+  generatedAt: string;
+  records: LinkRecord[];
+}
+
+const LINK_CACHE_VERSION = 1;
+
+function getWorkspaceRoot(): string | undefined {
+  return hostEditor.getWorkspaceFolders()?.[0]?.uri.fsPath;
+}
+
+function getLinkCacheFilePath(workspaceRoot: string): string | undefined {
+  const storageRoot = hostEditor.getGlobalStoragePath();
+  if (!storageRoot) {
+    return undefined;
+  }
+
+  const dir = path.join(storageRoot, "cache", "links");
+  fs.mkdirSync(dir, { recursive: true });
+  const workspaceKey = createHash("sha1").update(workspaceRoot).digest("hex");
+  return path.join(dir, `${workspaceKey}.json`);
+}
+
+function isValidLinkRecord(value: unknown): value is LinkRecord {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+  const row = value as Record<string, unknown>;
+  return (
+    typeof row.source_path === "string" &&
+    typeof row.source_line === "number" &&
+    typeof row.link_text === "string" &&
+    typeof row.raw_target === "string" &&
+    typeof row.context === "string"
+  );
+}
+
+function readCachedLinks(workspaceRoot: string): LinkRecord[] | undefined {
+  const cacheFilePath = getLinkCacheFilePath(workspaceRoot);
+  if (!cacheFilePath || !fs.existsSync(cacheFilePath)) {
+    return undefined;
+  }
+
+  try {
+    const raw = fs.readFileSync(cacheFilePath, "utf-8");
+    const payload = JSON.parse(raw) as Partial<LinkCachePayload>;
+    if (
+      payload.version !== LINK_CACHE_VERSION ||
+      payload.workspaceRoot !== workspaceRoot ||
+      !Array.isArray(payload.records)
+    ) {
+      return undefined;
+    }
+    return payload.records.filter(isValidLinkRecord);
+  } catch {
+    return undefined;
+  }
+}
+
+function writeCachedLinks(workspaceRoot: string, records: LinkRecord[]): void {
+  const cacheFilePath = getLinkCacheFilePath(workspaceRoot);
+  if (!cacheFilePath) {
+    return;
+  }
+
+  const payload: LinkCachePayload = {
+    version: LINK_CACHE_VERSION,
+    workspaceRoot,
+    generatedAt: new Date().toISOString(),
+    records,
+  };
+  fs.writeFileSync(cacheFilePath, JSON.stringify(payload), "utf-8");
 }
 
 function collectContext(lineText: string, start: number, end: number): string {
@@ -53,12 +130,7 @@ function pushLinkRecord(
   });
 }
 
-async function collectWorkspaceHttpLinks(): Promise<LinkRecord[]> {
-  const workspaceRoot = hostEditor.getWorkspaceFolders()?.[0]?.uri.fsPath;
-  if (!workspaceRoot) {
-    return [];
-  }
-
+async function collectWorkspaceHttpLinks(workspaceRoot: string): Promise<LinkRecord[]> {
   const files = await hostEditor.findFiles("**/*.md");
   const out: LinkRecord[] = [];
   const seen = new Set<string>();
@@ -120,7 +192,21 @@ function toPickItems(records: LinkRecord[]): LinkPickItem[] {
 }
 
 export async function searchWorkspaceLinks(): Promise<void> {
-  const records = await collectWorkspaceHttpLinks();
+  const workspaceRoot = getWorkspaceRoot();
+  if (!workspaceRoot) {
+    hostEditor.showWarning("No workspace folder is open.");
+    return;
+  }
+
+  const cachedRecords = readCachedLinks(workspaceRoot);
+  let records: LinkRecord[] = cachedRecords ?? [];
+  const hadCachedRecords = cachedRecords !== undefined;
+
+  if (cachedRecords === undefined) {
+    records = await collectWorkspaceHttpLinks(workspaceRoot);
+    writeCachedLinks(workspaceRoot, records);
+  }
+
   if (records.length === 0) {
     hostEditor.showInformation("No external http/https links found in workspace markdown files.");
     return;
@@ -133,6 +219,21 @@ export async function searchWorkspaceLinks(): Promise<void> {
   qp.items = toPickItems(records);
 
   let debounceTimer: NodeJS.Timeout | undefined;
+  let quickPickDisposed = false;
+
+  if (hadCachedRecords) {
+    void collectWorkspaceHttpLinks(workspaceRoot)
+      .then((freshRecords) => {
+        records = freshRecords;
+        writeCachedLinks(workspaceRoot, freshRecords);
+        if (!quickPickDisposed) {
+          qp.items = toPickItems(filterRecords(records, qp.value));
+        }
+      })
+      .catch(() => {
+        // Keep using cached records if refresh fails.
+      });
+  }
 
   qp.onDidChangeValue((query) => {
     if (debounceTimer) {
@@ -152,6 +253,7 @@ export async function searchWorkspaceLinks(): Promise<void> {
       qp.dispose();
     });
     qp.onDidHide(() => {
+      quickPickDisposed = true;
       resolve(undefined);
       qp.dispose();
     });
