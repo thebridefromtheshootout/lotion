@@ -228,8 +228,8 @@
 
 ### src/database/dbWebview.ts (3 matches)
 
-- Lines 88-92 duplicate 5 lines with `src/database/dbWebview.ts` (lines 74-78), format: typescript
-- Lines 208-212 duplicate 5 lines with `src/database/dbWebview.ts` (lines 183-187), format: typescript
+- [fixed] Lines 88-92 duplicate 5 lines with `src/database/dbWebview.ts` (lines 74-78), format: typescript
+- [fixed] Lines 208-212 duplicate 5 lines with `src/database/dbWebview.ts` (lines 183-187), format: typescript
 - Lines 255-259 duplicate 5 lines with `src/links/linkHover.ts` (lines 22-25), format: typescript
 
 ### src/editor/callout.ts (4 matches)

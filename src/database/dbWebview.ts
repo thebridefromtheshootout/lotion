@@ -68,11 +68,14 @@ export async function openDbWebview(dbIndexPath: string): Promise<void> {
   panels.set(dbIndexPath, { panel, communicator });
 
   panel.onDidDispose(() => panels.delete(dbIndexPath));
+  const refreshPanel = async () => {
+    await sendInit(communicator, panel, dbIndexPath);
+  };
 
   // ── Register incoming message handlers ─────────────────────────
 
   communicator.registerOnReady(async () => {
-    await sendInit(communicator, panel, dbIndexPath);
+    await refreshPanel();
   });
 
   communicator.registerOnOpenEntry(async (msg) => {
@@ -82,11 +85,11 @@ export async function openDbWebview(dbIndexPath: string): Promise<void> {
 
   communicator.registerOnAddEntry(async (msg) => {
     await hostEditor.executeCommand(Cmd.dbAddEntry, dbIndexPath, msg.defaults);
-    await sendInit(communicator, panel, dbIndexPath);
+    await refreshPanel();
   });
 
   communicator.registerOnRefresh(async () => {
-    await sendInit(communicator, panel, dbIndexPath);
+    await refreshPanel();
   });
 
   communicator.registerOnUpdateEntryProperty((msg) => {
@@ -135,7 +138,7 @@ export async function openDbWebview(dbIndexPath: string): Promise<void> {
     }
 
     saveViewsToFile(dbIndexPath, updated);
-    await sendInit(communicator, panel, dbIndexPath);
+    await refreshPanel();
   });
 
   communicator.registerOnShowWarning((msg) => {
@@ -163,11 +166,11 @@ export async function openDbWebview(dbIndexPath: string): Promise<void> {
     }
     const entryFile = path.join(dbDir, msg.relativePath);
     await logEntryAndPromptNew(entryFile, schema.columns);
-    await sendInit(communicator, panel, dbIndexPath);
+    await refreshPanel();
   });
 
   // Send initial data; webview will request again via "ready" once mounted.
-  await sendInit(communicator, panel, dbIndexPath);
+  await refreshPanel();
 }
 
 export function refreshDbWebview(dbIndexPath: string): void {
@@ -182,8 +185,7 @@ export function softRefreshDbWebview(dbIndexPath: string): void {
   if (!state) {
     return;
   }
-  const dbDir = path.dirname(dbIndexPath);
-  const entries = mapEntries(readDbEntries(dbDir));
+  const { entries } = resolveDbEntries(dbIndexPath);
   state.communicator.sendUpdateEntries(entries);
 }
 
@@ -207,8 +209,7 @@ async function sendInit(
     hostEditor.showError("Lotion: could not parse database schema.");
     return;
   }
-  const dbDir = path.dirname(dbIndexPath);
-  const entries = mapEntries(readDbEntries(dbDir));
+  const { dbDir, entries } = resolveDbEntries(dbIndexPath);
   const links = extractEntryLinks(dbDir, entries);
   const views = parseViewsFromFile(dbIndexPath) || [];
 
@@ -227,6 +228,12 @@ async function sendInit(
     baseUri,
   };
   communicator.sendInit(dbPayload);
+}
+
+function resolveDbEntries(dbIndexPath: string): { dbDir: string; entries: DbEntry[] } {
+  const dbDir = path.dirname(dbIndexPath);
+  const entries = mapEntries(readDbEntries(dbDir));
+  return { dbDir, entries };
 }
 
 function mapEntries(entries: DbEntry[]): DbEntry[] {
