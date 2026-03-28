@@ -45,45 +45,45 @@
 
 ### src/__tests__/aesthetics.test.ts (2 matches)
 
-- Lines 11-20 duplicate 10 lines with `src/views/outline.ts` (lines 40-48), format: typescript
-- Lines 52-65 duplicate 14 lines with `src/navigation/breadcrumb.ts` (lines 61-73), format: typescript
+- [false alarm] Lines 11-20 duplicate 10 lines with `src/views/outline.ts` (lines 40-48), format: typescript
+- [false alarm] Lines 52-65 duplicate 14 lines with `src/navigation/breadcrumb.ts` (lines 61-73), format: typescript
 
 ### src/__tests__/database.test.ts (21 matches)
 
-- Lines 46-50 duplicate 5 lines with `src/__tests__/database.test.ts` (lines 26-30), format: typescript
-- Lines 72-78 duplicate 7 lines with `src/__tests__/database.test.ts` (lines 31-45), format: typescript
-- Lines 97-102 duplicate 6 lines with `src/__tests__/database.test.ts` (lines 26-80), format: typescript
-- Lines 181-184 duplicate 4 lines with `src/__tests__/database.test.ts` (lines 157-160), format: typescript
-- Lines 181-184 duplicate 4 lines with `src/__tests__/database.test.ts` (lines 173-176), format: typescript
-- Lines 198-203 duplicate 6 lines with `src/__tests__/database.test.ts` (lines 171-176), format: typescript
-- Lines 200-204 duplicate 5 lines with `src/__tests__/database.test.ts` (lines 157-161), format: typescript
-- Lines 216-221 duplicate 6 lines with `src/__tests__/database.test.ts` (lines 171-176), format: typescript
-- Lines 231-236 duplicate 6 lines with `src/__tests__/database.test.ts` (lines 160-171), format: typescript
-- Lines 247-253 duplicate 7 lines with `src/__tests__/database.test.ts` (lines 161-171), format: typescript
-- Lines 254-258 duplicate 5 lines with `src/__tests__/database.test.ts` (lines 183-187), format: typescript
-- Lines 259-262 duplicate 4 lines with `src/__tests__/database.test.ts` (lines 157-176), format: typescript
-- Lines 297-301 duplicate 5 lines with `src/__tests__/database.test.ts` (lines 285-289), format: typescript
-- Lines 338-343 duplicate 6 lines with `src/__tests__/database.test.ts` (lines 284-289), format: typescript
-- Lines 351-356 duplicate 6 lines with `src/__tests__/database.test.ts` (lines 284-289), format: typescript
-- Lines 369-375 duplicate 7 lines with `src/__tests__/database.test.ts` (lines 317-323), format: typescript
-- Lines 388-393 duplicate 6 lines with `src/__tests__/database.test.ts` (lines 284-289), format: typescript
-- Lines 408-416 duplicate 9 lines with `src/__tests__/database.test.ts` (lines 368-376), format: typescript
-- Lines 428-433 duplicate 6 lines with `src/__tests__/database.test.ts` (lines 284-289), format: typescript
-- Lines 472-475 duplicate 4 lines with `src/__tests__/database.test.ts` (lines 465-468), format: typescript
-- Lines 479-482 duplicate 4 lines with `src/__tests__/database.test.ts` (lines 465-468), format: typescript
+- [false alarm] Lines 46-50 duplicate 5 lines with `src/__tests__/database.test.ts` (lines 26-30), format: typescript
+- [false alarm] Lines 72-78 duplicate 7 lines with `src/__tests__/database.test.ts` (lines 31-45), format: typescript
+- [false alarm] Lines 97-102 duplicate 6 lines with `src/__tests__/database.test.ts` (lines 26-80), format: typescript
+- [false alarm] Lines 181-184 duplicate 4 lines with `src/__tests__/database.test.ts` (lines 157-160), format: typescript
+- [false alarm] Lines 181-184 duplicate 4 lines with `src/__tests__/database.test.ts` (lines 173-176), format: typescript
+- [false alarm] Lines 198-203 duplicate 6 lines with `src/__tests__/database.test.ts` (lines 171-176), format: typescript
+- [false alarm] Lines 200-204 duplicate 5 lines with `src/__tests__/database.test.ts` (lines 157-161), format: typescript
+- [false alarm] Lines 216-221 duplicate 6 lines with `src/__tests__/database.test.ts` (lines 171-176), format: typescript
+- [false alarm] Lines 231-236 duplicate 6 lines with `src/__tests__/database.test.ts` (lines 160-171), format: typescript
+- [false alarm] Lines 247-253 duplicate 7 lines with `src/__tests__/database.test.ts` (lines 161-171), format: typescript
+- [false alarm] Lines 254-258 duplicate 5 lines with `src/__tests__/database.test.ts` (lines 183-187), format: typescript
+- [false alarm] Lines 259-262 duplicate 4 lines with `src/__tests__/database.test.ts` (lines 157-176), format: typescript
+- [false alarm] Lines 297-301 duplicate 5 lines with `src/__tests__/database.test.ts` (lines 285-289), format: typescript
+- [false alarm] Lines 338-343 duplicate 6 lines with `src/__tests__/database.test.ts` (lines 284-289), format: typescript
+- [false alarm] Lines 351-356 duplicate 6 lines with `src/__tests__/database.test.ts` (lines 284-289), format: typescript
+- [false alarm] Lines 369-375 duplicate 7 lines with `src/__tests__/database.test.ts` (lines 317-323), format: typescript
+- [false alarm] Lines 388-393 duplicate 6 lines with `src/__tests__/database.test.ts` (lines 284-289), format: typescript
+- [false alarm] Lines 408-416 duplicate 9 lines with `src/__tests__/database.test.ts` (lines 368-376), format: typescript
+- [false alarm] Lines 428-433 duplicate 6 lines with `src/__tests__/database.test.ts` (lines 284-289), format: typescript
+- [false alarm] Lines 472-475 duplicate 4 lines with `src/__tests__/database.test.ts` (lines 465-468), format: typescript
+- [false alarm] Lines 479-482 duplicate 4 lines with `src/__tests__/database.test.ts` (lines 465-468), format: typescript
 
 ### src/__tests__/editorDecorations.test.ts (4 matches)
 
-- Lines 49-53 duplicate 5 lines with `src/__tests__/editorDecorations.test.ts` (lines 36-40), format: typescript
-- Lines 78-82 duplicate 5 lines with `src/__tests__/editorDecorations.test.ts` (lines 72-76), format: typescript
-- Lines 83-86 duplicate 4 lines with `src/__tests__/editorDecorations.test.ts` (lines 72-76), format: typescript
-- Lines 123-127 duplicate 5 lines with `src/editor/editorDecorations.ts` (lines 115-120), format: typescript
+- [false alarm] Lines 49-53 duplicate 5 lines with `src/__tests__/editorDecorations.test.ts` (lines 36-40), format: typescript
+- [false alarm] Lines 78-82 duplicate 5 lines with `src/__tests__/editorDecorations.test.ts` (lines 72-76), format: typescript
+- [false alarm] Lines 83-86 duplicate 4 lines with `src/__tests__/editorDecorations.test.ts` (lines 72-76), format: typescript
+- [false alarm] Lines 123-127 duplicate 5 lines with `src/editor/editorDecorations.ts` (lines 115-120), format: typescript
 
 ### src/__tests__/frontmatterEditor.test.ts (3 matches)
 
-- Lines 25-28 duplicate 4 lines with `src/__tests__/frontmatterEditor.test.ts` (lines 15-18), format: typescript
-- Lines 32-35 duplicate 4 lines with `src/__tests__/frontmatterEditor.test.ts` (lines 15-28), format: typescript
-- Lines 39-42 duplicate 4 lines with `src/__tests__/frontmatterEditor.test.ts` (lines 15-35), format: typescript
+- [false alarm] Lines 25-28 duplicate 4 lines with `src/__tests__/frontmatterEditor.test.ts` (lines 15-18), format: typescript
+- [false alarm] Lines 32-35 duplicate 4 lines with `src/__tests__/frontmatterEditor.test.ts` (lines 15-28), format: typescript
+- [false alarm] Lines 39-42 duplicate 4 lines with `src/__tests__/frontmatterEditor.test.ts` (lines 15-35), format: typescript
 
 ### src/blocks/blockSwap.ts (8 matches)
 
