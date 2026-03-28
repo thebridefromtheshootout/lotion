@@ -1,5 +1,5 @@
 import type { IExtensionPanelMessage } from "../communicator";
-import type { DbColumn, DbEntry, DbView, DbViewFilter, DbFilterClause, DbEntryLink } from "../databaseTypes";
+import type { DbColumn, DbEntry, DbView, DbViewFilter, DbFilterClause, DbEntryLink, LayoutKind } from "../databaseTypes";
 
 // Re-export DbEntryLink so existing importers of this file still work
 export type { DbEntryLink } from "../databaseTypes";
@@ -51,7 +51,7 @@ export interface IDbViewState {
   sortDir?: "asc" | "desc";
   filters: DbViewFilter[];
   filterTree?: DbFilterClause;
-  layout?: "table" | "kanban" | "calendar" | "graph" | "map";
+  layout?: LayoutKind;
   kanbanGroupCol?: string;
   calendarDateCol?: string;
   calendarEndDateCol?: string;
