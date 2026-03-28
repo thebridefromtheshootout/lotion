@@ -1085,4 +1085,4 @@
 
 ### src/webview/utils/filterSort.ts (1 matches)
 
-- Lines 72-76 duplicate 5 lines with `src/webview/utils/filterSort.ts` (lines 67-71), format: typescript
+- [fixed] Lines 72-76 duplicate 5 lines with `src/webview/utils/filterSort.ts` (lines 67-71), format: typescript

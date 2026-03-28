@@ -64,24 +64,18 @@ function evalFilter(target: string, op: string, value: string): boolean {
       return compareNumeric(target, ">=", parts[0]) && compareNumeric(target, "<=", parts[1]);
     }
     case "in":
-      return value
-        .split(",")
-        .map((s) => s.trim().toLowerCase())
-        .includes(t);
+      return splitLowerCsv(value).includes(t);
     case "!in":
-      return !value
-        .split(",")
-        .map((s) => s.trim().toLowerCase())
-        .includes(t);
+      return !splitLowerCsv(value).includes(t);
     case "has_any": {
-      const targetVals = target.split(",").map((s) => s.trim().toLowerCase());
-      const filterVals = value.split(",").map((s) => s.trim().toLowerCase());
+      const targetVals = splitLowerCsv(target);
+      const filterVals = splitLowerCsv(value);
       return filterVals.some((fv) => targetVals.includes(fv));
     }
     case "has_all": {
-      const targetVals2 = target.split(",").map((s) => s.trim().toLowerCase());
-      const filterVals2 = value.split(",").map((s) => s.trim().toLowerCase());
-      return filterVals2.every((fv) => targetVals2.includes(fv));
+      const targetVals = splitLowerCsv(target);
+      const filterVals = splitLowerCsv(value);
+      return filterVals.every((fv) => targetVals.includes(fv));
     }
     case "isempty":
       return target.trim() === "";
@@ -90,6 +84,10 @@ function evalFilter(target: string, op: string, value: string): boolean {
     default:
       return t.includes(v);
   }
+}
+
+function splitLowerCsv(value: string): string[] {
+  return value.split(",").map((part) => part.trim().toLowerCase());
 }
 
 function compareNumeric(target: string, op: string, value: string): boolean {
