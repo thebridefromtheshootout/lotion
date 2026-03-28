@@ -977,6 +977,8 @@ export async function handleNewViewCommand(document: TextDocument, _position: Po
 interface ParsedTabularData {
   headers: string[];
   rows: string[][];
+  startLine?: number;
+  endLine?: number;
 }
 
 function splitMarkdownRow(line: string): string[] {
@@ -1047,7 +1049,7 @@ function parseMarkdownTableAtCursor(document: TextDocument, position: Position):
   }
 
   const rows = lines.slice(2).map((line) => normalizeRowWidth(splitMarkdownRow(line), headers.length));
-  return { headers, rows };
+  return { headers, rows, startLine: start, endLine: end };
 }
 
 function parseCsvText(text: string): string[][] {
@@ -1173,6 +1175,7 @@ async function createDatabaseFromTabularData(
   position: Position,
   data: ParsedTabularData,
   sourceLabel: "table" | "csv",
+  opts?: { deleteSourceTable?: boolean },
 ): Promise<void> {
   const cwd = getCwd();
   if (!cwd) {
@@ -1262,10 +1265,29 @@ async function createDatabaseFromTabularData(
   }
 
   if (hostEditor.isActiveEditorDocumentEqualTo(document)) {
+    const linkText = `[${dbName}](${dbRelPath})`;
     const lineText = document.lineAt(position.line).text;
     const hasSlashTrigger = position.character > 0 && lineText[position.character - 1] === "/";
-    const start = hasSlashTrigger ? position.translate(0, -1) : position;
-    await hostEditor.replaceRange(new Range(start, position), `[${dbName}](${dbRelPath})`);
+
+    if (sourceLabel === "table" && data.startLine !== undefined && data.endLine !== undefined) {
+      if (hasSlashTrigger) {
+        await hostEditor.replaceRange(new Range(position.translate(0, -1), position), "");
+      }
+
+      if (opts?.deleteSourceTable) {
+        const tableRange = new Range(
+          new Position(data.startLine, 0),
+          new Position(data.endLine, document.lineAt(data.endLine).text.length),
+        );
+        await hostEditor.replaceRange(tableRange, linkText);
+      } else {
+        await hostEditor.insertAt(new Position(data.startLine, 0), `${linkText}\n`);
+      }
+    } else {
+      const start = hasSlashTrigger ? position.translate(0, -1) : position;
+      await hostEditor.replaceRange(new Range(start, position), linkText);
+    }
+
     await hostEditor.saveActiveDocument();
   }
 
@@ -1281,7 +1303,20 @@ export async function handleTableToDbCommand(document: TextDocument, position: P
     return;
   }
 
-  await createDatabaseFromTabularData(document, position, parsed, "table");
+  const tableAction = await hostEditor.showQuickPick(
+    [
+      { label: "Delete", description: "Import and replace the table with the DB link" },
+      { label: "Keep", description: "Import and keep the table (DB link inserted above)" },
+    ],
+    { placeHolder: "Delete original table after import?" },
+  );
+  if (!tableAction) {
+    return;
+  }
+
+  await createDatabaseFromTabularData(document, position, parsed, "table", {
+    deleteSourceTable: tableAction.label === "Delete",
+  });
 }
 
 export async function handleCsvToDbCommand(document: TextDocument, position: Position): Promise<void> {
