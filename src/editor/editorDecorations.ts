@@ -1,7 +1,7 @@
 import { Disposable, OverviewRulerLane, Range } from "../hostEditor/EditorTypes";
 import type { DecorationOptions, TextEditorDecorationType } from "../hostEditor/EditorTypes";
 import { hostEditor } from "../hostEditor/HostingEditor";
-import { Regex } from "../core/regex";
+import { Regex, calloutParser } from "../core/regex";
 
 // ── Editor decorations for callouts, highlights, and code blocks ───
 //
@@ -146,9 +146,9 @@ export function createEditorDecorations(): Disposable {
       }
 
       // ── Callout blocks ──
-      const calloutMatch = lineText.match(Regex.calloutOpen);
-      if (calloutMatch) {
-        currentCalloutType = calloutMatch[1].toUpperCase();
+      const callout = calloutParser.parseOpenLine(lineText);
+      if (callout) {
+        currentCalloutType = callout.type;
         const bucket = calloutBuckets.get(currentCalloutType);
         if (bucket) {
           bucket.push({ range: new Range(i, 0, i, lineText.length) });
@@ -156,7 +156,7 @@ export function createEditorDecorations(): Disposable {
         continue;
       }
 
-      if (currentCalloutType && Regex.calloutContinuation.test(lineText)) {
+      if (currentCalloutType && calloutParser.isContinuationLine(lineText)) {
         const bucket = calloutBuckets.get(currentCalloutType);
         if (bucket) {
           bucket.push({ range: new Range(i, 0, i, lineText.length) });

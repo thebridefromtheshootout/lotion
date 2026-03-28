@@ -3,7 +3,7 @@ import { hostEditor } from "../hostEditor/HostingEditor";
 import * as path from "path";
 import * as fs from "fs";
 import { Cmd } from "../core/commands";
-import { Regex } from "../core/regex";
+import { Regex, calloutParser } from "../core/regex";
 import type { SlashCommand } from "../core/slashCommands";
 
 export const EXPORT_SLASH_COMMAND: SlashCommand = {
@@ -59,13 +59,13 @@ export function markdownToHtml(md: string): string {
 
   // ── Blockquotes (callout-aware) ───────────────────────────────
   html = html.replace(Regex.blockquoteBlockGlobal, (block) => {
-    const inner = block.replace(Regex.calloutStripPrefixGlobal, "").trim();
+    const inner = calloutParser.stripBlockquotePrefix(block).trim();
     // Detect callouts: [!NOTE], [!TIP], etc.
-    const calloutMatch = inner.match(Regex.calloutTokenWithText);
-    if (calloutMatch) {
-      const type = calloutMatch[1].toLowerCase();
-      const rest = inner.replace(Regex.calloutTokenStrip, "");
-      return `<div class="callout callout-${type}"><div class="callout-title">${type.charAt(0).toUpperCase() + type.slice(1)}</div><p>${rest}</p></div>`;
+    const callout = calloutParser.parseToken(inner);
+    if (callout) {
+      const type = calloutParser.toLower(callout.type);
+      const rest = callout.body;
+      return `<div class="callout callout-${type}"><div class="callout-title">${calloutParser.titleForType(callout.type)}</div><p>${rest}</p></div>`;
     }
     return `<blockquote><p>${inner}</p></blockquote>`;
   });

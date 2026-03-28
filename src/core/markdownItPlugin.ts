@@ -9,7 +9,7 @@
  * This file is loaded by VS Code's markdown preview via
  * contributes.markdown.markdownItPlugins.
  */
-import { Regex } from "./regex";
+import { Regex, calloutParser } from "./regex";
 
 function lotionMarkdownItPlugin(md) {
   // ── ==highlight== ──────────────────────────────────────────
@@ -71,21 +71,21 @@ function lotionMarkdownItPlugin(md) {
       }
 
       const content = tokens[inlineIdx].content;
-      const calloutMatch = content.match(Regex.calloutTokenWithText);
-      if (!calloutMatch) {
+      const callout = calloutParser.parseToken(content);
+      if (!callout) {
         continue;
       }
 
-      const type = calloutMatch[1].toLowerCase();
-      const title = calloutMatch[2] || type.charAt(0).toUpperCase() + type.slice(1);
+      const type = calloutParser.toLower(callout.type);
+      const title = callout.body || calloutParser.titleForType(callout.type);
 
       // Mark the blockquote tokens with callout info
       tokens[i].attrSet("class", `callout callout-${type}`);
       tokens[i].tag = "div";
 
       // Replace the inline content (remove the [!TYPE] prefix)
-      const icon = { note: "ℹ️", tip: "💡", warning: "⚠️", important: "🔥", caution: "🛑" }[type] || "📌";
-      tokens[inlineIdx].content = content.replace(Regex.calloutTokenWithText, "$2");
+      const icon = calloutParser.iconForType(callout.type);
+      tokens[inlineIdx].content = callout.body;
 
       // Insert a callout title before the content
       const titleOpen = new state.Token("html_block", "", 0);
