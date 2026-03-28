@@ -1054,7 +1054,7 @@
 
 ### src/webview/components/database/calendarview/RenderWeek.tsx (1 matches)
 
-- Lines 146-149 duplicate 4 lines with `src/webview/components/database/calendarview/RenderWeek.tsx` (lines 133-136), format: tsx
+- [fixed] Lines 146-149 duplicate 4 lines with `src/webview/components/database/calendarview/RenderWeek.tsx` (lines 133-136), format: tsx
 
 ### src/webview/components/database/KanbanView.tsx (3 matches)
 

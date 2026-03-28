@@ -1,7 +1,7 @@
 import React from "react";
 import type { DbPanelToExtensionCommunicator } from "../../../communicators/DbPanelToExtensionCommunicator";
 import { DAY_NUM_H, SLOT_H } from "./CalendarView";
-import { IWeekProfile } from "../../../types/CalendarTypes";
+import { CalEvent, IWeekProfile } from "../../../types/CalendarTypes";
 import { dfmt, addDays, daysBetween } from "../../../utils/calendarUtils";
 
 /** Drag-data payload serialised into the dataTransfer. */
@@ -129,10 +129,9 @@ export function RenderWeek(
         if (we.contLeft) cls += " cont-left";
         if (we.contRight) cls += " cont-right";
 
+        const eventDateRange = getEventDateRange(we.ev);
         const dragData: CalDragData = {
-          relativePath: we.ev.relativePath,
-          startDate: dfmt(we.ev.start),
-          endDate: dfmt(we.ev.end),
+          ...eventDateRange,
           isRange: we.ev.isRange,
         };
 
@@ -142,10 +141,8 @@ export function RenderWeek(
           return (e: React.DragEvent) => {
             e.stopPropagation();
             const resizeData: CalResizeData = {
-              relativePath: we.ev.relativePath,
+              ...eventDateRange,
               edge,
-              startDate: dfmt(we.ev.start),
-              endDate: dfmt(we.ev.end),
             };
             e.dataTransfer.setData(RESIZE_MIME, JSON.stringify(resizeData));
             e.dataTransfer.effectAllowed = "move";
@@ -193,4 +190,12 @@ export function RenderWeek(
       })}
     </div>
   );
+}
+
+function getEventDateRange(event: CalEvent): Pick<CalDragData, "relativePath" | "startDate" | "endDate"> {
+  return {
+    relativePath: event.relativePath,
+    startDate: dfmt(event.start),
+    endDate: dfmt(event.end),
+  };
 }
