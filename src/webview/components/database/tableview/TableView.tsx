@@ -1,8 +1,8 @@
 import React, { useState, useCallback } from "react";
 import { DbColumn, DbEntryData, TableViewProps, commitEditMethodType } from "../../../types/";
-import { FormatCell } from "./FormatCell";
 import type { DbPanelToExtensionCommunicator } from "../../../communicators/DbPanelToExtensionCommunicator";
 import { InlineEditor } from "./InlineEditor";
+import { ColumnValueCell } from "../ColumnValueCell";
 
 export function TableView({
   entries,
@@ -130,7 +130,7 @@ function RenderCell(
           onCancel={() => setEditCell(null)}
         />
       ) : (
-        <FormatCell value={val} type={c.type} baseUri={baseUri} maxWidth={c.maxWidth} maxHeight={c.maxHeight} />
+        <ColumnValueCell column={c} value={val} baseUri={baseUri} />
       )}
     </td>
   );

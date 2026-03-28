@@ -1,9 +1,9 @@
 import React, { useState, useRef } from "react";
 import { DbEntryData } from "../../types";
 import { KanbanViewProps } from "../../types/KanbanTypes";
-import { FormatCell } from "./tableview/FormatCell";
 import type { DbPanelToExtensionCommunicator } from "../../communicators/DbPanelToExtensionCommunicator";
 import { ColumnNameOptions } from "../ColumnNameOptions";
+import { ColumnValueCell } from "./ColumnValueCell";
 
 export function KanbanView({
   entries,
@@ -121,13 +121,7 @@ export function KanbanView({
                         if (!val) return null;
                         return (
                           <span key={c.name} className="kanban-card-prop">
-                            <FormatCell
-                              value={val}
-                              type={c.type}
-                              baseUri={baseUri}
-                              maxWidth={c.maxWidth}
-                              maxHeight={c.maxHeight}
-                            />
+                            <ColumnValueCell column={c} value={val} baseUri={baseUri} />
                           </span>
                         );
                       })}

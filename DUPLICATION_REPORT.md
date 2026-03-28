@@ -1057,12 +1057,12 @@
 
 - Lines 72-88 duplicate 17 lines with `src/webview/components/database/calendarview/CalendarView.tsx` (lines 135-149), format: javascript
 - [fixed] Lines 75-81 duplicate 7 lines with `src/webview/components/database/calendarview/CalendarView.tsx` (lines 138-145), format: tsx
-- Lines 126-132 duplicate 7 lines with `src/webview/components/database/tableview/TableView.tsx` (lines 130-133), format: javascript
+- [fixed] Lines 126-132 duplicate 7 lines with `src/webview/components/database/tableview/TableView.tsx` (lines 130-133), format: javascript
 
 ### src/webview/components/database/tableview/TableView.tsx (2 matches)
 
 - Lines 107-112 duplicate 6 lines with `src/webview/components/database/tableview/TableView.tsx` (lines 67-72), format: tsx
-- Lines 130-133 duplicate 7 lines with `src/webview/components/database/KanbanView.tsx` (lines 126-132), format: javascript
+- [fixed] Lines 130-133 duplicate 7 lines with `src/webview/components/database/KanbanView.tsx` (lines 126-132), format: javascript
 
 ### src/webview/components/database/Toolbar.tsx (1 matches)
 
