@@ -19,6 +19,61 @@ const LIST_RE = Regex.listItem;
 const OL_PREFIX_RE = Regex.orderedListPrefix;
 const UNORDERED_RE = Regex.unorderedListPrefix;
 
+interface PreviousListStyle {
+  kind: "ol" | "ul";
+  marker?: string;
+  sep?: string;
+}
+
+function contentLenWithoutWhitespace(text: string): number {
+  return text.replace(Regex.whitespaceRun, "").length;
+}
+
+function findPreviousListStyleAtIndent(document: ReturnType<typeof hostEditor.getDocument>, fromLine: number, indent: string): PreviousListStyle | undefined {
+  if (!document) {
+    return undefined;
+  }
+
+  for (let i = fromLine - 1; i >= 0; i--) {
+    const lineText = document.lineAt(i).text;
+    const ol = lineText.match(Regex.orderedListItem);
+    if (ol && ol[1] === indent) {
+      return { kind: "ol", sep: ol[3] };
+    }
+
+    const ul = lineText.match(UNORDERED_RE);
+    if (ul && ul[1] === indent) {
+      return { kind: "ul", marker: ul[2] };
+    }
+
+    if (lineText.trim().length === 0) {
+      continue;
+    }
+
+    const lineIndent = lineText.match(Regex.lineIndent)?.[1] ?? "";
+    if (lineIndent.length < indent.length) {
+      break;
+    }
+  }
+
+  return undefined;
+}
+
+async function renumberOrderedListAtLine(line: number): Promise<void> {
+  const doc = hostEditor.getDocument();
+  if (!doc || line < 0 || line >= doc.lineCount) {
+    return;
+  }
+
+  const items = collectOrderedList(doc, line);
+  if (items.length === 0) {
+    return;
+  }
+
+  const edits = renumberEdits(doc, items, 0, 1);
+  await applyRenumberEdits(edits);
+}
+
 /** Return the indent unit (in spaces) for the current editor. */
 function getIndentSize(): number {
   const tabSize = hostEditor.getTabSize();
@@ -132,6 +187,45 @@ export async function outdentListItem(): Promise<void> {
   if (!allOnList) {
     await hostEditor.executeCommand("outdent");
     return;
+  }
+
+  // Short-content marker normalization:
+  // On minimal-content list lines, inspect previous list items at the
+  // effective indent level and match the active list style.
+  if (selections.length === 1 && selections[0].isEmpty) {
+    const lineNum = selections[0].active.line;
+    const lineText = document.lineAt(lineNum).text;
+    const olCurrent = lineText.match(Regex.orderedListWithContent);
+    const ulCurrent = lineText.match(UNORDERED_RE);
+    const indentSize = getIndentSize();
+
+    if (olCurrent || ulCurrent) {
+      const currentIndent = olCurrent ? olCurrent[1] : ulCurrent![1];
+      const content = (olCurrent ? olCurrent[4] : ulCurrent![3]) ?? "";
+      const targetIndent = currentIndent.length >= indentSize ? currentIndent.slice(indentSize) : currentIndent;
+
+      if (contentLenWithoutWhitespace(content) < 3) {
+        const prevStyle = findPreviousListStyleAtIndent(document, lineNum, targetIndent);
+        if (prevStyle) {
+          if (prevStyle.kind === "ol") {
+            const sep = prevStyle.sep ?? ". ";
+            const newText = `${targetIndent}1${sep}${content}`;
+            await hostEditor.replaceRange(document.lineAt(lineNum).range, newText);
+            await renumberOrderedListAtLine(lineNum);
+            const pos = new Position(lineNum, targetIndent.length + 1 + sep.length);
+            hostEditor.setSelection(new Selection(pos, pos));
+            return;
+          }
+
+          const marker = prevStyle.marker ?? "-";
+          const newText = `${targetIndent}${marker} ${content}`;
+          await hostEditor.replaceRange(document.lineAt(lineNum).range, newText);
+          const pos = new Position(lineNum, targetIndent.length + 2);
+          hostEditor.setSelection(new Selection(pos, pos));
+          return;
+        }
+      }
+    }
   }
 
   // Special case: single cursor on an unordered item (`  - text`) that is

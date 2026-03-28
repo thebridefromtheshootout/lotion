@@ -31,6 +31,7 @@ export const Regex = {
   commaGlobal: /,/g,
 
   httpUrl: /^https?:\/\/\S+$/,
+  httpSchemePrefix: /^https?:\/\//i,
   httpOrMailtoOrAnchor: /^https?:\/\/|^mailto:|^#/,
   invalidPathChars: /[<>:"/\\|?*]/,
 

@@ -6,6 +6,7 @@ export { convertLinksToReference, convertLinksToInline } from "./linkConvert";
 export { createLinkHoverProvider } from "./linkHover";
 export { handleLinkCommand } from "./linkInsert";
 export { handleOpenLinkCommand } from "./openLink";
+export { searchWorkspaceLinks } from "./searchLinks";
 export { createLinkValidator } from "./linkValidator";
 
 // ── Slash commands ─────────────────────────────────────────────────

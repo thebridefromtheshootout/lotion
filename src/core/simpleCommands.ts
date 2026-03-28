@@ -18,7 +18,7 @@ import { swapBlockUp, swapBlockDown, handleDuplicateBlock, selectBlock } from ".
 import { promoteHeading, demoteHeading /* , wrapWith */ } from "../formatting";
 
 // Link handlers
-import { convertLinksToReference, convertLinksToInline } from "../links";
+import { convertLinksToReference, convertLinksToInline, searchWorkspaceLinks } from "../links";
 
 // List handlers
 import { toggleCheckbox, handleListContinue, indentListItem, outdentListItem /* , toggleListType */ } from "../lists";
@@ -130,6 +130,7 @@ export const SIMPLE_COMMANDS: [string, (...args: any[]) => any][] = [
   // Links
   [Cmd.linksToReference, convertLinksToReference],
   [Cmd.linksToInline, convertLinksToInline],
+  [Cmd.searchWorkspaceLinks, searchWorkspaceLinks],
   // Lists
   [Cmd.listContinue, handleListContinue],
   [Cmd.toggleCheckbox, toggleCheckbox],

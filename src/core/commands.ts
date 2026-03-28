@@ -77,6 +77,7 @@ export const Cmd = {
   linksToInline: "lotion.linksToInline",
   insertLink: "lotion.insertLink",
   openLink: "lotion.openLink",
+  searchWorkspaceLinks: "lotion.searchWorkspaceLinks",
 
   // ── Lists ──────────────────────────────────────────────────────────
   listContinue: "lotion.listContinue",

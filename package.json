@@ -447,6 +447,12 @@
         "category": "Lotion"
       },
       {
+        "command": "lotion.searchWorkspaceLinks",
+        "title": "Lotion: Search Workspace Links",
+        "icon": "$(search)",
+        "category": "Lotion"
+      },
+      {
         "command": "lotion.toggleCheckbox",
         "title": "Lotion: Toggle Checkbox",
         "icon": "$(checklist)",
@@ -754,6 +760,12 @@
         "key": "alt+h",
         "mac": "alt+h",
         "when": "editorTextFocus && editorLangId == markdown && lotion.hasNonEmptySelection"
+      },
+      {
+        "command": "lotion.searchWorkspaceLinks",
+        "key": "alt+l",
+        "mac": "alt+l",
+        "when": "editorTextFocus && editorLangId == markdown"
       },
       {
         "command": "lotion.listContinue",

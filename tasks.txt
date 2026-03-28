@@ -9,7 +9,7 @@ Status note
 
 Phase 1 (stability + quick wins)
 
-- [P1] Shift+Tab list behavior should detect surrounding list context and keep marker style consistent.
+- ✅ [P1] Shift+Tab list behavior should detect surrounding list context and keep marker style consistent.
   - Scope:
     - When current line content length (trimmed, without whitespace) is `< 3`, inspect nearby previous lines at same/effective indent.
     - If sibling context is OL, convert current marker to OL style.
@@ -139,14 +139,13 @@ Phase 3 (new commands/features)
       - `---`
     - Cursor lands on the `### ` line at heading text position.
 
-- [P3] `Alt+L` to search links and open in browser on Enter.
+- ✅ [P3] `Alt+L` to search links and open in browser on Enter.
   - Scope:
     - Build quick-pick list of links across full workspace markdown files.
     - Search behavior:
       - Search query matches `link_text` first.
       - If no matches in `link_text`, fallback to searching `context`.
     - Open selected external link in browser.
-    - Confirm link-collection DB schema with user before implementation.
   - Likely files:
     - `src/links/*` (new command module likely)
     - `src/core/commands.ts`
@@ -156,7 +155,7 @@ Phase 3 (new commands/features)
     - `Alt+L` shows full-workspace links list and Enter opens selected URL.
     - Query flow follows `link_text` first, then `context` fallback.
 
-Open questions blocking exact implementation choices
+Resolved schema notes
 
 1. `Alt+L` link collection schema (must confirm before implementation):
    - Proposed fields:
