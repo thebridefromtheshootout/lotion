@@ -888,51 +888,51 @@
 
 ### src/productivity/clipHistory.ts (2 matches)
 
-- Lines 1-12 duplicate 12 lines with `src/views/outline.ts` (lines 13-18), format: typescript
-- Lines 32-37 duplicate 6 lines with `src/views/pageIcon.ts` (lines 31-36), format: typescript
+- [false alarm] Lines 1-12 duplicate 12 lines with `src/views/outline.ts` (lines 13-18), format: typescript
+- [false alarm] Lines 32-37 duplicate 6 lines with `src/views/pageIcon.ts` (lines 31-36), format: typescript
 
 ### src/productivity/dailyNote.ts (7 matches)
 
-- Lines 11-14 duplicate 4 lines with `src/links/backlinkCodeLens.ts` (lines 90-93), format: typescript
-- Lines 11-18 duplicate 8 lines with `src/media/unusedImages.ts` (lines 13-20), format: typescript
-- Lines 11-18 duplicate 8 lines with `src/navigation/orphanPages.ts` (lines 11-18), format: typescript
-- Lines 11-49 duplicate 4 lines with `src/navigation/pageRelink.ts` (lines 121-124), format: typescript
+- [false alarm] Lines 11-14 duplicate 4 lines with `src/links/backlinkCodeLens.ts` (lines 90-93), format: typescript
+- [false alarm] Lines 11-18 duplicate 8 lines with `src/media/unusedImages.ts` (lines 13-20), format: typescript
+- [false alarm] Lines 11-18 duplicate 8 lines with `src/navigation/orphanPages.ts` (lines 11-18), format: typescript
+- [false alarm] Lines 11-49 duplicate 4 lines with `src/navigation/pageRelink.ts` (lines 121-124), format: typescript
 
 ### src/productivity/fireInto.ts (11 matches)
 
-- Lines 8-10 duplicate 4 lines with `src/links/linkComplete.ts` (lines 27-30), format: typescript
-- Lines 8-21 duplicate 7 lines with `src/navigation/orphanPages.ts` (lines 18-24), format: typescript
-- Lines 10-14 duplicate 5 lines with `src/navigation/recentPages.ts` (lines 50-54), format: typescript
-- Lines 11-14 duplicate 4 lines with `src/links/backlinks.ts` (lines 68-71), format: typescript
-- Lines 11-16 duplicate 5 lines with `src/links/linkInsert.ts` (lines 37-41), format: typescript
-- Lines 16-28 duplicate 13 lines with `src/navigation/quickSwitch.ts` (lines 20-32), format: typescript
-- Lines 51-65 duplicate 7 lines with `src/blocks/moveBlock.ts` (lines 246-252), format: typescript
-- Lines 51-68 duplicate 12 lines with `src/editor/smartPaste.ts` (lines 190-201), format: typescript
-- Lines 62-69 duplicate 8 lines with `src/navigation/quickSwitch.ts` (lines 39-46), format: typescript
-- Lines 63-69 duplicate 7 lines with `src/navigation/tagIndex.ts` (lines 108-114), format: typescript
-- Lines 65-67 duplicate 4 lines with `src/links/linkComplete.ts` (lines 74-77), format: typescript
+- [false alarm] Lines 8-10 duplicate 4 lines with `src/links/linkComplete.ts` (lines 27-30), format: typescript
+- [false alarm] Lines 8-21 duplicate 7 lines with `src/navigation/orphanPages.ts` (lines 18-24), format: typescript
+- [false alarm] Lines 10-14 duplicate 5 lines with `src/navigation/recentPages.ts` (lines 50-54), format: typescript
+- [false alarm] Lines 11-14 duplicate 4 lines with `src/links/backlinks.ts` (lines 68-71), format: typescript
+- [false alarm] Lines 11-16 duplicate 5 lines with `src/links/linkInsert.ts` (lines 37-41), format: typescript
+- [false alarm] Lines 16-28 duplicate 13 lines with `src/navigation/quickSwitch.ts` (lines 20-32), format: typescript
+- [false alarm] Lines 51-65 duplicate 7 lines with `src/blocks/moveBlock.ts` (lines 246-252), format: typescript
+- [false alarm] Lines 51-68 duplicate 12 lines with `src/editor/smartPaste.ts` (lines 190-201), format: typescript
+- [false alarm] Lines 62-69 duplicate 8 lines with `src/navigation/quickSwitch.ts` (lines 39-46), format: typescript
+- [false alarm] Lines 63-69 duplicate 7 lines with `src/navigation/tagIndex.ts` (lines 108-114), format: typescript
+- [false alarm] Lines 65-67 duplicate 4 lines with `src/links/linkComplete.ts` (lines 74-77), format: typescript
 
 ### src/productivity/gitCommit.ts (7 matches)
 
-- Lines 1-18 duplicate 29 lines with `src/editor/snippetExpander.ts` (lines 1-29), format: typescript
-- Lines 104-107 duplicate 4 lines with `src/editor/processor.ts` (lines 208-211), format: typescript
-- Lines 168-171 duplicate 4 lines with `src/productivity/gitCommit.ts` (lines 104-107), format: typescript
+- [false alarm] Lines 1-18 duplicate 29 lines with `src/editor/snippetExpander.ts` (lines 1-29), format: typescript
+- [false alarm] Lines 104-107 duplicate 4 lines with `src/editor/processor.ts` (lines 208-211), format: typescript
+- [false alarm] Lines 168-171 duplicate 4 lines with `src/productivity/gitCommit.ts` (lines 104-107), format: typescript
 
 ### src/productivity/pomodoro.ts (3 matches)
 
-- Lines 88-92 duplicate 5 lines with `src/productivity/pomodoro.ts` (lines 44-48), format: typescript
-- Lines 95-99 duplicate 5 lines with `src/productivity/pomodoro.ts` (lines 43-47), format: typescript
+- [false alarm] Lines 88-92 duplicate 5 lines with `src/productivity/pomodoro.ts` (lines 44-48), format: typescript
+- [false alarm] Lines 95-99 duplicate 5 lines with `src/productivity/pomodoro.ts` (lines 43-47), format: typescript
 
 ### src/productivity/taskProgress.ts (4 matches)
 
-- Lines 21-26 duplicate 6 lines with `src/views/wordCount.ts` (lines 21-26), format: typescript
-- Lines 26-34 duplicate 9 lines with `src/views/wordCount.ts` (lines 26-34), format: typescript
-- Lines 34-45 duplicate 12 lines with `src/views/wordCount.ts` (lines 34-46), format: typescript
+- [false alarm] Lines 21-26 duplicate 6 lines with `src/views/wordCount.ts` (lines 21-26), format: typescript
+- [false alarm] Lines 26-34 duplicate 9 lines with `src/views/wordCount.ts` (lines 26-34), format: typescript
+- [false alarm] Lines 34-45 duplicate 12 lines with `src/views/wordCount.ts` (lines 34-46), format: typescript
 
 ### src/productivity/taskStrikethrough.ts (2 matches)
 
-- Lines 28-31 duplicate 4 lines with `src/views/wordCount.ts` (lines 23-26), format: typescript
-- Lines 31-39 duplicate 9 lines with `src/views/wordCount.ts` (lines 26-34), format: typescript
+- [false alarm] Lines 28-31 duplicate 4 lines with `src/views/wordCount.ts` (lines 23-26), format: typescript
+- [false alarm] Lines 31-39 duplicate 9 lines with `src/views/wordCount.ts` (lines 26-34), format: typescript
 
 ### src/views/outline.ts (6 matches)
 
