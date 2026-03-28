@@ -91,6 +91,26 @@ export function buildPropertyTable(props: Record<string, string>): string {
   return [header, separator, ...rows].join("\n");
 }
 
+function replacePropertyTableInLines(lines: string[], region: TableRegion, props: Record<string, string>): string {
+  const tableStr = buildPropertyTable(props);
+  const before = lines.slice(0, region.startIdx);
+  const after = lines.slice(region.endIdx + 1);
+  return [...before, tableStr, ...after].join("\n");
+}
+
+function updatePropertyTableContent(
+  content: string,
+  update: (props: Record<string, string>) => Record<string, string>,
+): string {
+  const lines = content.split(Regex.lineBreakSplit);
+  const region = findPropertyTableRegion(lines);
+  if (!region) {
+    return content;
+  }
+  const nextProps = update({ ...region.props });
+  return replacePropertyTableInLines(lines, region, nextProps);
+}
+
 /**
  * Update (or insert) a single property in the entry file's property table.
  * Re-aligns the entire table on every write.
@@ -115,13 +135,8 @@ export function updateEntryProperty(filePath: string, key: string, value: string
   }
 
   // Update or add the key
-  const props = region.props;
-  props[key] = value;
-
-  const tableStr = buildPropertyTable(props);
-  const before = lines.slice(0, region.startIdx);
-  const after = lines.slice(region.endIdx + 1);
-  fs.writeFileSync(filePath, [...before, tableStr, ...after].join("\n"), "utf-8");
+  const nextProps = { ...region.props, [key]: value };
+  fs.writeFileSync(filePath, replacePropertyTableInLines(lines, region, nextProps), "utf-8");
 }
 
 /**
@@ -172,46 +187,30 @@ export function appendToLogTable(content: string, fieldNames: string[], values: 
  * Clear (set to empty string) the specified property-table fields.
  */
 export function clearPropertyFields(content: string, fieldNames: string[]): string {
-  const lines = content.split(Regex.lineBreakSplit);
-  const region = findPropertyTableRegion(lines);
-  if (!region) {
-    return content;
-  }
-
   const fieldSet = new Set(fieldNames);
-  for (const key of fieldSet) {
-    if (key in region.props) {
-      region.props[key] = "";
+  return updatePropertyTableContent(content, (props) => {
+    for (const key of fieldSet) {
+      if (key in props) {
+        props[key] = "";
+      }
     }
-  }
-
-  const tableStr = buildPropertyTable(region.props);
-  const before = lines.slice(0, region.startIdx);
-  const after = lines.slice(region.endIdx + 1);
-  return [...before, tableStr, ...after].join("\n");
+    return props;
+  });
 }
 
 /**
  * Remove property-table rows for the specified field names.
  */
 export function removePropertyFields(content: string, fieldNames: string[]): string {
-  const lines = content.split(Regex.lineBreakSplit);
-  const region = findPropertyTableRegion(lines);
-  if (!region) {
-    return content;
-  }
-
   const fieldSet = new Set(fieldNames);
-  for (const key of Object.keys(region.props)) {
-    if (fieldSet.has(key)) {
-      delete region.props[key];
+  return updatePropertyTableContent(content, (props) => {
+    for (const key of Object.keys(props)) {
+      if (fieldSet.has(key)) {
+        delete props[key];
+      }
     }
-  }
-
-  const tableStr = buildPropertyTable(region.props);
-  const before = lines.slice(0, region.startIdx);
-  const after = lines.slice(region.endIdx + 1);
-  return [...before, tableStr, ...after].join("\n");
+    return props;
+  });
 }
 
 /**
@@ -221,35 +220,26 @@ export function renamePropertyField(content: string, fromFieldName: string, toFi
   if (fromFieldName === toFieldName) {
     return content;
   }
-
-  const lines = content.split(Regex.lineBreakSplit);
-  const region = findPropertyTableRegion(lines);
-  if (!region) {
-    return content;
-  }
-
-  const keys = Object.keys(region.props);
-  if (!keys.includes(fromFieldName)) {
-    return content;
-  }
-
-  const nextProps: Record<string, string> = {};
-  for (const key of keys) {
-    if (key === fromFieldName) {
-      nextProps[toFieldName] = region.props[fromFieldName];
-      continue;
+  return updatePropertyTableContent(content, (props) => {
+    const keys = Object.keys(props);
+    if (!keys.includes(fromFieldName)) {
+      return props;
     }
-    // If the target key already exists, keep the renamed field value.
-    if (key === toFieldName) {
-      continue;
-    }
-    nextProps[key] = region.props[key];
-  }
 
-  const tableStr = buildPropertyTable(nextProps);
-  const before = lines.slice(0, region.startIdx);
-  const after = lines.slice(region.endIdx + 1);
-  return [...before, tableStr, ...after].join("\n");
+    const nextProps: Record<string, string> = {};
+    for (const key of keys) {
+      if (key === fromFieldName) {
+        nextProps[toFieldName] = props[fromFieldName];
+        continue;
+      }
+      // If the target key already exists, keep the renamed field value.
+      if (key === toFieldName) {
+        continue;
+      }
+      nextProps[key] = props[key];
+    }
+    return nextProps;
+  });
 }
 
 /**
@@ -257,27 +247,19 @@ export function renamePropertyField(content: string, fromFieldName: string, toFi
  * Unknown fields (not in schema) are preserved at the end.
  */
 export function syncPropertyFieldOrder(content: string, orderedFieldNames: string[]): string {
-  const lines = content.split(Regex.lineBreakSplit);
-  const region = findPropertyTableRegion(lines);
-  if (!region) {
-    return content;
-  }
+  return updatePropertyTableContent(content, (props) => {
+    const orderedSet = new Set(orderedFieldNames);
+    const nextProps: Record<string, string> = {};
 
-  const orderedSet = new Set(orderedFieldNames);
-  const nextProps: Record<string, string> = {};
-
-  for (const fieldName of orderedFieldNames) {
-    nextProps[fieldName] = region.props[fieldName] ?? "";
-  }
-
-  for (const key of Object.keys(region.props)) {
-    if (!orderedSet.has(key)) {
-      nextProps[key] = region.props[key];
+    for (const fieldName of orderedFieldNames) {
+      nextProps[fieldName] = props[fieldName] ?? "";
     }
-  }
 
-  const tableStr = buildPropertyTable(nextProps);
-  const before = lines.slice(0, region.startIdx);
-  const after = lines.slice(region.endIdx + 1);
-  return [...before, tableStr, ...after].join("\n");
+    for (const key of Object.keys(props)) {
+      if (!orderedSet.has(key)) {
+        nextProps[key] = props[key];
+      }
+    }
+    return nextProps;
+  });
 }

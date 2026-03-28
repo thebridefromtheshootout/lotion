@@ -202,14 +202,14 @@
 
 ### src/database/dbFrontmatter.ts (8 matches)
 
-- Lines 175-178 duplicate 4 lines with `src/database/dbFrontmatter.ts` (lines 104-108), format: typescript
-- Lines 188-191 duplicate 4 lines with `src/database/dbFrontmatter.ts` (lines 121-124), format: typescript
-- Lines 197-205 duplicate 9 lines with `src/database/dbFrontmatter.ts` (lines 174-182), format: typescript
-- Lines 207-219 duplicate 13 lines with `src/database/dbFrontmatter.ts` (lines 184-196), format: typescript
-- Lines 225-231 duplicate 7 lines with `src/database/dbFrontmatter.ts` (lines 175-181), format: typescript
-- Lines 249-258 duplicate 10 lines with `src/database/dbFrontmatter.ts` (lines 121-196), format: typescript
-- Lines 259-266 duplicate 8 lines with `src/database/dbFrontmatter.ts` (lines 174-181), format: typescript
-- Lines 277-283 duplicate 7 lines with `src/database/dbFrontmatter.ts` (lines 192-247), format: typescript
+- [fixed] Lines 175-178 duplicate 4 lines with `src/database/dbFrontmatter.ts` (lines 104-108), format: typescript
+- [fixed] Lines 188-191 duplicate 4 lines with `src/database/dbFrontmatter.ts` (lines 121-124), format: typescript
+- [fixed] Lines 197-205 duplicate 9 lines with `src/database/dbFrontmatter.ts` (lines 174-182), format: typescript
+- [fixed] Lines 207-219 duplicate 13 lines with `src/database/dbFrontmatter.ts` (lines 184-196), format: typescript
+- [fixed] Lines 225-231 duplicate 7 lines with `src/database/dbFrontmatter.ts` (lines 175-181), format: typescript
+- [fixed] Lines 249-258 duplicate 10 lines with `src/database/dbFrontmatter.ts` (lines 121-196), format: typescript
+- [fixed] Lines 259-266 duplicate 8 lines with `src/database/dbFrontmatter.ts` (lines 174-181), format: typescript
+- [fixed] Lines 277-283 duplicate 7 lines with `src/database/dbFrontmatter.ts` (lines 192-247), format: typescript
 
 ### dbCommands.ts has a lot of duplication, check manually.
 
