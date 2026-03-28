@@ -79,8 +79,8 @@ export function activate(context: ExtensionContext) {
   // ── File hash tracker (for slash-command dirty-state detection) ────
   context.subscriptions.push(createFileHashTracker());
 
-  // ── Track cursor-in-table context for keybinding priority ─────────
-  const updateTableContext = () => {
+
+  const updateCursorContext = () => {
     if (!hostEditor.isMarkdownEditor()) {
       hostEditor.executeCommand("setContext", Context.cursorInTable, false);
       hostEditor.executeCommand("setContext", Context.cursorOnNonEmptyLine, false);
@@ -96,9 +96,9 @@ export function activate(context: ExtensionContext) {
     const hasNonEmptySelection = hostEditor.getSelections().some(s => !s.isEmpty);
     hostEditor.executeCommand("setContext", Context.hasNonEmptySelection, hasNonEmptySelection);
   };
-  updateTableContext();
-  hostEditor.onDidChangeActiveTextEditor(updateTableContext);
-  hostEditor.onDidChangeTextEditorSelection(() => updateTableContext());
+  updateCursorContext();
+  hostEditor.onDidChangeActiveTextEditor(updateCursorContext);
+  hostEditor.onDidChangeTextEditorSelection(() => updateCursorContext());
 
   // ── Slash-command handlers (docUri, line, character) ────────────
   // Register all slash commands with handlers from the master SLASH_COMMANDS array
