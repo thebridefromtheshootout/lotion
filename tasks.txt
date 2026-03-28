@@ -7,172 +7,10 @@ Status note
 - Unix image paste issue removed from implementation scope.
 - Track separately as WSL infra research/debug task (not implementation yet).
 
-Phase 1 (stability + quick wins)
 
-- ✅ [P1] Shift+Tab list behavior should detect surrounding list context and keep marker style consistent.
-  - Scope:
-    - When current line content length (trimmed, without whitespace) is `< 3`, inspect nearby previous lines at same/effective indent.
-    - If sibling context is OL, convert current marker to OL style.
-    - If sibling context is UL, convert current marker to UL style.
-  - Likely files:
-    - `src/lists/listIndent.ts`
-    - `src/lists/listModel.ts`
-    - `src/core/regex.ts`
-  - Done when:
-    - Shift+Tab no longer leaves mixed markers in short/empty lines.
-    - Existing OL<->UL conversion behavior still works for normal content lines.
-
-- ✅ [P1] Do not highlight headings inside fenced code blocks.
-  - Scope:
-    - Heading color decorations must skip lines inside fences.
-  - Likely files:
-    - `src/formatting/headingColors.ts`
-    - `src/core/regex.ts`
-  - Done when:
-    - `# heading` inside triple-backtick block has no heading color decoration.
-    - Heading colors still apply outside fences.
-
-- ✅ [P1] Unbind `alt+up` / `alt+down` from heading navigation and move heading-nav to `alt+j` / `alt+k`.
-  - Scope:
-    - Remove/replace keybindings for:
-      - `lotion.jumpToNextHeading`
-      - `lotion.jumpToPrevHeading`
-    - New bindings:
-      - `alt+j` => `lotion.jumpToNextHeading`
-      - `alt+k` => `lotion.jumpToPrevHeading`
-    - Keep table-only `alt+up` / `alt+down` behavior intact.
-  - Likely files:
-    - `package.json` (contributes.keybindings)
-  - Done when:
-    - `alt+up/down` no longer triggers heading navigation outside tables.
-    - `alt+j/k` triggers heading navigation outside tables.
-
-- ✅ [P1] Page rename slug default bug / page title lost.
-  - Scope:
-    - Ensure rename keeps/sets first H1 correctly and consistently.
-    - Validate slug/title flow for default rename path.
-  - Likely files:
-    - `src/navigation/renamePage.ts`
-    - `src/navigation/page.ts` (if create-page defaults interact)
-    - `src/core/slug.ts`
-  - Done when:
-    - After rename, `index.md` retains expected `# <new title>` and links are updated.
-
-Phase 2 (DB behavior + command context)
-
-- ✅ [P2] DB schema updates should support default value backfill for existing entries.
-  - Scope:
-    - When adding new field, prompt for default backfill value using field-typed input UX.
-    - If default backfill is not provided, exit the add-field flow and show clear notification explaining why.
-    - Apply default value to all existing entry property tables.
-  - Likely files:
-    - `src/database/dbCommands.ts`
-    - `src/database/dbEntries.ts`
-    - `src/database/dbFrontmatter.ts`
-  - Done when:
-    - New schema field always captures typed default backfill before proceeding.
-    - All existing entries receive that value for the new field.
-
-- ✅ [P2] DB schema updates should update entries in general.
-  - Scope:
-    - Remove-field flow must remove the field from all existing entry tables.
-    - Add-field flow should keep entry tables consistent with schema.
-  - Likely files:
-    - `src/database/dbCommands.ts`
-    - `src/database/dbFrontmatter.ts`
-  - Done when:
-    - Entry property tables are consistent after add/remove field operations.
-
-- ✅ [P2] Divider after property table in DB entry files.
-  - Scope:
-    - Entry template should include separator after property table block.
-  - Likely files:
-    - `src/database/dbCommands.ts`
-  - Done when:
-    - Newly created entries have:
-      - H1
-      - property table
-      - blank line
-      - divider
-      - blank body section
-
-
-Phase 3 (new commands/features)
-
-- ✅ [P3] Table -> DB flow.
-  - Scope:
-    - Convert markdown table into a brand-new DB only.
-    - Use header row as DB column names.
-    - Always prompt user to choose datatype for each column.
-  - Likely files:
-    - `src/editor/table.ts`
-    - `src/database/dbCommands.ts`
-    - possibly `src/editor/smartPaste.ts`
-  - Done when:
-    - A table can be transformed into a new DB with columns from table header row.
-    - Header row does not skip datatype prompts; each column type is user-confirmed.
-
-- ✅ [P3] CSV -> DB flow.
-  - Scope:
-    - Parse CSV and create a brand-new DB only.
-    - Ask user to confirm whether first row is a header row.
-    - If user says first row is not header, stop flow and notify user to add a header row first.
-    - Always prompt user to choose datatype for each column, even with header row.
-  - Likely files:
-    - `src/editor/smartPaste.ts`
-    - `src/database/dbCommands.ts`
-  - Done when:
-    - CSV input creates a new DB only, with confirmed header row mapped to columns.
-    - Header-confirmed CSV still requires datatype selection for every column.
-
-- ✅ [P3] `/section` command for divider + heading + content scaffold + divider.
-  - Scope:
-    - Add slash command template for a section block.
-  - Likely files:
-    - `src/core/slashCommands.ts`
-    - maybe a dedicated handler module if dynamic behavior is needed
-  - Done when:
-    - Typing `/section` inserts exactly:
-      - `---`
-      - `### `
-      - blank line
-      - `---`
-    - Cursor lands on the `### ` line at heading text position.
-
-- ✅ [P3] `Alt+L` to search links and open in browser on Enter.
-  - Scope:
-    - Build quick-pick list of links across full workspace markdown files.
-    - Search behavior:
-      - Search query matches `link_text` first.
-      - If no matches in `link_text`, fallback to searching `context`.
-    - Open selected external link in browser.
-  - Likely files:
-    - `src/links/*` (new command module likely)
-    - `src/core/commands.ts`
-    - `src/core/simpleCommands.ts`
-    - `package.json` (command + keybinding)
-  - Done when:
-    - `Alt+L` shows full-workspace links list and Enter opens selected URL.
-    - Query flow follows `link_text` first, then `context` fallback.
-
-Resolved schema notes
-
-1. `Alt+L` link collection schema (must confirm before implementation):
-   - Proposed fields:
-     - `source_path`
-     - `source_line`
-     - `link_text`
-     - `raw_target`
-     - `context` (50 chars before link start + 50 chars after link end)
-   - Collection scope:
-     - Include external `http/https` links only.
-     - Exclude local markdown links / relative paths (including `.md` targets).
-   - Proposed sort: `source_path ASC, source_line ASC`
-   - Proposed dedupe key: `source_path + source_line + raw_target`
 
 Complex Tasks below NOT MEANT FOR AI AGENTS.
-[Complex] [Probably not correct; misleading triaging] Emojis break regex rules lmao
-[complex]Todo bubble up from nested pages to parent page.
+[complex] Todo bubble up from nested pages to parent page.
 [Complex] Fix paste time
 [Complex] Selection links
 [Complex ]List renumbering problem in the presence of callouts unindented
@@ -190,3 +28,29 @@ Complex Tasks below NOT MEANT FOR AI AGENTS.
   - Done when:
     - Commands missing in DB index pages now appear correctly.
     - Non-applicable commands are hidden based on context.
+[Complex] migrate regex match index expressions to parser wrappers that expose fields.
+[Complex] migrate selection code to be multi-selection aware and compliant
+[Complex] migrate link json cache to link sqlite db for faster searching for larger workspaces.
+[Complex] cleanup code in misc. files. Needs review of existing files.
+[Complex] - Shift+Tab list behavior should detect surrounding list context and keep marker style consistent.
+  - Scope:
+    - When current line content length (trimmed, without whitespace) is `< 3`, inspect nearby previous lines at same/effective indent.
+    - If sibling context is OL, convert current marker to OL style.
+    - If sibling context is UL, convert current marker to UL style.
+  - Likely files:
+    - `src/lists/listIndent.ts`
+    - `src/lists/listModel.ts`
+    - `src/core/regex.ts`
+  - Done when:
+    - Shift+Tab no longer leaves mixed markers in short/empty lines.
+    - Existing OL<->UL conversion behavior still works for normal content lines.  
+    - Still broken for callouts
+[Complex]
+[Complex]
+[Complex]
+[Complex]
+[Complex]
+[Complex]
+[Complex]
+[Complex]
+[Complex]
