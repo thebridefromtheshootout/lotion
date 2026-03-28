@@ -39,12 +39,7 @@ function parseViewsYaml(lines: string[]): DbView[] {
 
     const dashName = line.match(Regex.dbDashNameLine);
     if (dashName) {
-      if (current && current.name) {
-        if (!current.filters) {
-          current.filters = [];
-        }
-        views.push(current as DbView);
-      }
+      appendCurrentView(views, current);
       current = { name: dashName[1].trim(), filters: [] };
       inFilters = false;
       continue;
@@ -121,14 +116,19 @@ function parseViewsYaml(lines: string[]): DbView[] {
     }
   }
 
-  if (current && current.name) {
-    if (!current.filters) {
-      current.filters = [];
-    }
-    views.push(current as DbView);
-  }
+  appendCurrentView(views, current);
 
   return views;
+}
+
+function appendCurrentView(views: DbView[], current: Partial<DbView> | null): void {
+  if (!current?.name) {
+    return;
+  }
+  views.push({
+    ...current,
+    filters: current.filters ?? [],
+  } as DbView);
 }
 
 // ── View serialization ─────────────────────────────────────────────
