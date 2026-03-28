@@ -1211,7 +1211,15 @@ async function createDatabaseFromTabularData(
   }
 
   const columns: DbColumn[] = [];
-  for (const header of data.headers) {
+  for (let i = 0; i < data.headers.length; i++) {
+    const header = data.headers[i];
+
+    // The chosen title/name field is always free text.
+    if (i === titleColIndex) {
+      columns.push({ name: header, type: "text" });
+      continue;
+    }
+
     const col = await promptColumnDefinition(header);
     if (!col) {
       return;
