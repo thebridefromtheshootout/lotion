@@ -23,13 +23,43 @@ function collectContext(lineText: string, start: number, end: number): string {
   return `${pre}${post}`.trim();
 }
 
+function pushLinkRecord(
+  out: LinkRecord[],
+  seen: Set<string>,
+  sourcePath: string,
+  sourceLine: number,
+  lineText: string,
+  start: number,
+  end: number,
+  rawTarget: string,
+  linkText: string,
+): void {
+  if (!Regex.httpSchemePrefix.test(rawTarget)) {
+    return;
+  }
+
+  const dedupeKey = `${sourcePath}|${sourceLine}|${rawTarget}`;
+  if (seen.has(dedupeKey)) {
+    return;
+  }
+  seen.add(dedupeKey);
+
+  out.push({
+    source_path: sourcePath,
+    source_line: sourceLine,
+    link_text: linkText.trim(),
+    raw_target: rawTarget.trim(),
+    context: collectContext(lineText, start, end),
+  });
+}
+
 async function collectWorkspaceHttpLinks(): Promise<LinkRecord[]> {
   const workspaceRoot = hostEditor.getWorkspaceFolders()?.[0]?.uri.fsPath;
   if (!workspaceRoot) {
     return [];
   }
 
-  const files = await hostEditor.findFiles("**/*.md", "**/node_modules/**");
+  const files = await hostEditor.findFiles("**/*.md");
   const out: LinkRecord[] = [];
   const seen = new Set<string>();
 
@@ -40,31 +70,25 @@ async function collectWorkspaceHttpLinks(): Promise<LinkRecord[]> {
 
     for (let lineIdx = 0; lineIdx < lines.length; lineIdx++) {
       const lineText = lines[lineIdx];
+      const sourceLine = lineIdx + 1;
+
+      // Markdown links: [text](target)
       Regex.markdownLinkGlobal.lastIndex = 0;
       let match: RegExpExecArray | null;
-
       while ((match = Regex.markdownLinkGlobal.exec(lineText)) !== null) {
-        const rawTarget = match[2].trim();
-        if (!Regex.httpSchemePrefix.test(rawTarget)) {
-          continue;
-        }
-
-        const sourceLine = lineIdx + 1;
-        const dedupeKey = `${sourcePath}|${sourceLine}|${rawTarget}`;
-        if (seen.has(dedupeKey)) {
-          continue;
-        }
-        seen.add(dedupeKey);
-
         const start = match.index;
         const end = start + match[0].length;
-        out.push({
-          source_path: sourcePath,
-          source_line: sourceLine,
-          link_text: match[1].trim(),
-          raw_target: rawTarget,
-          context: collectContext(lineText, start, end),
-        });
+        pushLinkRecord(out, seen, sourcePath, sourceLine, lineText, start, end, match[2], match[1]);
+      }
+
+      // HTML anchors: <a href="target">text</a>
+      Regex.htmlAnchorTagGlobal.lastIndex = 0;
+      while ((match = Regex.htmlAnchorTagGlobal.exec(lineText)) !== null) {
+        const href = (match[1] ?? match[2] ?? match[3] ?? "").trim();
+        const anchorText = (match[4] ?? "").replace(Regex.htmlTagGlobal, "").trim();
+        const start = match.index;
+        const end = start + match[0].length;
+        pushLinkRecord(out, seen, sourcePath, sourceLine, lineText, start, end, href, anchorText);
       }
     }
   }
@@ -86,6 +110,15 @@ function filterRecords(records: LinkRecord[], query: string): LinkRecord[] {
   return records.filter((r) => r.context.toLowerCase().includes(q));
 }
 
+function toPickItems(records: LinkRecord[]): LinkPickItem[] {
+  return records.map((record) => ({
+    label: record.link_text || record.raw_target,
+    description: `${record.source_path}:${record.source_line}`,
+    detail: record.raw_target,
+    record,
+  }));
+}
+
 export async function searchWorkspaceLinks(): Promise<void> {
   const records = await collectWorkspaceHttpLinks();
   if (records.length === 0) {
@@ -93,32 +126,41 @@ export async function searchWorkspaceLinks(): Promise<void> {
     return;
   }
 
-  const query = await hostEditor.showInputBox({
-    prompt: "Search links (matches link text first, then context fallback)",
-    placeHolder: "e.g. auth, docs, api",
+  const qp = hostEditor.createQuickPick<LinkPickItem>();
+  qp.placeholder = "Search links (link text first, then context fallback)…";
+  qp.matchOnDescription = true;
+  qp.matchOnDetail = true;
+  qp.items = toPickItems(records);
+
+  let debounceTimer: NodeJS.Timeout | undefined;
+
+  qp.onDidChangeValue((query) => {
+    if (debounceTimer) {
+      clearTimeout(debounceTimer);
+    }
+    qp.busy = true;
+    debounceTimer = setTimeout(() => {
+      const filtered = filterRecords(records, query);
+      qp.items = toPickItems(filtered);
+      qp.busy = false;
+    }, 180);
   });
-  if (query === undefined) {
-    return;
-  }
 
-  const filtered = filterRecords(records, query);
-  if (filtered.length === 0) {
-    hostEditor.showInformation("No matching links found.");
-    return;
-  }
-
-  const picks: LinkPickItem[] = filtered.map((record) => ({
-    label: record.link_text || record.raw_target,
-    description: `${record.source_path}:${record.source_line}`,
-    detail: record.raw_target,
-    record,
-  }));
-
-  const pick = await hostEditor.showQuickPick(picks, {
-    placeHolder: "Select a link to open in browser",
-    matchOnDescription: true,
-    matchOnDetail: true,
+  const pick = await new Promise<LinkPickItem | undefined>((resolve) => {
+    qp.onDidAccept(() => {
+      resolve(qp.selectedItems[0]);
+      qp.dispose();
+    });
+    qp.onDidHide(() => {
+      resolve(undefined);
+      qp.dispose();
+    });
+    qp.show();
   });
+
+  if (debounceTimer) {
+    clearTimeout(debounceTimer);
+  }
   if (!pick) {
     return;
   }

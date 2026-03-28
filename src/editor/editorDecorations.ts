@@ -90,10 +90,6 @@ function createCodeBlockDecorationType(): TextEditorDecorationType {
 
 // ───── Combined update logic ───────────────────────────────────────
 
-const CALLOUT_OPEN_RE = Regex.calloutOpen;
-const CALLOUT_CONT_RE = Regex.calloutContinuation;
-const HIGHLIGHT_RE = Regex.highlightDelimitedGlobal;
-const FENCE_RE = Regex.fencedBackticksOnly;
 
 export function createEditorDecorations(): Disposable {
   const calloutTypes = createCalloutDecorationTypes();
@@ -125,7 +121,7 @@ export function createEditorDecorations(): Disposable {
       const lineText = doc.lineAt(i).text;
 
       // ── Fenced code blocks ──
-      if (FENCE_RE.test(lineText.trim())) {
+      if (Regex.fencedBackticksOnly.test(lineText.trim())) {
         if (inFence) {
           // Closing fence — include this line
           codeBlockRanges.push({
@@ -150,7 +146,7 @@ export function createEditorDecorations(): Disposable {
       }
 
       // ── Callout blocks ──
-      const calloutMatch = lineText.match(CALLOUT_OPEN_RE);
+      const calloutMatch = lineText.match(Regex.calloutOpen);
       if (calloutMatch) {
         currentCalloutType = calloutMatch[1].toUpperCase();
         const bucket = calloutBuckets.get(currentCalloutType);
@@ -160,7 +156,7 @@ export function createEditorDecorations(): Disposable {
         continue;
       }
 
-      if (currentCalloutType && CALLOUT_CONT_RE.test(lineText)) {
+      if (currentCalloutType && Regex.calloutContinuation.test(lineText)) {
         const bucket = calloutBuckets.get(currentCalloutType);
         if (bucket) {
           bucket.push({ range: new Range(i, 0, i, lineText.length) });
@@ -172,8 +168,8 @@ export function createEditorDecorations(): Disposable {
 
       // ── Inline highlights ==text== ──
       let hm: RegExpExecArray | null;
-      HIGHLIGHT_RE.lastIndex = 0;
-      while ((hm = HIGHLIGHT_RE.exec(lineText)) !== null) {
+      Regex.highlightDelimitedGlobal.lastIndex = 0;
+      while ((hm = Regex.highlightDelimitedGlobal.exec(lineText)) !== null) {
         // Decorate just the content (skip the == markers)
         const contentStart = hm.index + 2;
         const contentEnd = hm.index + hm[0].length - 2;
