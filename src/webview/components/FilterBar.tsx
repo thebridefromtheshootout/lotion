@@ -85,22 +85,19 @@ export function FilterBar({ schema, titleFieldLabel, filterTree, setFilterTree }
 
   function toggleLogic(path: number[]) {
     if (path.length === 0) return; // root stays AND
-    const next = deepClone(filterTree);
-    const node = getNodeByPath(next, path);
-    if (!isLeaf(node)) {
-      node.logic = node.logic === "AND" ? "OR" : "AND";
-    }
-    setFilterTree(next);
+    updateGroupAtPath(path, (group) => {
+      group.logic = group.logic === "AND" ? "OR" : "AND";
+    });
   }
 
   function toggleNot(path: number[]) {
-    const next = deepClone(filterTree);
-    const node = getNodeByPath(next, path);
-    if (!isLeaf(node)) {
-      node.not = !node.not;
-    }
-    ensureRootAnd(next);
-    setFilterTree(next);
+    updateGroupAtPath(
+      path,
+      (group) => {
+        group.not = !group.not;
+      },
+      true,
+    );
   }
 
   function moveTreeNode(fromPath: number[], toGroupPath: number[]) {
@@ -142,12 +139,27 @@ export function FilterBar({ schema, titleFieldLabel, filterTree, setFilterTree }
 
   function onDragStartTree(ev: React.DragEvent, path: number[]) {
     const payload: DragPayloadTree = { source: "tree", path };
-    ev.dataTransfer.setData("application/json", JSON.stringify(payload));
-    ev.dataTransfer.effectAllowed = "move";
+    setDragPayload(ev, payload);
   }
 
   function onDragStartStaged(ev: React.DragEvent, index: number) {
     const payload: DragPayloadStaging = { source: "staging", index };
+    setDragPayload(ev, payload);
+  }
+
+  function updateGroupAtPath(path: number[], update: (group: FilterGroup) => void, enforceRoot = false) {
+    const next = deepClone(filterTree);
+    const node = getNodeByPath(next, path);
+    if (!isLeaf(node)) {
+      update(node);
+    }
+    if (enforceRoot) {
+      ensureRootAnd(next);
+    }
+    setFilterTree(next);
+  }
+
+  function setDragPayload(ev: React.DragEvent, payload: DragPayload) {
     ev.dataTransfer.setData("application/json", JSON.stringify(payload));
     ev.dataTransfer.effectAllowed = "move";
   }
@@ -213,8 +225,7 @@ export function FilterBar({ schema, titleFieldLabel, filterTree, setFilterTree }
                 draggable
                 onDragStart={(e) => onDragStartStaged(e, i)}
               >
-                {tile.col === "__title" ? titleFieldLabel : tile.col}{" "}
-                <em>{tile.op || "contains"}</em> {tile.value}
+                <FilterChipText leaf={tile} titleFieldLabel={titleFieldLabel} />
                 <span className="remove" onClick={() => removeStagedTile(i)}>
                   ×
                 </span>
@@ -275,7 +286,7 @@ function FilterTreeView({
     const leaf = node as FilterLeaf;
     return (
       <span className="filter-chip" draggable onDragStart={(e) => onDragStart(e, path)}>
-        {leaf.col === "__title" ? titleFieldLabel : leaf.col} <em>{leaf.op || "contains"}</em> {leaf.value}
+        <FilterChipText leaf={leaf} titleFieldLabel={titleFieldLabel} />
         <span className="remove" onClick={() => onRemove(path)}>
           ×
         </span>
@@ -380,6 +391,14 @@ function FilterTreeView({
         {group.clauses.length === 0 && <div className="filter-empty">Drop filter tiles here</div>}
       </div>
     </div>
+  );
+}
+
+function FilterChipText({ leaf, titleFieldLabel }: { leaf: FilterLeaf; titleFieldLabel: string }) {
+  return (
+    <>
+      {leaf.col === "__title" ? titleFieldLabel : leaf.col} <em>{leaf.op || "contains"}</em> {leaf.value}
+    </>
   );
 }
 
