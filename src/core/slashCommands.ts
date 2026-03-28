@@ -1,5 +1,5 @@
 import { hostEditor } from "../hostEditor/HostingEditor";
-import { CompletionItem, CompletionItemKind, Disposable, Position, Range } from "../hostEditor/EditorTypes";
+import { CompletionItem, CompletionItemKind, Disposable, Position, Range, Selection } from "../hostEditor/EditorTypes";
 import type { TextDocument } from "../hostEditor/EditorTypes";
 import { Cmd } from "./commands";
 
@@ -37,6 +37,15 @@ const STATIC_SLASH_COMMANDS: SlashCommand[] = [
   { label: "/h1", insertText: "# ", detail: "𝗛  Heading 1 — # ", kind: 0 },
   { label: "/h2", insertText: "## ", detail: "𝗛  Heading 2 — ## ", kind: 0 },
   { label: "/h3", insertText: "### ", detail: "𝗛  Heading 3 — ### ", kind: 0 },
+  {
+    label: "/section",
+    insertText: "",
+    detail: "📑 Divider + section heading scaffold",
+    isAction: true,
+    commandId: Cmd.insertSection,
+    kind: 14,
+    handler: handleSectionCommand,
+  },
   { label: "/todo", insertText: "- [ ] ", detail: "☑️ To-do checkbox — - [ ] ", kind: 14 },
   { label: "/divider", insertText: "---\n", detail: "➖ Horizontal divider — ---", kind: 11 },
   { label: "/quote", insertText: "> ", detail: "💬 Blockquote — > ", kind: 0 },
@@ -63,6 +72,23 @@ const STATIC_SLASH_COMMANDS: SlashCommand[] = [
     kind: 2,
   },
 ];
+
+const SECTION_TEMPLATE = ["---", "### ", "", "---"].join("\n");
+
+async function handleSectionCommand(document: TextDocument, position: Position): Promise<void> {
+  if (!hostEditor.isActiveEditorDocumentEqualTo(document)) {
+    return;
+  }
+
+  const lineText = document.lineAt(position.line).text;
+  const hasSlashTrigger = position.character > 0 && lineText[position.character - 1] === "/";
+  const start = hasSlashTrigger ? position.translate(0, -1) : position;
+
+  await hostEditor.replaceRange(new Range(start, position), SECTION_TEMPLATE);
+
+  const headingPos = new Position(start.line + 1, 4); // after "### "
+  hostEditor.setSelection(new Selection(headingPos, headingPos));
+}
 
 // ── Master list: all slash commands from all modules ───────────────
 export const SLASH_COMMANDS: SlashCommand[] = [

@@ -811,14 +811,14 @@
       },
       {
         "command": "lotion.jumpToNextHeading",
-        "key": "alt+down",
-        "mac": "alt+down",
+        "key": "alt+j",
+        "mac": "alt+j",
         "when": "editorTextFocus && editorLangId == markdown && !lotion.cursorInTable"
       },
       {
         "command": "lotion.jumpToPrevHeading",
-        "key": "alt+up",
-        "mac": "alt+up",
+        "key": "alt+k",
+        "mac": "alt+k",
         "when": "editorTextFocus && editorLangId == markdown && !lotion.cursorInTable"
       },
       {

@@ -50,14 +50,27 @@ export function createHeadingColors(): Disposable {
     const doc = hostEditor.getDocument()!;
 
     const buckets: DecorationOptions[][] = [[], [], [], [], [], []];
-    const text = hostEditor.getDocumentText();
-    const re = Regex.headingAnyLineGlobalMultiline;
-    let m: RegExpExecArray | null;
-    while ((m = re.exec(text)) !== null) {
-      const level = m[1].length - 1; // 0-indexed
-      const startPos = doc.positionAt(m.index);
-      const endPos = doc.positionAt(m.index + m[0].length);
-      buckets[level].push({ range: new Range(startPos, endPos) });
+    let inFence = false;
+
+    for (let line = 0; line < doc.lineCount; line++) {
+      const lineText = doc.lineAt(line).text;
+
+      // Skip headings inside fenced code blocks.
+      if (Regex.fencedCodeDelimiter.test(lineText.trim())) {
+        inFence = !inFence;
+        continue;
+      }
+      if (inFence) {
+        continue;
+      }
+
+      const match = lineText.match(Regex.headingLineWithText);
+      if (!match) {
+        continue;
+      }
+
+      const level = match[1].length - 1; // 0-indexed
+      buckets[level].push({ range: new Range(line, 0, line, lineText.length) });
     }
 
     for (let i = 0; i < 6; i++) {

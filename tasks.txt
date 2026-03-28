@@ -22,7 +22,7 @@ Phase 1 (stability + quick wins)
     - Shift+Tab no longer leaves mixed markers in short/empty lines.
     - Existing OL<->UL conversion behavior still works for normal content lines.
 
-- [P1] Do not highlight headings inside fenced code blocks.
+- ✅ [P1] Do not highlight headings inside fenced code blocks.
   - Scope:
     - Heading color decorations must skip lines inside fences.
   - Likely files:
@@ -32,7 +32,7 @@ Phase 1 (stability + quick wins)
     - `# heading` inside triple-backtick block has no heading color decoration.
     - Heading colors still apply outside fences.
 
-- [P1] Unbind `alt+up` / `alt+down` from heading navigation and move heading-nav to `alt+j` / `alt+k`.
+- ✅ [P1] Unbind `alt+up` / `alt+down` from heading navigation and move heading-nav to `alt+j` / `alt+k`.
   - Scope:
     - Remove/replace keybindings for:
       - `lotion.jumpToNextHeading`
@@ -125,7 +125,7 @@ Phase 3 (new commands/features)
     - CSV input creates a new DB only, with confirmed header row mapped to columns.
     - Header-confirmed CSV still requires datatype selection for every column.
 
-- [P3] `/section` command for divider + heading + content scaffold + divider.
+- ✅ [P3] `/section` command for divider + heading + content scaffold + divider.
   - Scope:
     - Add slash command template for a section block.
   - Likely files:
