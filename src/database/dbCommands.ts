@@ -279,9 +279,8 @@ export async function handleDbEntryCommand(
   }
 
   // Parse schema from current document
-  const schema = parseSchemaFromText(document.getText());
+  const schema = parseSchemaOrShowError(document);
   if (!schema) {
-    hostEditor.showError("Lotion: no lotion-db schema found in this file.");
     return;
   }
 
@@ -613,12 +612,61 @@ function findSchemaBlockRange(document: TextDocument): { startLine: number; endL
   return undefined;
 }
 
-// ── /new-field handler ─────────────────────────────────────────────
-
-export async function handleNewFieldCommand(document: TextDocument, _position: Position): Promise<void> {
+function parseSchemaOrShowError(document: TextDocument): DbSchema | undefined {
   const schema = parseSchemaFromText(document.getText());
   if (!schema) {
     hostEditor.showError("Lotion: no lotion-db schema found in this file.");
+    return undefined;
+  }
+  return schema;
+}
+
+async function replaceSchemaBlockContent(document: TextDocument, yamlContent: string): Promise<boolean> {
+  const blockRange = findSchemaBlockRange(document);
+  if (!blockRange) {
+    return false;
+  }
+  if (!hostEditor.isActiveEditorDocumentEqualTo(document)) {
+    return false;
+  }
+  const range = new Range(blockRange.startLine + 1, 0, blockRange.endLine, 0);
+  await hostEditor.replaceRange(range, yamlContent);
+  await hostEditor.saveActiveDocument();
+  return true;
+}
+
+function getDbEntriesContext(document: TextDocument): { dbDir: string; entries: ReturnType<typeof readDbEntries> } {
+  const dbDir = path.dirname(document.uri.fsPath);
+  const entries = readDbEntries(dbDir);
+  return { dbDir, entries };
+}
+
+function rewriteExistingEntryFiles(
+  document: TextDocument,
+  transform: (content: string) => string,
+): { entriesCount: number; updatedEntries: number } {
+  const { dbDir, entries } = getDbEntriesContext(document);
+  let updatedEntries = 0;
+  for (const entry of entries) {
+    const entryPath = path.join(dbDir, entry.relativePath);
+    if (!fs.existsSync(entryPath)) {
+      continue;
+    }
+    const content = fs.readFileSync(entryPath, "utf-8");
+    const next = transform(content);
+    if (next !== content) {
+      fs.writeFileSync(entryPath, next, "utf-8");
+      updatedEntries++;
+    }
+  }
+  return { entriesCount: entries.length, updatedEntries };
+}
+
+// ── /new-field handler ─────────────────────────────────────────────
+
+export async function handleNewFieldCommand(document: TextDocument, _position: Position): Promise<void> {
+  const schema = parseSchemaOrShowError(document);
+  if (!schema) {
     return;
   }
 
@@ -705,23 +753,12 @@ export async function handleNewFieldCommand(document: TextDocument, _position: P
 
   // 4. Replace schema block in document
   schema.columns.push(col);
-  const blockRange = findSchemaBlockRange(document);
-  if (!blockRange) {
+  if (!(await replaceSchemaBlockContent(document, serializeSchema(schema) + "\n"))) {
     return;
   }
-
-  if (!hostEditor.isActiveEditorDocumentEqualTo(document)) {
-    return;
-  }
-
-  const range = new Range(blockRange.startLine + 1, 0, blockRange.endLine, 0);
-  const newYaml = serializeSchema(schema) + "\n";
-  await hostEditor.replaceRange(range, newYaml);
-  await hostEditor.saveActiveDocument();
 
   // 5. Backfill existing entries in this database folder
-  const dbDir = path.dirname(document.uri.fsPath);
-  const entries = readDbEntries(dbDir);
+  const { dbDir, entries } = getDbEntriesContext(document);
   for (const entry of entries) {
     const entryPath = path.join(dbDir, entry.relativePath);
     updateEntryProperty(entryPath, col.name, backfillValue);
@@ -733,9 +770,8 @@ export async function handleNewFieldCommand(document: TextDocument, _position: P
 // ── /delete-field handler ──────────────────────────────────────────
 
 export async function handleDeleteFieldCommand(document: TextDocument, _position: Position): Promise<void> {
-  const schema = parseSchemaFromText(document.getText());
+  const schema = parseSchemaOrShowError(document);
   if (!schema) {
-    hostEditor.showError("Lotion: no lotion-db schema found in this file.");
     return;
   }
 
@@ -767,44 +803,21 @@ export async function handleDeleteFieldCommand(document: TextDocument, _position
 
   // 3. Remove from schema and rewrite
   schema.columns = schema.columns.filter((c) => c.name !== pick.label);
-  const blockRange = findSchemaBlockRange(document);
-  if (!blockRange) {
+  if (!(await replaceSchemaBlockContent(document, schema.columns.length > 0 ? serializeSchema(schema) + "\n" : ""))) {
     return;
   }
-
-  if (!hostEditor.isActiveEditorDocumentEqualTo(document)) {
-    return;
-  }
-
-  const range = new Range(blockRange.startLine + 1, 0, blockRange.endLine, 0);
-  const newYaml = schema.columns.length > 0 ? serializeSchema(schema) + "\n" : "";
-  await hostEditor.replaceRange(range, newYaml);
-  await hostEditor.saveActiveDocument();
 
   // 4. Remove the field from existing entries in this database folder
-  const dbDir = path.dirname(document.uri.fsPath);
-  const entries = readDbEntries(dbDir);
-  for (const entry of entries) {
-    const entryPath = path.join(dbDir, entry.relativePath);
-    if (!fs.existsSync(entryPath)) {
-      continue;
-    }
-    const content = fs.readFileSync(entryPath, "utf-8");
-    const next = removePropertyFields(content, [pick.label]);
-    if (next !== content) {
-      fs.writeFileSync(entryPath, next, "utf-8");
-    }
-  }
+  const { entriesCount } = rewriteExistingEntryFiles(document, (content) => removePropertyFields(content, [pick.label]));
 
-  hostEditor.showInformation(`Field "${pick.label}" removed from schema and ${entries.length} entr${entries.length === 1 ? "y" : "ies"}.`);
+  hostEditor.showInformation(`Field "${pick.label}" removed from schema and ${entriesCount} entr${entriesCount === 1 ? "y" : "ies"}.`);
 }
 
 // ── /rename-field handler ──────────────────────────────────────────
 
 export async function handleRenameFieldCommand(document: TextDocument, _position: Position): Promise<void> {
-  const schema = parseSchemaFromText(document.getText());
+  const schema = parseSchemaOrShowError(document);
   if (!schema) {
-    hostEditor.showError("Lotion: no lotion-db schema found in this file.");
     return;
   }
 
@@ -855,34 +868,10 @@ export async function handleRenameFieldCommand(document: TextDocument, _position
     schema.titleField = toName;
   }
 
-  const blockRange = findSchemaBlockRange(document);
-  if (!blockRange) {
+  if (!(await replaceSchemaBlockContent(document, serializeSchema(schema) + "\n"))) {
     return;
   }
-  if (!hostEditor.isActiveEditorDocumentEqualTo(document)) {
-    return;
-  }
-
-  const range = new Range(blockRange.startLine + 1, 0, blockRange.endLine, 0);
-  const newYaml = serializeSchema(schema) + "\n";
-  await hostEditor.replaceRange(range, newYaml);
-  await hostEditor.saveActiveDocument();
-
-  const dbDir = path.dirname(document.uri.fsPath);
-  const entries = readDbEntries(dbDir);
-  let updatedEntries = 0;
-  for (const entry of entries) {
-    const entryPath = path.join(dbDir, entry.relativePath);
-    if (!fs.existsSync(entryPath)) {
-      continue;
-    }
-    const content = fs.readFileSync(entryPath, "utf-8");
-    const next = renamePropertyField(content, fromName, toName);
-    if (next !== content) {
-      fs.writeFileSync(entryPath, next, "utf-8");
-      updatedEntries++;
-    }
-  }
+  const { updatedEntries } = rewriteExistingEntryFiles(document, (content) => renamePropertyField(content, fromName, toName));
 
   hostEditor.showInformation(
     `Field "${fromName}" renamed to "${toName}". Updated ${updatedEntries} entr${updatedEntries === 1 ? "y" : "ies"}.`,
@@ -892,9 +881,8 @@ export async function handleRenameFieldCommand(document: TextDocument, _position
 // ── /sync-field-order handler ──────────────────────────────────────
 
 export async function handleSyncFieldOrderCommand(document: TextDocument, _position: Position): Promise<void> {
-  const schema = parseSchemaFromText(document.getText());
+  const schema = parseSchemaOrShowError(document);
   if (!schema) {
-    hostEditor.showError("Lotion: no lotion-db schema found in this file.");
     return;
   }
 
@@ -904,22 +892,9 @@ export async function handleSyncFieldOrderCommand(document: TextDocument, _posit
   }
 
   const orderedFields = schema.columns.map((c) => c.name);
-  const dbDir = path.dirname(document.uri.fsPath);
-  const entries = readDbEntries(dbDir);
-
-  let updatedEntries = 0;
-  for (const entry of entries) {
-    const entryPath = path.join(dbDir, entry.relativePath);
-    if (!fs.existsSync(entryPath)) {
-      continue;
-    }
-    const content = fs.readFileSync(entryPath, "utf-8");
-    const next = syncPropertyFieldOrder(content, orderedFields);
-    if (next !== content) {
-      fs.writeFileSync(entryPath, next, "utf-8");
-      updatedEntries++;
-    }
-  }
+  const { updatedEntries } = rewriteExistingEntryFiles(document, (content) =>
+    syncPropertyFieldOrder(content, orderedFields),
+  );
 
   hostEditor.showInformation(
     `Field order synced to schema for ${updatedEntries} entr${updatedEntries === 1 ? "y" : "ies"}.`,
@@ -933,9 +908,8 @@ export async function handleSyncFieldOrderCommand(document: TextDocument, _posit
  * then saves a new DbView into the lotion-db-views block.
  */
 export async function handleNewViewCommand(document: TextDocument, _position: Position): Promise<void> {
-  const schema = parseSchemaFromText(document.getText());
+  const schema = parseSchemaOrShowError(document);
   if (!schema) {
-    hostEditor.showError("Lotion: no lotion-db schema found in this file.");
     return;
   }
 

@@ -211,7 +211,7 @@
 - [fixed] Lines 259-266 duplicate 8 lines with `src/database/dbFrontmatter.ts` (lines 174-181), format: typescript
 - [fixed] Lines 277-283 duplicate 7 lines with `src/database/dbFrontmatter.ts` (lines 192-247), format: typescript
 
-### dbCommands.ts has a lot of duplication, check manually.
+### [fixed] dbCommands.ts manual duplication pass completed.
 
 
 ### src/database/dbSchema.ts (3 matches)
