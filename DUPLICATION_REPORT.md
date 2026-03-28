@@ -152,13 +152,13 @@
 
 ### src/communicators/extensionToPanelCommunicator.ts (3 matches)
 
-- Lines 8-14 duplicate 7 lines with `src/webview/communicators/PanelToExtensionCommunicator.ts` (lines 11-17), format: typescript
-- Lines 17-26 duplicate 10 lines with `src/webview/communicators/PanelToExtensionCommunicator.ts` (lines 21-30), format: typescript
-- Lines 26-36 duplicate 11 lines with `src/webview/communicators/PanelToExtensionCommunicator.ts` (lines 31-41), format: typescript
+- [fixed] Lines 8-14 duplicate 7 lines with `src/webview/communicators/PanelToExtensionCommunicator.ts` (lines 11-17), format: typescript
+- [fixed] Lines 17-26 duplicate 10 lines with `src/webview/communicators/PanelToExtensionCommunicator.ts` (lines 21-30), format: typescript
+- [fixed] Lines 26-36 duplicate 11 lines with `src/webview/communicators/PanelToExtensionCommunicator.ts` (lines 31-41), format: typescript
 
 ### src/contracts/communicator.ts (1 matches)
 
-- Lines 22-25 duplicate 4 lines with `src/webview/communicators/PanelToExtensionCommunicator.ts` (lines 35-38), format: typescript
+- [fixed] Lines 22-25 duplicate 4 lines with `src/webview/communicators/PanelToExtensionCommunicator.ts` (lines 35-38), format: typescript
 
 ### src/contracts/databaseTypes.ts (1 matches)
 
@@ -1037,10 +1037,10 @@
 
 ### src/webview/communicators/PanelToExtensionCommunicator.ts (4 matches)
 
-- Lines 11-17 duplicate 7 lines with `src/communicators/extensionToPanelCommunicator.ts` (lines 8-14), format: typescript
-- Lines 21-30 duplicate 10 lines with `src/communicators/extensionToPanelCommunicator.ts` (lines 17-26), format: typescript
-- Lines 31-41 duplicate 11 lines with `src/communicators/extensionToPanelCommunicator.ts` (lines 26-36), format: typescript
-- Lines 35-38 duplicate 4 lines with `src/contracts/communicator.ts` (lines 22-25), format: typescript
+- [fixed] Lines 11-17 duplicate 7 lines with `src/communicators/extensionToPanelCommunicator.ts` (lines 8-14), format: typescript
+- [fixed] Lines 21-30 duplicate 10 lines with `src/communicators/extensionToPanelCommunicator.ts` (lines 17-26), format: typescript
+- [fixed] Lines 31-41 duplicate 11 lines with `src/communicators/extensionToPanelCommunicator.ts` (lines 26-36), format: typescript
+- [fixed] Lines 35-38 duplicate 4 lines with `src/contracts/communicator.ts` (lines 22-25), format: typescript
 
 ### src/webview/components/database/calendarview/CalendarView.tsx (4 matches)
 
