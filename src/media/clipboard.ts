@@ -34,6 +34,9 @@ function getPlatform(): Platform {
   return process.platform as Platform;
 }
 
+const PLATFORM = getPlatform();
+const IS_WSL = process.platform === "linux" && PLATFORM === "win32";
+
 function getExecErrorText(err: any): string {
   const parts = [err?.message, err?.stderr, err?.stdout].filter((v) => typeof v === "string" && v.length > 0);
   return parts.join("\n");
@@ -67,12 +70,16 @@ const CLIPBOARD_HANDLERS: Record<Platform, ClipboardPlatformHandler> = {
       return true;
     },
     saveImage: (filePath: string) => {
-      // In WSL the filePath is a Linux path; convert to a Windows path via wslpath if available.
       let winPath = filePath;
-      try {
-        winPath = execSync(`wslpath -w "${filePath}"`, { encoding: "utf-8", stdio: "pipe" }).trim();
-      } catch {
-        /* not WSL — use the path as-is */
+      if (IS_WSL) {
+        try {
+          winPath = execSync(`wslpath -w "${filePath}"`, { encoding: "utf-8", stdio: "pipe" }).trim();
+        } catch (err: any) {
+          if (isMissingCommandError(err, "wslpath")) {
+            throw new Error("Lotion: wslpath not found. wslpath is required for clipboard image paste in WSL.");
+          }
+          throw err;
+        }
       }
       const psScript = [
         "$img = Get-Clipboard -Format Image",
@@ -124,8 +131,7 @@ const CLIPBOARD_HANDLERS: Record<Platform, ClipboardPlatformHandler> = {
 };
 
 function getClipboardHandler(): ClipboardPlatformHandler | undefined {
-  const platform = getPlatform();
-  return CLIPBOARD_HANDLERS[platform];
+  return CLIPBOARD_HANDLERS[PLATFORM];
 }
 
 // ── Clipboard image check ──────────────────────────────────────────
@@ -199,7 +205,8 @@ export async function imageFromClipboard(rsrcDir: string, imageName: string): Pr
       hostEditor.showError(handler.missingDependencyMessage);
       return undefined;
     }
-    hostEditor.showError("Lotion: no image found on clipboard.");
+    const msg: string | undefined = err?.message;
+    hostEditor.showError(msg?.startsWith("Lotion:") ? msg : "Lotion: failed to save clipboard image.");
     return undefined;
   }
 }
