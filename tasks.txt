@@ -2,55 +2,6 @@ Planning board for next implementation pass.
 Non-complex items are split into phases, with target files and acceptance checks.
 Do not attempt items marked [Complex].
 ---
-
-Status note
-- Unix image paste issue removed from implementation scope.
-- Track separately as WSL infra research/debug task (not implementation yet).
-
-
-
-Complex Tasks below NOT MEANT FOR AI AGENTS.
-[complex] Todo bubble up from nested pages to parent page.
-[Complex] Fix paste time
-[Complex] Selection links
-[Complex ]List renumbering problem in the presence of callouts unindented
-[Complex ] -. 1. -> 1.
-[Complex] Image width contraints by converting md link to html with width values
-[Complex] Make all edit instruction html|markdown aware.
-[Complex] Conditional slash-command filtering based on page type + current line regex.
-  - Scope:
-    - Extend filtering beyond current `dbOnly` boolean.
-    - Support context constraints like: db index, db entry page, table line, heading line, etc.
-  - Likely files:
-    - `src/core/slashCommands.ts`
-    - `src/database/dbEntries.ts`
-    - feature command modules adding richer `when` predicates
-  - Done when:
-    - Commands missing in DB index pages now appear correctly.
-    - Non-applicable commands are hidden based on context.
-[Complex] migrate regex match index expressions to parser wrappers that expose fields.
-[Complex] migrate selection code to be multi-selection aware and compliant
-[Complex] migrate link json cache to link sqlite db for faster searching for larger workspaces.
-[Complex] cleanup code in misc. files. Needs review of existing files.
-[Complex] - Shift+Tab list behavior should detect surrounding list context and keep marker style consistent.
-  - Scope:
-    - When current line content length (trimmed, without whitespace) is `< 3`, inspect nearby previous lines at same/effective indent.
-    - If sibling context is OL, convert current marker to OL style.
-    - If sibling context is UL, convert current marker to UL style.
-  - Likely files:
-    - `src/lists/listIndent.ts`
-    - `src/lists/listModel.ts`
-    - `src/core/regex.ts`
-  - Done when:
-    - Shift+Tab no longer leaves mixed markers in short/empty lines.
-    - Existing OL<->UL conversion behavior still works for normal content lines.  
-    - Still broken for callouts
-[Complex]
-[Complex]
-[Complex]
-[Complex]
-[Complex]
-[Complex]
-[Complex]
-[Complex]
-[Complex]
+1. expose a new user setting: autoInlineCodeCases {PascalCase: true
+    false, camelCase:true|false, snake_case: true|false} to auto inline code  every time the user types a word in the case
+2. finish the filter task (stashed)
