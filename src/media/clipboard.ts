@@ -21,6 +21,16 @@ interface ClipboardPlatformHandler {
 }
 
 function getPlatform(): Platform {
+  if (process.platform === "linux") {
+    try {
+      const release = fs.readFileSync("/proc/version", "utf-8");
+      if (/microsoft|wsl/i.test(release)) {
+        return "win32";
+      }
+    } catch {
+      /* not linux or no /proc/version */
+    }
+  }
   return process.platform as Platform;
 }
 
@@ -47,22 +57,29 @@ function isMissingCommandError(err: any, command?: string): boolean {
 
 const CLIPBOARD_HANDLERS: Record<Platform, ClipboardPlatformHandler> = {
   win32: {
-    commandName: "powershell",
+    commandName: "powershell.exe",
     missingDependencyMessage: "Lotion: PowerShell not found. Install/enable PowerShell to paste clipboard images.",
     probeHasImage: () => {
-      execSync('powershell -NoProfile -Command "if (-not (Get-Clipboard -Format Image)) { exit 1 }"', {
+      execSync('powershell.exe -NoProfile -Command "if (-not (Get-Clipboard -Format Image)) { exit 1 }"', {
         stdio: "pipe",
         timeout: 5000,
       });
       return true;
     },
     saveImage: (filePath: string) => {
+      // In WSL the filePath is a Linux path; convert to a Windows path via wslpath if available.
+      let winPath = filePath;
+      try {
+        winPath = execSync(`wslpath -w "${filePath}"`, { encoding: "utf-8", stdio: "pipe" }).trim();
+      } catch {
+        /* not WSL — use the path as-is */
+      }
       const psScript = [
         "$img = Get-Clipboard -Format Image",
         "if ($null -eq $img) { exit 1 }",
-        `$img.Save('${filePath.replace(Regex.singleQuote, "''")}', [System.Drawing.Imaging.ImageFormat]::Png)`,
+        `$img.Save('${winPath.replace(Regex.singleQuote, "''")}', [System.Drawing.Imaging.ImageFormat]::Png)`,
       ].join("; ");
-      execSync(`powershell -NoProfile -Command "${psScript}"`, {
+      execSync(`powershell.exe -NoProfile -Command "${psScript}"`, {
         stdio: "pipe",
         timeout: 10000,
       });
