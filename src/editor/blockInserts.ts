@@ -4,6 +4,9 @@ import type { TextDocument } from "../hostEditor/EditorTypes";
 import { hostEditor } from "../hostEditor/HostingEditor";
 import { Cmd } from "../core/commands";
 import type { SlashCommand } from "../core/slashCommands";
+import { Filter } from "../core/cmdFilter";
+
+const pageFilter = Filter().pageIsNotDbIndex();
 
 // ── Factory ────────────────────────────────────────────────────────
 // text may be a string or a thunk (for values computed at call time, e.g. today's date)
@@ -30,6 +33,7 @@ export const BLOCK_INSERT_SLASH_COMMANDS: SlashCommand[] = [
     commandId: Cmd.insertH1,
     kind: 0,
     handler: blockInsertHandler("# "),
+    cmdFilter: pageFilter,
     cleanLine: true,
   },
   {
@@ -40,6 +44,7 @@ export const BLOCK_INSERT_SLASH_COMMANDS: SlashCommand[] = [
     commandId: Cmd.insertH2,
     kind: 0,
     handler: blockInsertHandler("## "),
+    cmdFilter: pageFilter,
     cleanLine: true,
   },
   {
@@ -50,6 +55,7 @@ export const BLOCK_INSERT_SLASH_COMMANDS: SlashCommand[] = [
     commandId: Cmd.insertH3,
     kind: 0,
     handler: blockInsertHandler("### "),
+    cmdFilter: pageFilter,
     cleanLine: true,
   },
   {
@@ -60,6 +66,7 @@ export const BLOCK_INSERT_SLASH_COMMANDS: SlashCommand[] = [
     commandId: Cmd.insertTodo,
     kind: 14,
     handler: blockInsertHandler("- [ ] "),
+    cmdFilter: pageFilter,
     cleanLine: true,
   },
   {
@@ -70,6 +77,7 @@ export const BLOCK_INSERT_SLASH_COMMANDS: SlashCommand[] = [
     commandId: Cmd.insertDivider,
     kind: 11,
     handler: blockInsertHandler("---\n"),
+    cmdFilter: pageFilter,
     cleanLine: true,
   },
   {
@@ -80,6 +88,7 @@ export const BLOCK_INSERT_SLASH_COMMANDS: SlashCommand[] = [
     commandId: Cmd.insertQuote,
     kind: 0,
     handler: blockInsertHandler("> "),
+    cmdFilter: pageFilter,
     cleanLine: true,
   },
   {
@@ -90,6 +99,7 @@ export const BLOCK_INSERT_SLASH_COMMANDS: SlashCommand[] = [
     commandId: Cmd.insertMath,
     kind: 11,
     handler: blockInsertHandler("$$\n\n$$"),
+    cmdFilter: pageFilter,
     cleanLine: true,
   },
   {
@@ -100,6 +110,7 @@ export const BLOCK_INSERT_SLASH_COMMANDS: SlashCommand[] = [
     commandId: Cmd.insertMermaid,
     kind: 14,
     handler: blockInsertHandler("```mermaid\ngraph LR\n  A --> B\n```"),
+    cmdFilter: pageFilter,
     cleanLine: true,
   },
   {
@@ -112,6 +123,7 @@ export const BLOCK_INSERT_SLASH_COMMANDS: SlashCommand[] = [
     handler: blockInsertHandler(
       () => `---\ntitle: \ndate: ${new Date().toISOString().slice(0, 10)}\ntags: []\n---\n`,
     ),
+    cmdFilter: pageFilter,
     cleanLine: true,
   },
 ];

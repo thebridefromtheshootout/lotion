@@ -5,6 +5,7 @@ import { hostEditor } from "../hostEditor/HostingEditor";
 import { Cmd } from "../core/commands";
 import { Regex } from "../core/regex";
 import type { SlashCommand } from "../core/slashCommands";
+import { Filter } from "../core/cmdFilter";
 
 export const RENUMBER_SLASH_COMMAND: SlashCommand = {
   label: "/renumber",
@@ -12,7 +13,7 @@ export const RENUMBER_SLASH_COMMAND: SlashCommand = {
   detail: "🔢 Renumber the entire ordered list",
   isAction: true,
   commandId: Cmd.renumberList,
-  when: cursorInOrderedList,
+  cmdFilter: Filter().cursorInOrderedList(),
   kind: 11,
   handler: handleRenumberList,
 };
@@ -23,7 +24,7 @@ export const OL_TO_UL_SLASH_COMMAND: SlashCommand = {
   detail: "• Convert numbered list to bullet list",
   isAction: true,
   commandId: Cmd.olToUl,
-  when: cursorInOrderedList,
+  cmdFilter: Filter().cursorInOrderedList(),
   kind: 11,
   handler: handleOlToUl,
 };
@@ -34,7 +35,7 @@ export const UL_TO_OL_SLASH_COMMAND: SlashCommand = {
   detail: "🔢 Convert bullet list to numbered list",
   isAction: true,
   commandId: Cmd.ulToOl,
-  when: cursorInUnorderedList,
+  cmdFilter: Filter().cursorInUnorderedList(),
   kind: 11,
   handler: handleUlToOl,
 };

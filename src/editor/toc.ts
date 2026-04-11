@@ -5,6 +5,7 @@ import { Cmd } from "../core/commands";
 import { Regex } from "../core/regex";
 import { toHeadingSlug } from "../core/slug";
 import type { SlashCommand } from "../core/slashCommands";
+import { Filter } from "../core/cmdFilter";
 
 export const TOC_SLASH_COMMAND: SlashCommand = {
   label: "/toc",
@@ -14,6 +15,7 @@ export const TOC_SLASH_COMMAND: SlashCommand = {
   commandId: Cmd.insertToc,
   kind: 17,
   handler: handleTocCommand,
+  cmdFilter: Filter().pageIsNotDbIndex(),
   cleanLine: true,
 };
 

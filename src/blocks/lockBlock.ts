@@ -5,6 +5,7 @@ import * as crypto from "crypto";
 import { Cmd } from "../core/commands";
 import { Regex } from "../core/regex";
 import type { SlashCommand } from "../core/slashCommands";
+import { Filter } from "../core/cmdFilter";
 
 export const SECRETBOX_SLASH_COMMAND: SlashCommand = {
   label: "/secretbox",
@@ -13,6 +14,7 @@ export const SECRETBOX_SLASH_COMMAND: SlashCommand = {
   isAction: true,
   commandId: Cmd.insertSecretbox,
   kind: 5,
+  cmdFilter: Filter().pageIsNotDbIndex(),
   handler: handleSecretboxCommand,
   cleanLine: true,
 };
@@ -24,7 +26,7 @@ export const LOCK_SLASH_COMMAND: SlashCommand = {
   isAction: true,
   commandId: Cmd.lockBlock,
   kind: 5,
-  when: cursorInSecretbox,
+  cmdFilter: Filter().cursorInSecretbox(),
   handler: handleLockCommand,
 };
 
@@ -35,7 +37,7 @@ export const UNLOCK_SLASH_COMMAND: SlashCommand = {
   isAction: true,
   commandId: Cmd.unlockBlock,
   kind: 5,
-  when: cursorInSecretbox,
+  cmdFilter: Filter().cursorInSecretbox(),
   handler: handleUnlockCommand,
 };
 

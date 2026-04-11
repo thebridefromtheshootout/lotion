@@ -8,6 +8,7 @@ import { getCwd } from "../../core/cwd";
 import { Cmd } from "../../core/commands";
 import { Regex } from "../../core/regex";
 import type { SlashCommand } from "../../core/slashCommands";
+import { Filter } from "../../core/cmdFilter";
 import { downloadToFile } from "./gifDownload";
 import { searchGifs } from "./gifSearch";
 import { GifItem, GifProvider, GifProviderPick, GIF_PROVIDER_INFO } from "./gifTypes";
@@ -20,6 +21,7 @@ export const GIF_SLASH_COMMAND: SlashCommand = {
   commandId: Cmd.insertGif,
   kind: 16,
   handler: handleGifCommand,
+  cmdFilter: Filter().pageIsNotDbIndex(),
   cleanLine: true,
 };
 
@@ -88,6 +90,7 @@ async function pickGif(provider: GifProvider, apiKey: string): Promise<GifItem |
     if (previewPanel && communicator) {
       return { panel: previewPanel, comm: communicator };
     }
+    
     previewPanel = hostEditor.createWebviewPanel(
       "lotionGifPreview",
       "GIF Preview",

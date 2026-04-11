@@ -8,6 +8,7 @@ import { Cmd } from "../core/commands";
 import { Regex } from "../core/regex";
 import { createCodeLensProvider, codeLens } from "../core/codeLens";
 import type { SlashCommand } from "../core/slashCommands";
+import { Filter } from "../core/cmdFilter";
 
 export const PROCESSOR_SLASH_COMMAND: SlashCommand = {
   label: "/processor",
@@ -16,6 +17,7 @@ export const PROCESSOR_SLASH_COMMAND: SlashCommand = {
   isAction: true,
   commandId: Cmd.insertProcessor,
   kind: 14,
+  cmdFilter: Filter().pageIsNotDbIndex(),
   handler: handleProcessorCommand,
   cleanLine: true,
 };
@@ -27,7 +29,7 @@ export const REFRESH_SLASH_COMMAND: SlashCommand = {
   isAction: true,
   commandId: Cmd.refreshProcessors,
   kind: 2,
-  when: cursorInProcessor,
+  cmdFilter: Filter().cursorInProcessor(),
   handler: handleRefreshCommand,
 };
 
@@ -38,7 +40,7 @@ export const UPDATE_PROCESSOR_SLASH_COMMAND: SlashCommand = {
   isAction: true,
   commandId: Cmd.updateProcessor,
   kind: 2,
-  when: cursorInProcessor,
+  cmdFilter: Filter().cursorInProcessor(),
   handler: handleUpdateProcessorCommand,
 };
 

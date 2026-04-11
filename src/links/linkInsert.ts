@@ -5,6 +5,7 @@ import * as path from "path";
 import { Cmd } from "../core/commands";
 import { Regex } from "../core/regex";
 import type { SlashCommand } from "../core/slashCommands";
+import { Filter } from "../core/cmdFilter";
 
 export const LINK_SLASH_COMMAND: SlashCommand = {
   label: "/link",
@@ -13,6 +14,7 @@ export const LINK_SLASH_COMMAND: SlashCommand = {
   isAction: true,
   commandId: Cmd.insertLink,
   kind: 17,
+  cmdFilter: Filter().pageIsNotDbIndex(),
   handler: handleLinkCommand,
 };
 

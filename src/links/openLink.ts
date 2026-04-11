@@ -7,6 +7,7 @@ import * as fs from "fs";
 import { Cmd } from "../core/commands";
 import { Regex } from "../core/regex";
 import type { SlashCommand } from "../core/slashCommands";
+import { Filter } from "../core/cmdFilter";
 
 export const OPENLINK_SLASH_COMMAND: SlashCommand = {
   label: "/openlink",
@@ -15,6 +16,7 @@ export const OPENLINK_SLASH_COMMAND: SlashCommand = {
   isAction: true,
   commandId: Cmd.openLink,
   kind: 17,
+  cmdFilter: Filter().pageIsNotDbIndex(),
   handler: handleOpenLinkCommand,
 };
 

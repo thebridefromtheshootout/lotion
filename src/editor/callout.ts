@@ -4,6 +4,7 @@ import type { TextDocument } from "../hostEditor/EditorTypes";
 import { hostEditor } from "../hostEditor/HostingEditor";
 import { Cmd } from "../core/commands";
 import type { SlashCommand } from "../core/slashCommands";
+import { Filter } from "../core/cmdFilter";
 
 export const TOGGLE_H1_SLASH_COMMAND: SlashCommand = {
   label: "/th1",
@@ -13,6 +14,7 @@ export const TOGGLE_H1_SLASH_COMMAND: SlashCommand = {
   commandId: Cmd.insertToggleH1,
   kind: 14,
   handler: handleToggleHeadingCommand(1),
+  cmdFilter: Filter().pageIsNotDbIndex(),
   cleanLine: true,
 };
 
@@ -24,6 +26,7 @@ export const TOGGLE_H2_SLASH_COMMAND: SlashCommand = {
   commandId: Cmd.insertToggleH2,
   kind: 14,
   handler: handleToggleHeadingCommand(2),
+  cmdFilter: Filter().pageIsNotDbIndex(),
   cleanLine: true,
 };
 
@@ -35,6 +38,7 @@ export const TOGGLE_H3_SLASH_COMMAND: SlashCommand = {
   commandId: Cmd.insertToggleH3,
   kind: 14,
   handler: handleToggleHeadingCommand(3),
+  cmdFilter: Filter().pageIsNotDbIndex(),
   cleanLine: true,
 };
 
@@ -46,6 +50,7 @@ export const TOGGLE_SLASH_COMMAND: SlashCommand = {
   commandId: Cmd.insertToggle,
   kind: 14,
   handler: handleToggleCommand,
+  cmdFilter: Filter().pageIsNotDbIndex(),
   cleanLine: true,
 };
 
@@ -57,6 +62,7 @@ export const CALLOUT_SLASH_COMMAND: SlashCommand = {
   commandId: Cmd.insertCallout,
   kind: 23,
   handler: handleCalloutCommand,
+  cmdFilter: Filter().pageIsNotDbIndex(),
   cleanLine: true,
 };
 

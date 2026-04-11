@@ -2,6 +2,8 @@ import { hostEditor } from "../hostEditor/HostingEditor";
 import { CompletionItem, CompletionItemKind, Disposable, Position, Range, Selection } from "../hostEditor/EditorTypes";
 import type { TextDocument } from "../hostEditor/EditorTypes";
 import { Cmd } from "./commands";
+import { type CmdFilter, Filter } from "./cmdFilter";
+import { computeCursorContext } from "./cursorContext";
 
 // ── Import module slash command arrays ─────────────────────────────
 import { TABLE_SLASH_COMMANDS } from "../editor/table";
@@ -10,7 +12,7 @@ import { BLOCKS_SLASH_COMMANDS } from "../blocks";
 import { MEDIA_SLASH_COMMANDS } from "../media";
 import { NAVIGATION_SLASH_COMMANDS } from "../navigation";
 import { LINKS_SLASH_COMMANDS } from "../links";
-import { DATABASE_SLASH_COMMANDS, cursorInDb } from "../database";
+import { DATABASE_SLASH_COMMANDS } from "../database";
 import { LISTS_SLASH_COMMANDS } from "../lists";
 
 // ── Slash command definitions ──────────────────────────────────────
@@ -22,10 +24,8 @@ export interface SlashCommand {
   isAction?: boolean;
   /** VS Code command ID to execute for action commands */
   commandId?: string;
-  /** If set, only show this command when the predicate returns true */
-  when?: (document: TextDocument, position: Position) => boolean;
-  /** If true, this command is exclusive to database files and only these commands appear in DB context */
-  dbOnly?: boolean;
+  /** Controls when this command is visible. Evaluated against the computed CursorContext. */
+  cmdFilter?: CmdFilter;
   /** CompletionItemKind to use for the icon — defaults to Snippet */
   kind?: number;
   /** Handler function for commands that need registration */
@@ -36,7 +36,7 @@ export interface SlashCommand {
 
 // ── Static text-insert commands (no handlers needed) ──────────────
 const STATIC_SLASH_COMMANDS: SlashCommand[] = [
-  { label: "/inline-math", insertText: "$ $", detail: "🧮 Inline math — $ ... $", kind: 11 },
+  { label: "/inline-math", insertText: "$ $", detail: "🧮 Inline math — $ ... $", kind: 11, cmdFilter: Filter().pageIsNotDbIndex() },
   {
     label: "/section",
     insertText: "",
@@ -46,6 +46,7 @@ const STATIC_SLASH_COMMANDS: SlashCommand[] = [
     kind: 14,
     handler: handleSectionCommand,
     cleanLine: true,
+    cmdFilter: Filter().pageIsNotDbIndex(),
   },
   {
     label: "/commit",
@@ -99,11 +100,10 @@ export function createSlashCompletionProvider(): Disposable {
           return undefined;
         }
 
-        // If inside a DB file, only show dbOnly commands
-        const inDb = cursorInDb(document, position);
-        const visibleCmds = inDb
-          ? SLASH_COMMANDS.filter((cmd) => cmd.dbOnly && (!cmd.when || cmd.when(document, position)))
-          : SLASH_COMMANDS.filter((cmd) => !cmd.dbOnly && (!cmd.when || cmd.when(document, position)));
+        const ctx = computeCursorContext(document, position);
+        const visibleCmds = SLASH_COMMANDS.filter((cmd) =>
+          cmd.cmdFilter ? cmd.cmdFilter.evaluate(ctx) : true
+        );
 
         return visibleCmds.map((cmd) => {
           const item = new CompletionItem(cmd.label, cmd.kind ?? CompletionItemKind.Snippet);

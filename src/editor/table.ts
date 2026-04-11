@@ -891,6 +891,7 @@ export async function handleTransposeTable(document: TextDocument, position: Pos
 
 import type { SlashCommand } from "../core/slashCommands";
 import { Cmd } from "../core/commands";
+import { Filter } from "../core/cmdFilter";
 
 /** All table slash commands - single source of truth for UI and handlers */
 export const TABLE_SLASH_COMMANDS: SlashCommand[] = [
@@ -901,6 +902,7 @@ export const TABLE_SLASH_COMMANDS: SlashCommand[] = [
     isAction: true,
     commandId: Cmd.insertTable,
     kind: 21,
+    cmdFilter: Filter().pageIsNotDbIndex(),
     handler: handleTableCommand,
   },
   {
@@ -910,7 +912,7 @@ export const TABLE_SLASH_COMMANDS: SlashCommand[] = [
     isAction: true,
     commandId: Cmd.tableAddRowsBelow,
     kind: 21,
-    when: cursorInTable,
+    cmdFilter: Filter().cursorInTable(),
     handler: handleAddRowsBelow,
   },
   {
@@ -920,7 +922,7 @@ export const TABLE_SLASH_COMMANDS: SlashCommand[] = [
     isAction: true,
     commandId: Cmd.tableAddRowsAbove,
     kind: 21,
-    when: cursorInTable,
+    cmdFilter: Filter().cursorInTable(),
     handler: handleAddRowsAbove,
   },
   {
@@ -930,7 +932,7 @@ export const TABLE_SLASH_COMMANDS: SlashCommand[] = [
     isAction: true,
     commandId: Cmd.tableAddColsRight,
     kind: 21,
-    when: cursorInTable,
+    cmdFilter: Filter().cursorInTable(),
     handler: handleAddColsRight,
   },
   {
@@ -940,7 +942,7 @@ export const TABLE_SLASH_COMMANDS: SlashCommand[] = [
     isAction: true,
     commandId: Cmd.tableAddColsLeft,
     kind: 21,
-    when: cursorInTable,
+    cmdFilter: Filter().cursorInTable(),
     handler: handleAddColsLeft,
   },
   {
@@ -950,7 +952,7 @@ export const TABLE_SLASH_COMMANDS: SlashCommand[] = [
     isAction: true,
     commandId: Cmd.tableDeleteRow,
     kind: 21,
-    when: cursorInTable,
+    cmdFilter: Filter().cursorInTable(),
     handler: handleDeleteRow,
   },
   {
@@ -960,7 +962,7 @@ export const TABLE_SLASH_COMMANDS: SlashCommand[] = [
     isAction: true,
     commandId: Cmd.tableDeleteCol,
     kind: 21,
-    when: cursorInTable,
+    cmdFilter: Filter().cursorInTable(),
     handler: handleDeleteCol,
   },
   {
@@ -970,7 +972,7 @@ export const TABLE_SLASH_COMMANDS: SlashCommand[] = [
     isAction: true,
     commandId: Cmd.tableCopyColumn,
     kind: 21,
-    when: cursorInTable,
+    cmdFilter: Filter().cursorInTable(),
     handler: handleCopyColumn,
   },
   {
@@ -980,7 +982,7 @@ export const TABLE_SLASH_COMMANDS: SlashCommand[] = [
     isAction: true,
     commandId: Cmd.tableCutColumn,
     kind: 21,
-    when: cursorInTable,
+    cmdFilter: Filter().cursorInTable(),
     handler: handleCutColumn,
   },
   {
@@ -990,7 +992,7 @@ export const TABLE_SLASH_COMMANDS: SlashCommand[] = [
     isAction: true,
     commandId: Cmd.tablePasteColumn,
     kind: 21,
-    when: cursorInTable,
+    cmdFilter: Filter().cursorInTable(),
     handler: handlePasteColumn,
   },
   {
@@ -1000,7 +1002,7 @@ export const TABLE_SLASH_COMMANDS: SlashCommand[] = [
     isAction: true,
     commandId: Cmd.tableAlign,
     kind: 11,
-    when: cursorInTable,
+    cmdFilter: Filter().cursorInTable(),
     handler: handleAlignTable,
   },
   {
@@ -1010,7 +1012,7 @@ export const TABLE_SLASH_COMMANDS: SlashCommand[] = [
     isAction: true,
     commandId: Cmd.tableSort,
     kind: 21,
-    when: cursorInTable,
+    cmdFilter: Filter().cursorInTable(),
     handler: handleSortTable,
   },
   {
@@ -1020,7 +1022,7 @@ export const TABLE_SLASH_COMMANDS: SlashCommand[] = [
     isAction: true,
     commandId: Cmd.tableTranspose,
     kind: 21,
-    when: cursorInTable,
+    cmdFilter: Filter().cursorInTable(),
     handler: handleTransposeTable,
   },
 ];

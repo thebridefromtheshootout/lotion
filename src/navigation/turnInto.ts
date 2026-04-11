@@ -10,6 +10,7 @@ import { migrateComments } from "../editor/comments";
 import { migrateProcessors } from "../editor/processor";
 import { Cmd } from "../core/commands";
 import type { SlashCommand } from "../core/slashCommands";
+import { Filter } from "../core/cmdFilter";
 
 export const TURNINTO_SLASH_COMMAND: SlashCommand = {
   label: "/turninto",
@@ -18,6 +19,7 @@ export const TURNINTO_SLASH_COMMAND: SlashCommand = {
   isAction: true,
   commandId: Cmd.turnInto,
   kind: 2,
+  cmdFilter: Filter().pageIsNotDbIndex(),
   handler: handleTurnInto,
 };
 

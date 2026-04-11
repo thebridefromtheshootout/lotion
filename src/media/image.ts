@@ -10,6 +10,7 @@ import { imageFromClipboard } from "./clipboard";
 import { Cmd } from "../core/commands";
 import { Regex } from "../core/regex";
 import type { SlashCommand } from "../core/slashCommands";
+import { Filter } from "../core/cmdFilter";
 
 export const IMAGE_SLASH_COMMAND: SlashCommand = {
   label: "/image",
@@ -19,6 +20,7 @@ export const IMAGE_SLASH_COMMAND: SlashCommand = {
   commandId: Cmd.insertImage,
   kind: 16,
   handler: handleImageCommand,
+  cmdFilter: Filter().pageIsNotDbIndex(),
   cleanLine: true,
 };
 

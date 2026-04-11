@@ -5,6 +5,7 @@ import { hostEditor } from "../hostEditor/HostingEditor";
 import { Cmd } from "../core/commands";
 import { Regex } from "../core/regex";
 import type { SlashCommand } from "../core/slashCommands";
+import { Filter } from "../core/cmdFilter";
 
 export const FOOTNOTE_SLASH_COMMAND: SlashCommand = {
   label: "/footnote",
@@ -13,6 +14,7 @@ export const FOOTNOTE_SLASH_COMMAND: SlashCommand = {
   isAction: true,
   commandId: Cmd.insertFootnote,
   kind: 17,
+  cmdFilter: Filter().pageIsNotDbIndex(),
   handler: handleFootnoteCommand,
 };
 

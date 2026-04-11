@@ -20,9 +20,10 @@ import { Cmd } from "../core/commands";
 import { Regex } from "../core/regex";
 import { toPathSlug } from "../core/slug";
 import type { SlashCommand } from "../core/slashCommands";
+import { Filter } from "../core/cmdFilter";
 import { collectOrderedList, renumberEdits, applyRenumberEdits } from "../lists/listModel";
 import type { ListNode } from "../lists/listModel";
-import { cursorInDb, readDbEntries } from "./dbEntries";
+import { readDbEntries } from "./dbEntries";
 
 export const DATABASE_SLASH_COMMAND: SlashCommand = {
   label: "/database",
@@ -40,8 +41,7 @@ export const NEW_ENTRY_SLASH_COMMAND: SlashCommand = {
   detail: "\u2795 Add a new database entry",
   isAction: true,
   commandId: Cmd.dbAddEntry,
-  when: cursorInDb,
-  dbOnly: true,
+  cmdFilter: Filter().pageIsDbIndex(),
   kind: 12,
 };
 
@@ -51,8 +51,7 @@ export const NEW_VIEW_SLASH_COMMAND: SlashCommand = {
   detail: "\ud83d\udc41\ufe0f Create a saved view with sort & filter",
   isAction: true,
   commandId: Cmd.dbNewView,
-  when: cursorInDb,
-  dbOnly: true,
+  cmdFilter: Filter().pageIsDbIndex(),
   kind: 21,
   handler: handleNewViewCommand,
 };
@@ -63,8 +62,7 @@ export const NEW_FIELD_SLASH_COMMAND: SlashCommand = {
   detail: "\u2795 Add a new field to the schema",
   isAction: true,
   commandId: Cmd.dbNewField,
-  when: cursorInDb,
-  dbOnly: true,
+  cmdFilter: Filter().pageIsDbIndex(),
   kind: 4,
   handler: handleNewFieldCommand,
 };
@@ -75,8 +73,7 @@ export const DELETE_FIELD_SLASH_COMMAND: SlashCommand = {
   detail: "\ud83d\uddd1\ufe0f Remove a field from the schema",
   isAction: true,
   commandId: Cmd.dbDeleteField,
-  when: cursorInDb,
-  dbOnly: true,
+  cmdFilter: Filter().pageIsDbIndex(),
   kind: 4,
   handler: handleDeleteFieldCommand,
 };
@@ -87,8 +84,7 @@ export const RENAME_FIELD_SLASH_COMMAND: SlashCommand = {
   detail: "✏️ Rename a schema field across entries",
   isAction: true,
   commandId: Cmd.dbRenameField,
-  when: cursorInDb,
-  dbOnly: true,
+  cmdFilter: Filter().pageIsDbIndex(),
   kind: 4,
   handler: handleRenameFieldCommand,
 };
@@ -99,8 +95,7 @@ export const SYNC_FIELD_ORDER_SLASH_COMMAND: SlashCommand = {
   detail: "🔁 Sync entry field order to schema",
   isAction: true,
   commandId: Cmd.dbSyncFieldOrder,
-  when: cursorInDb,
-  dbOnly: true,
+  cmdFilter: Filter().pageIsDbIndex(),
   kind: 21,
   handler: handleSyncFieldOrderCommand,
 };

@@ -1,6 +1,7 @@
 import { Cmd } from "../core/commands";
 import { Regex } from "../core/regex";
 import type { SlashCommand } from "../core/slashCommands";
+
 import { Position, Range, WorkspaceEdit } from "../hostEditor/EditorTypes";
 import { hostEditor } from "../hostEditor/HostingEditor";
 import * as fs from "fs";

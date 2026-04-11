@@ -10,6 +10,7 @@ import { Cmd } from "../core/commands";
 import { createCodeLensProvider, codeLens } from "../core/codeLens";
 import { Regex } from "../core/regex";
 import type { SlashCommand } from "../core/slashCommands";
+import { Filter } from "../core/cmdFilter";
 
 const GRAPH_SLASH_COMMAND: SlashCommand = {
   label: "/graph",
@@ -18,6 +19,7 @@ const GRAPH_SLASH_COMMAND: SlashCommand = {
   isAction: true,
   commandId: Cmd.insertGraph,
   kind: 14,
+  cmdFilter: Filter().pageIsNotDbIndex(),
   handler: handleGraphCommand,
   cleanLine: true,
 };
@@ -29,7 +31,7 @@ const RENDER_GRAPH_SLASH_COMMAND: SlashCommand = {
   isAction: true,
   commandId: Cmd.renderGraph,
   kind: 2,
-  when: cursorInGraph,
+  cmdFilter: Filter().cursorInGraph(),
   handler: handleRenderGraphCommand,
 };
 

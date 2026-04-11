@@ -4,6 +4,7 @@ import { hostEditor } from "../../hostEditor/HostingEditor";
 import { formatDate, FORMAT_KEYS } from "./dateFormat";
 import { Cmd } from "../../core/commands";
 import type { SlashCommand } from "../../core/slashCommands";
+import { Filter } from "../../core/cmdFilter";
 
 export const TODAY_SLASH_COMMAND: SlashCommand = {
   label: "/today",
@@ -12,6 +13,7 @@ export const TODAY_SLASH_COMMAND: SlashCommand = {
   isAction: true,
   commandId: Cmd.insertToday,
   kind: 12,
+  cmdFilter: Filter().pageIsNotDbIndex(),
   handler: handleTodayCommand,
 };
 

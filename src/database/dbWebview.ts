@@ -19,7 +19,7 @@ import { Regex } from "../core/regex";
 import { ExtensionToDbPanelCommunicator } from "../communicators/dbPanelCommunicator";
 import { IDbPanelInitPayload, DbEntryLink } from "../contracts/messages/dbPanelMessages";
 import type { SlashCommand } from "../core/slashCommands";
-import { cursorInDb } from "./dbEntries";
+import { Filter } from "../core/cmdFilter";
 
 /** Wrapper to match SlashCommand handler signature */
 async function handleOpenDbWebview(doc: TextDocument, _pos: Position): Promise<void> {
@@ -32,8 +32,7 @@ export const VIEW_DATABASE_SLASH_COMMAND: SlashCommand = {
   detail: "\ud83d\udcca Open database webview",
   isAction: true,
   commandId: Cmd.openDbWebview,
-  when: cursorInDb,
-  dbOnly: true,
+  cmdFilter: Filter().pageIsDbIndex(),
   kind: 21,
   handler: handleOpenDbWebview,
 };

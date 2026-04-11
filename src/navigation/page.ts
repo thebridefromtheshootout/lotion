@@ -8,6 +8,7 @@ import { Cmd } from "../core/commands";
 import { Regex } from "../core/regex";
 import { toKebabCaseLower } from "../core/slug";
 import type { SlashCommand } from "../core/slashCommands";
+import { Filter } from "../core/cmdFilter";
 
 export const PAGE_SLASH_COMMAND: SlashCommand = {
   label: "/page",
@@ -16,6 +17,7 @@ export const PAGE_SLASH_COMMAND: SlashCommand = {
   isAction: true,
   commandId: Cmd.createPage,
   kind: 16,
+  cmdFilter: Filter().pageIsNotDbIndex(),
   handler: handlePageCommand,
 };
 

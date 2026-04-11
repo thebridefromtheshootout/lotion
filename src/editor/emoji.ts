@@ -5,6 +5,7 @@ import emojiData from "unicode-emoji-json";
 import { Cmd } from "../core/commands";
 import { Regex } from "../core/regex";
 import type { SlashCommand } from "../core/slashCommands";
+import { Filter } from "../core/cmdFilter";
 
 export const EMOJI_SLASH_COMMAND: SlashCommand = {
   label: "/emoji",
@@ -13,6 +14,7 @@ export const EMOJI_SLASH_COMMAND: SlashCommand = {
   isAction: true,
   commandId: Cmd.insertEmoji,
   kind: 0,
+  cmdFilter: Filter().pageIsNotDbIndex(),
   handler: handleEmojiCommand,
 };
 

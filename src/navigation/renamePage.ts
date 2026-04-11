@@ -6,6 +6,7 @@ import { Cmd } from "../core/commands";
 import { Regex } from "../core/regex";
 import { toKebabCaseLower } from "../core/slug";
 import type { SlashCommand } from "../core/slashCommands";
+
 import { relinkWorkspacePagePaths } from "./pageRelink";
 
 export const RENAME_PAGE_SLASH_COMMAND: SlashCommand = {

@@ -1,6 +1,6 @@
 import { Cmd } from "../core/commands";
 import type { SlashCommand } from "../core/slashCommands";
-import { cursorInCodeContext } from "./codeContext";
+import { Filter } from "../core/cmdFilter";
 import { hostEditor } from "../hostEditor/HostingEditor";
 import { Position } from "../hostEditor/EditorTypes";
 import type { TextDocument } from "../hostEditor/EditorTypes";
@@ -13,7 +13,7 @@ export const COPY_SLASH_COMMAND: SlashCommand = {
   isAction: true,
   commandId: Cmd.copyCode,
   kind: 2,
-  when: cursorInCodeContext,
+  cmdFilter: Filter().cursorInCode(),
   handler: handleCopyCodeCommand,
 };
 

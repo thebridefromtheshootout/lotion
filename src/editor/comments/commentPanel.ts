@@ -6,6 +6,7 @@ import { Panel } from "../../core";
 import { getExtensionUri, getWebviewShellHtml } from "../../core/webviewShell";
 import { Cmd } from "../../core/commands";
 import type { SlashCommand } from "../../core/slashCommands";
+import { Filter } from "../../core/cmdFilter";
 import type { TextDocument } from "../../hostEditor/EditorTypes";
 
 import { hostEditor } from "../../hostEditor/HostingEditor";
@@ -24,6 +25,7 @@ export const COMMENTS_SLASH_COMMAND: SlashCommand = {
   isAction: true,
   commandId: Cmd.showCommentPanel,
   kind: 2,
+  cmdFilter: Filter().pageIsNotDbIndex(),
   handler: handleShowCommentPanel,
 };
 

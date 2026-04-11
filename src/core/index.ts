@@ -14,3 +14,6 @@ export { createStructureLinter } from "./structureLint";
 export { createTrailingNewlineFixer } from "./trailingNewline";
 export { initWebviewShell } from "./webviewShell";
 export { createFileHashTracker } from "./fileHashTracker";
+export { computeCursorContext } from "./cursorContext";
+export type { CursorContext } from "./cursorContext";
+export { Filter, CmdFilter } from "./cmdFilter";

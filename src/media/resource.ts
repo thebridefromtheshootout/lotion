@@ -6,6 +6,7 @@ import * as path from "path";
 import { getCwd } from "../core/cwd";
 import { Cmd } from "../core/commands";
 import type { SlashCommand } from "../core/slashCommands";
+import { Filter } from "../core/cmdFilter";
 
 const IMAGE_EXTS = new Set([".png", ".jpg", ".jpeg", ".gif", ".webp", ".bmp", ".svg"]);
 
@@ -16,6 +17,7 @@ export const RESOURCE_SLASH_COMMAND: SlashCommand = {
   isAction: true,
   commandId: Cmd.insertResource,
   kind: 16,
+  cmdFilter: Filter().pageIsNotDbIndex(),
   handler: handleResourceCommand,
 };
 

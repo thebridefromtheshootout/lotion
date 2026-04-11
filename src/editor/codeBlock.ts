@@ -4,6 +4,7 @@ import type { TextDocument } from "../hostEditor/EditorTypes";
 import { hostEditor } from "../hostEditor/HostingEditor";
 import { Cmd } from "../core/commands";
 import type { SlashCommand } from "../core/slashCommands";
+import { Filter } from "../core/cmdFilter";
 
 export const CODE_SLASH_COMMAND: SlashCommand = {
   label: "/code",
@@ -13,6 +14,7 @@ export const CODE_SLASH_COMMAND: SlashCommand = {
   commandId: Cmd.insertCodeBlock,
   kind: 14,
   handler: handleCodeBlockCommand,
+  cmdFilter: Filter().pageIsNotDbIndex(),
   cleanLine: true,
 };
 

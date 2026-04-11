@@ -6,6 +6,7 @@ import { ExtensionToDatePanelCommunicator } from "../../communicators/datePanelC
 import { lastFormat, setLastFormat } from "./dateCommands";
 import { Cmd } from "../../core/commands";
 import type { SlashCommand } from "../../core/slashCommands";
+import { Filter } from "../../core/cmdFilter";
 import type { TextDocument } from "../../hostEditor/EditorTypes";
 
 export const DATE_SLASH_COMMAND: SlashCommand = {
@@ -16,6 +17,7 @@ export const DATE_SLASH_COMMAND: SlashCommand = {
   commandId: Cmd.insertDate,
   kind: 12,
   handler: handleDateCommand,
+  cmdFilter: Filter().pageIsNotDbIndex(),
 };
 
 // ── Date picker webview panel ──────────────────────────────────────
