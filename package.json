@@ -982,6 +982,32 @@
           "default": "",
           "description": "Git remote URL to add when no remote is configured."
         },
+        "lotion.autoInlineCodeCases": {
+          "type": "object",
+          "default": {
+            "PascalCase": false,
+            "camelCase": false,
+            "snake_case": false
+          },
+          "properties": {
+            "PascalCase": {
+              "type": "boolean",
+              "default": false,
+              "description": "Auto wrap PascalCase words in inline code."
+            },
+            "camelCase": {
+              "type": "boolean",
+              "default": false,
+              "description": "Auto wrap camelCase words in inline code."
+            },
+            "snake_case": {
+              "type": "boolean",
+              "default": false,
+              "description": "Auto wrap snake_case words in inline code."
+            }
+          },
+          "description": "Automatically wrap identifier-cased words in backticks when a space or punctuation is typed after them."
+        },
         "lotion.commentUsername": {
           "type": "string",
           "default": "",

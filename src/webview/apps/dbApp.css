@@ -382,9 +382,8 @@ table {
 }
 
 .db-table td {
-  max-width: 320px;
-  text-overflow: ellipsis;
-  overflow: hidden;
+  white-space: normal;
+  word-break: break-word;
 }
 
 .db-table td .badge {

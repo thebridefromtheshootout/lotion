@@ -4,4 +4,3 @@ Do not attempt items marked [Complex].
 ---
 1. expose a new user setting: autoInlineCodeCases {PascalCase: true
     false, camelCase:true|false, snake_case: true|false} to auto inline code  every time the user types a word in the case
-2. finish the filter task (stashed)
