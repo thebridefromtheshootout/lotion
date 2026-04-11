@@ -77,15 +77,15 @@ function lotionMarkdownItPlugin(md) {
       }
 
       const type = calloutMatch[1].toLowerCase();
-      const title = calloutMatch[2] || type.charAt(0).toUpperCase() + type.slice(1);
+      const title = type.charAt(0).toUpperCase() + type.slice(1);
 
       // Mark the blockquote tokens with callout info
       tokens[i].attrSet("class", `callout callout-${type}`);
       tokens[i].tag = "div";
 
-      // Replace the inline content (remove the [!TYPE] prefix)
+      // Strip only the [!TYPE] marker; preserve everything after it (same line and subsequent lines)
       const icon = { note: "ℹ️", tip: "💡", warning: "⚠️", important: "🔥", caution: "🛑" }[type] || "📌";
-      tokens[inlineIdx].content = content.replace(Regex.calloutTokenWithText, "$2");
+      tokens[inlineIdx].content = content.replace(Regex.calloutTokenStrip, "");
 
       // Insert a callout title before the content
       const titleOpen = new state.Token("html_block", "", 0);
