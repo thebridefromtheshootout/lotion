@@ -19,6 +19,7 @@ const GRAPH_SLASH_COMMAND: SlashCommand = {
   commandId: Cmd.insertGraph,
   kind: 14,
   handler: handleGraphCommand,
+  cleanLine: true,
 };
 
 const RENDER_GRAPH_SLASH_COMMAND: SlashCommand = {

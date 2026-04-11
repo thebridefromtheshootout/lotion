@@ -30,13 +30,13 @@ export interface SlashCommand {
   kind?: number;
   /** Handler function for commands that need registration */
   handler?: (doc: TextDocument, pos: Position) => Promise<void>;
+  /** If true, clean empty list/callout markers on the current line before inserting */
+  cleanLine?: boolean;
 }
 
 // ── Static text-insert commands (no handlers needed) ──────────────
 const STATIC_SLASH_COMMANDS: SlashCommand[] = [
-  { label: "/h1", insertText: "# ", detail: "𝗛  Heading 1 — # ", kind: 0 },
-  { label: "/h2", insertText: "## ", detail: "𝗛  Heading 2 — ## ", kind: 0 },
-  { label: "/h3", insertText: "### ", detail: "𝗛  Heading 3 — ### ", kind: 0 },
+  { label: "/inline-math", insertText: "$ $", detail: "🧮 Inline math — $ ... $", kind: 11 },
   {
     label: "/section",
     insertText: "",
@@ -45,23 +45,7 @@ const STATIC_SLASH_COMMANDS: SlashCommand[] = [
     commandId: Cmd.insertSection,
     kind: 14,
     handler: handleSectionCommand,
-  },
-  { label: "/todo", insertText: "- [ ] ", detail: "☑️ To-do checkbox — - [ ] ", kind: 14 },
-  { label: "/divider", insertText: "---\n", detail: "➖ Horizontal divider — ---", kind: 11 },
-  { label: "/quote", insertText: "> ", detail: "💬 Blockquote — > ", kind: 0 },
-  { label: "/math", insertText: "$$\n\n$$", detail: "🧮 LaTeX math block — $$ ... $$", kind: 11 },
-  { label: "/inline-math", insertText: "$ $", detail: "🧮 Inline math — $ ... $", kind: 11 },
-  {
-    label: "/mermaid",
-    insertText: "```mermaid\ngraph LR\n  A --> B\n```",
-    detail: "🧭 Mermaid diagram block",
-    kind: 14,
-  },
-  {
-    label: "/frontmatter",
-    insertText: "---\ntitle: \ndate: " + new Date().toISOString().slice(0, 10) + "\ntags: []\n---\n",
-    detail: "📋 YAML front matter block",
-    kind: 14,
+    cleanLine: true,
   },
   {
     label: "/commit",
@@ -127,8 +111,7 @@ export function createSlashCompletionProvider(): Disposable {
           item.filterText = cmd.label;
           item.sortText = cmd.label;
 
-          const replaceRange = new Range(position.translate(0, -1), position);
-          item.range = replaceRange;
+          item.range = new Range(position.translate(0, -1), position);
 
           if (cmd.isAction && cmd.commandId) {
             item.insertText = "";

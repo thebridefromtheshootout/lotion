@@ -20,6 +20,7 @@ export const GIF_SLASH_COMMAND: SlashCommand = {
   commandId: Cmd.insertGif,
   kind: 16,
   handler: handleGifCommand,
+  cleanLine: true,
 };
 
 async function ensureGifProvider(): Promise<GifProvider | undefined> {

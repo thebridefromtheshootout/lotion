@@ -1,10 +1,11 @@
 // ── Simple commands registry ────────────────────────────────────────
 // Command ID → handler mappings that use straightforward registerCommand
 
-import { Position, Uri } from "../hostEditor/EditorTypes";
+import { Position, Range, Uri } from "../hostEditor/EditorTypes";
 import type { TextDocument } from "../hostEditor/EditorTypes";
 import { hostEditor } from "../hostEditor/HostingEditor";
 import { Cmd } from "./commands";
+import { Regex } from "./regex";
 import { matchesSavedHash } from "./fileHashTracker";
 
 // Editor handlers
@@ -60,12 +61,24 @@ import {
 
 export type SlashCommandHandler = (doc: TextDocument, pos: Position) => Promise<void>;
 
+async function cleanMarkerLine(doc: TextDocument, lineNumber: number): Promise<void> {
+  const lineText = doc.lineAt(lineNumber).text;
+  const indent = lineText.match(/^(\s*)/)?.[1] ?? "";
+  const content = lineText.slice(indent.length);
+  if (content.length > 0 && Regex.emptyLineMarker.test(content)) {
+    await hostEditor.replaceRange(
+      new Range(new Position(lineNumber, indent.length), new Position(lineNumber, lineText.length)),
+      "",
+    );
+  }
+}
+
 /**
  * Wrap a (document, position) handler so it can be invoked:
  *   1. From the slash-command completion provider → (docUri, line, character)
  *   2. From the Ctrl+Shift+P command palette → no args (falls back to active editor)
  */
-export function slashHandler(handler: SlashCommandHandler): (...args: any[]) => Promise<void> {
+export function slashHandler(handler: SlashCommandHandler, cleanLine?: boolean): (...args: any[]) => Promise<void> {
   return async (...args: any[]) => {
     let doc: TextDocument;
     let pos: Position;
@@ -89,6 +102,10 @@ export function slashHandler(handler: SlashCommandHandler): (...args: any[]) => 
       }
       doc = activeDoc;
       pos = hostEditor.getCursorPosition()!;
+    }
+
+    if (cleanLine) {
+      await cleanMarkerLine(doc, pos.line);
     }
 
     await handler(doc, pos);

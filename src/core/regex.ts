@@ -92,6 +92,9 @@ export const Regex = {
   headingH6Global: /^######\s+(.+)$/gm,
   headingDropOneHash: /^#/,
 
+  // Empty line markers (bullet / numbered / callout header — no content after the marker)
+  emptyLineMarker: /^(?:[-*]|\d+\.|>\s*|#{1,6})\s*$/i,
+
   // Markdown callouts and highlights
   calloutOpen: /^>\s*\[!(NOTE|TIP|WARNING|IMPORTANT|CAUTION)\]/i,
   calloutTokenWithText: /^\[!(NOTE|TIP|WARNING|IMPORTANT|CAUTION)\]\s*(.*)/i,

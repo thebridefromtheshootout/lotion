@@ -14,6 +14,7 @@ export const TOC_SLASH_COMMAND: SlashCommand = {
   commandId: Cmd.insertToc,
   kind: 17,
   handler: handleTocCommand,
+  cleanLine: true,
 };
 
 // ── /toc handler — generate a table of contents ────────────────────

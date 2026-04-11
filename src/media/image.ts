@@ -19,6 +19,7 @@ export const IMAGE_SLASH_COMMAND: SlashCommand = {
   commandId: Cmd.insertImage,
   kind: 16,
   handler: handleImageCommand,
+  cleanLine: true,
 };
 
 const IMAGE_FILTERS: Record<string, string[]> = {

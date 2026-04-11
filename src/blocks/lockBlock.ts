@@ -14,6 +14,7 @@ export const SECRETBOX_SLASH_COMMAND: SlashCommand = {
   commandId: Cmd.insertSecretbox,
   kind: 5,
   handler: handleSecretboxCommand,
+  cleanLine: true,
 };
 
 export const LOCK_SLASH_COMMAND: SlashCommand = {

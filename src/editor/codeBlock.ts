@@ -13,6 +13,7 @@ export const CODE_SLASH_COMMAND: SlashCommand = {
   commandId: Cmd.insertCodeBlock,
   kind: 14,
   handler: handleCodeBlockCommand,
+  cleanLine: true,
 };
 
 const POPULAR_LANGUAGES = [

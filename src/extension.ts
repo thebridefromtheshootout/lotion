@@ -104,7 +104,7 @@ export function activate(context: ExtensionContext) {
   // Register all slash commands with handlers from the master SLASH_COMMANDS array
   // (openDbWebview is excluded — it has custom arg handling below)
   for (const cmd of SLASH_COMMANDS.filter((c) => c.handler && c.commandId && c.commandId !== Cmd.openDbWebview)) {
-    context.subscriptions.push(hostEditor.registerCommand(cmd.commandId!, slashHandler(cmd.handler!)));
+    context.subscriptions.push(hostEditor.registerCommand(cmd.commandId!, slashHandler(cmd.handler!, cmd.cleanLine)));
   }
 
   // openDbWebview — called from CodeLens with a direct path, or from slash command with (docUri, line, char)

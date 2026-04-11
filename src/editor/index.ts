@@ -40,6 +40,7 @@ import {
   TOGGLE_SLASH_COMMAND,
   CALLOUT_SLASH_COMMAND,
 } from "./callout";
+import { BLOCK_INSERT_SLASH_COMMANDS } from "./blockInserts";
 import { CODE_SLASH_COMMAND } from "./codeBlock";
 import { COPY_SLASH_COMMAND } from "./copyCode";
 import { TODAY_SLASH_COMMAND } from "./date/dateCommands";
@@ -56,6 +57,7 @@ import {
 } from "./processor";
 
 export const EDITOR_SLASH_COMMANDS: SlashCommand[] = [
+  ...BLOCK_INSERT_SLASH_COMMANDS,
   TOGGLE_H1_SLASH_COMMAND,
   TOGGLE_H2_SLASH_COMMAND,
   TOGGLE_H3_SLASH_COMMAND,

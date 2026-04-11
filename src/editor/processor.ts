@@ -17,6 +17,7 @@ export const PROCESSOR_SLASH_COMMAND: SlashCommand = {
   commandId: Cmd.insertProcessor,
   kind: 14,
   handler: handleProcessorCommand,
+  cleanLine: true,
 };
 
 export const REFRESH_SLASH_COMMAND: SlashCommand = {

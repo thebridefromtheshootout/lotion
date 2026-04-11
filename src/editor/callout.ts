@@ -13,6 +13,7 @@ export const TOGGLE_H1_SLASH_COMMAND: SlashCommand = {
   commandId: Cmd.insertToggleH1,
   kind: 14,
   handler: handleToggleHeadingCommand(1),
+  cleanLine: true,
 };
 
 export const TOGGLE_H2_SLASH_COMMAND: SlashCommand = {
@@ -23,6 +24,7 @@ export const TOGGLE_H2_SLASH_COMMAND: SlashCommand = {
   commandId: Cmd.insertToggleH2,
   kind: 14,
   handler: handleToggleHeadingCommand(2),
+  cleanLine: true,
 };
 
 export const TOGGLE_H3_SLASH_COMMAND: SlashCommand = {
@@ -33,6 +35,7 @@ export const TOGGLE_H3_SLASH_COMMAND: SlashCommand = {
   commandId: Cmd.insertToggleH3,
   kind: 14,
   handler: handleToggleHeadingCommand(3),
+  cleanLine: true,
 };
 
 export const TOGGLE_SLASH_COMMAND: SlashCommand = {
@@ -43,6 +46,7 @@ export const TOGGLE_SLASH_COMMAND: SlashCommand = {
   commandId: Cmd.insertToggle,
   kind: 14,
   handler: handleToggleCommand,
+  cleanLine: true,
 };
 
 export const CALLOUT_SLASH_COMMAND: SlashCommand = {
@@ -53,6 +57,7 @@ export const CALLOUT_SLASH_COMMAND: SlashCommand = {
   commandId: Cmd.insertCallout,
   kind: 23,
   handler: handleCalloutCommand,
+  cleanLine: true,
 };
 
 // ── /toggle handler ────────────────────────────────────────────────
