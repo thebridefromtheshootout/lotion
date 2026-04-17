@@ -1020,6 +1020,30 @@
           },
           "description": "Automatically wrap identifier-cased words in backticks when a space or punctuation is typed after them."
         },
+        "lotion.linkFactoryRules": {
+          "type": "array",
+          "default": [],
+          "items": {
+            "type": "object",
+            "required": ["match", "prefix"],
+            "properties": {
+              "match": {
+                "type": "string",
+                "description": "Regex pattern to match typed text (e.g. \"#\\\\d+\" to match #123)."
+              },
+              "prefix": {
+                "type": "string",
+                "description": "URL prefix prepended to the matched text."
+              },
+              "suffix": {
+                "type": "string",
+                "default": "",
+                "description": "URL suffix appended to the matched text."
+              }
+            }
+          },
+          "description": "Rules to auto-convert typed patterns into links. When text matching a rule's regex is typed followed by a space, it becomes an <a> tag with the URL built from prefix + match + suffix, and the page title is fetched."
+        },
         "lotion.smartPasteLinkLabelMaxLength": {
           "type": "number",
           "default": 30,

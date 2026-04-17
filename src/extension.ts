@@ -35,7 +35,7 @@ import {
 
 import { createSecretboxGuard, createSecretboxSaveGuard } from "./blocks";
 
-import { toggleWrap, createHeadingColors, createSmartPairs, createSmartTypography, createAutoInlineCode } from "./formatting";
+import { toggleWrap, createHeadingColors, createSmartPairs, createSmartTypography, createAutoInlineCode, createLinkFactory } from "./formatting";
 
 import {
   createBacklinkCodeLensProvider,
@@ -235,6 +235,7 @@ export function activate(context: ExtensionContext) {
     createTableAlignOnSave(),
     createSmartTypography(),
     createAutoInlineCode(),
+    createLinkFactory(),
     createTocAutoUpdater(),
     createStructureLinter(),
     createLinkValidator(),

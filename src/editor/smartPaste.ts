@@ -54,8 +54,7 @@ export async function handleSmartPaste() {
           await hostEditor.replaceCurrentSelection(`<img src="${hrefOrSrc}" alt="${alt}">`);
         } else {
           logSmartPaste("selected-url->html-anchor");
-          const label = escHtml(truncateLabel(selectedText || (await fetchPageTitle(url)) || deriveUrlLabel(url)));
-          await hostEditor.replaceCurrentSelection(`<a href="${hrefOrSrc}">${label}</a>`);
+          await hostEditor.replaceCurrentSelection(await buildAnchorTag(clipText, selectedText || undefined));
         }
         return;
       } catch {
@@ -79,8 +78,7 @@ export async function handleSmartPaste() {
           await hostEditor.insertAtCursor(`<img src="${hrefOrSrc}" alt="${alt}">`);
         } else {
           logSmartPaste("auto-url->html-anchor");
-          const label = escHtml(truncateLabel((await fetchPageTitle(url)) || deriveUrlLabel(url)));
-          await hostEditor.insertAtCursor(`<a href="${hrefOrSrc}">${label}</a>`);
+          await hostEditor.insertAtCursor(await buildAnchorTag(clipText));
         }
         return;
       } catch {
@@ -167,7 +165,28 @@ export async function handleSmartPaste() {
 
 // ── Helpers ────────────────────────────────────────────────────────
 
-function truncateLabel(text: string): string {
+/**
+ * Build an `<a href="...">label</a>` tag for a URL.
+ * Fetches the page title, falls back to URL-derived label, truncates, and escapes.
+ * An optional `labelOverride` skips fetching and uses that text instead.
+ */
+export async function buildAnchorTag(urlStr: string, labelOverride?: string): Promise<string> {
+  const href = escHtml(urlStr);
+  let label: string;
+  if (labelOverride) {
+    label = labelOverride;
+  } else {
+    try {
+      const url = new URL(urlStr);
+      label = (await fetchPageTitle(url)) || deriveUrlLabel(url);
+    } catch {
+      label = urlStr;
+    }
+  }
+  return `<a href="${href}">${escHtml(truncateLabel(label))}</a>`;
+}
+
+export function truncateLabel(text: string): string {
   const max = hostEditor.getConfiguration("lotion").get<number>("smartPasteLinkLabelMaxLength", 30);
   if (text.length <= max) return text;
   return text.slice(0, max - 1) + "\u2026";
@@ -175,7 +194,7 @@ function truncateLabel(text: string): string {
 
 const IMAGE_URL_EXTS = new Set([".png", ".jpg", ".jpeg", ".gif", ".webp", ".bmp", ".svg", ".avif"]);
 
-function escHtml(text: string): string {
+export function escHtml(text: string): string {
   return text
     .replace(Regex.htmlEscapeAmp, "&amp;")
     .replace(Regex.htmlEscapeLt, "&lt;")
@@ -274,7 +293,7 @@ function fetchJson(url: URL): Promise<any> {
   });
 }
 
-async function fetchPageTitle(url: URL): Promise<string | undefined> {
+export async function fetchPageTitle(url: URL): Promise<string | undefined> {
   // Try oEmbed first — lightweight JSON, no bot-blocking
   const oembedTitle = await fetchOembedTitle(url);
   if (oembedTitle) return oembedTitle;
@@ -376,7 +395,7 @@ function extractTitle(html: string, url?: URL): string | undefined {
  * - Docs:     "/path/to/page" → "Page"
  * - Fallback: hostname without www
  */
-function deriveUrlLabel(url: URL): string {
+export function deriveUrlLabel(url: URL): string {
   const host = url.hostname.replace(Regex.urlWwwPrefix, "");
 
   // GitHub: show contextual path
