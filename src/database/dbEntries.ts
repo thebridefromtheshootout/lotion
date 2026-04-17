@@ -64,9 +64,35 @@ export function isDbFile(filePath: string): boolean {
 }
 
 /**
- * Predicate for slash commands — true when the current file is a DB.
+ * Predicate for slash commands — true when the current file is a DB index.
  * Matches the (document, position) => boolean signature used by SlashCommand.when.
  */
 export function cursorInDb(document: TextDocument, _position: Position): boolean {
   return Regex.dbSchemaFenceStartMultiline.test(document.getText());
+}
+
+/**
+ * True when the current file is a child entry of a database.
+ * Structure: dbDir/index.md (DB index) and dbDir/<slug>/index.md (child entry).
+ * So from a child, the DB index is at ../../index.md relative to the child file.
+ */
+export function cursorInDbEntry(document: TextDocument, _position: Position): boolean {
+  const filePath = document.uri.fsPath;
+  const dbIndexPath = findParentDbIndex(filePath);
+  return dbIndexPath !== undefined;
+}
+
+/**
+ * Given a file path, find the parent DB index.md if this file is a DB child entry.
+ * Returns the DB index path, or undefined if not a child entry.
+ */
+export function findParentDbIndex(filePath: string): string | undefined {
+  // Child entry structure: dbDir/<slug>/index.md
+  // DB index:              dbDir/index.md
+  const parentDir = path.dirname(filePath);           // dbDir/<slug>
+  const dbDir = path.dirname(parentDir);              // dbDir
+  const candidateIndex = path.join(dbDir, "index.md");
+  if (candidateIndex === filePath) return undefined;   // this IS the index
+  if (!fs.existsSync(candidateIndex)) return undefined;
+  return isDbFile(candidateIndex) ? candidateIndex : undefined;
 }

@@ -9,7 +9,7 @@ import { Regex } from "./regex";
 import { matchesSavedHash } from "./fileHashTracker";
 
 // Editor handlers
-import { handleUpdateDate, editFrontmatter, handleSmartPaste, addComment } from "../editor";
+import { handleUpdateDate, editFrontmatter, handleSmartPaste, addComment, searchWorkspaceCommands } from "../editor";
 // import { toggleFocusMode } from "../editor"; // disabled
 
 // Block handlers
@@ -148,6 +148,7 @@ export const SIMPLE_COMMANDS: [string, (...args: any[]) => any][] = [
   [Cmd.linksToReference, convertLinksToReference],
   [Cmd.linksToInline, convertLinksToInline],
   [Cmd.searchWorkspaceLinks, searchWorkspaceLinks],
+  [Cmd.searchWorkspaceCommands, searchWorkspaceCommands],
   // Lists
   [Cmd.listContinue, handleListContinue],
   [Cmd.toggleCheckbox, toggleCheckbox],

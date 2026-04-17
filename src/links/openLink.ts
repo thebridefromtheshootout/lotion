@@ -16,7 +16,7 @@ export const OPENLINK_SLASH_COMMAND: SlashCommand = {
   isAction: true,
   commandId: Cmd.openLink,
   kind: 17,
-  cmdFilter: Filter().pageIsNotDbIndex(),
+  cmdFilter: Filter(),
   handler: handleOpenLinkCommand,
 };
 

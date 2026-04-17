@@ -13,6 +13,7 @@ export class CmdFilter {
 
   pageIsDbIndex()       { return this.add(c => c.pageIsDbIndex); }
   pageIsNotDbIndex()    { return this.add(c => !c.pageIsDbIndex); }
+  pageIsDbIndexOrEntry() { return this.add(c => c.pageIsDbIndex || c.pageIsDbEntry); }
   cursorInTable()       { return this.add(c => c.cursorInTable); }
   cursorInList()        { return this.add(c => c.cursorInList); }
   cursorInOrderedList() { return this.add(c => c.cursorInOrderedList); }

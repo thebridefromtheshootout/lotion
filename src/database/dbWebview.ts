@@ -13,6 +13,7 @@ import {
   saveViewsToFile,
   updateEntryProperty,
   logEntryAndPromptNew,
+  findParentDbIndex,
 } from "./database";
 import { Cmd, Panel } from "../core/commands";
 import { Regex } from "../core/regex";
@@ -21,9 +22,17 @@ import { IDbPanelInitPayload, DbEntryLink } from "../contracts/messages/dbPanelM
 import type { SlashCommand } from "../core/slashCommands";
 import { Filter } from "../core/cmdFilter";
 
-/** Wrapper to match SlashCommand handler signature */
+/** Wrapper to match SlashCommand handler signature — resolves parent DB index for child entries */
 async function handleOpenDbWebview(doc: TextDocument, _pos: Position): Promise<void> {
-  await openDbWebview(doc.uri.fsPath);
+  const fsPath = doc.uri.fsPath;
+  const dbIndexPath = Regex.dbSchemaFenceStartMultiline.test(doc.getText())
+    ? fsPath
+    : findParentDbIndex(fsPath);
+  if (!dbIndexPath) {
+    await hostEditor.showWarning("Lotion: This file is not part of a database.");
+    return;
+  }
+  await openDbWebview(dbIndexPath);
 }
 
 export const VIEW_DATABASE_SLASH_COMMAND: SlashCommand = {
@@ -32,7 +41,7 @@ export const VIEW_DATABASE_SLASH_COMMAND: SlashCommand = {
   detail: "\ud83d\udcca Open database webview",
   isAction: true,
   commandId: Cmd.openDbWebview,
-  cmdFilter: Filter().pageIsDbIndex(),
+  cmdFilter: Filter().pageIsDbIndexOrEntry(),
   kind: 21,
   handler: handleOpenDbWebview,
 };

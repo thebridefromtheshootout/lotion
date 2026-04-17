@@ -43,6 +43,6 @@ export function FormatCell({
     case "coordinates":
       return <span className="coordinates" title="Geographic coordinates">📍 {value}</span>;
     default:
-      return <>{value}</>;
+      return <span dangerouslySetInnerHTML={{ __html: value }} />;
   }
 }

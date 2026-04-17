@@ -453,6 +453,12 @@
         "category": "Lotion"
       },
       {
+        "command": "lotion.searchWorkspaceCommands",
+        "title": "Lotion: Search Workspace Commands",
+        "icon": "$(terminal)",
+        "category": "Lotion"
+      },
+      {
         "command": "lotion.toggleCheckbox",
         "title": "Lotion: Toggle Checkbox",
         "icon": "$(checklist)",
@@ -756,6 +762,12 @@
         "when": "editorTextFocus && editorLangId == markdown"
       },
       {
+        "command": "lotion.searchWorkspaceCommands",
+        "key": "ctrl+alt+c",
+        "mac": "ctrl+alt+c",
+        "when": "editorTextFocus && editorLangId == markdown"
+      },
+      {
         "command": "lotion.listContinue",
         "key": "enter",
         "mac": "enter",
@@ -1007,6 +1019,12 @@
             }
           },
           "description": "Automatically wrap identifier-cased words in backticks when a space or punctuation is typed after them."
+        },
+        "lotion.smartPasteLinkLabelMaxLength": {
+          "type": "number",
+          "default": 30,
+          "minimum": 10,
+          "description": "Maximum character length for auto-generated link labels in smart paste. Longer titles are truncated with \u2026."
         },
         "lotion.commentUsername": {
           "type": "string",

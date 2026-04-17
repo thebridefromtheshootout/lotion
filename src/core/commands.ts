@@ -87,6 +87,7 @@ export const Cmd = {
   insertLink: "lotion.insertLink",
   openLink: "lotion.openLink",
   searchWorkspaceLinks: "lotion.searchWorkspaceLinks",
+  searchWorkspaceCommands: "lotion.searchWorkspaceCommands",
 
   // ── Lists ──────────────────────────────────────────────────────────
   listContinue: "lotion.listContinue",

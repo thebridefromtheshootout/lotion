@@ -49,7 +49,7 @@ import { createListRenumber } from "./lists";
 
 import { createBreadcrumbStatusBar, createHeadingAnchorDecorations, createRecentPagesTracker } from "./navigation";
 
-import { refreshAllDbWebviews, handleDbEntryCommand, openDbWebview } from "./database";
+import { refreshAllDbWebviews, handleDbEntryCommand, openDbWebview, findParentDbIndex, isDbFile } from "./database";
 
 import { createImageDropProvider, createImageHoverProvider } from "./media";
 
@@ -108,15 +108,20 @@ export function activate(context: ExtensionContext) {
   }
 
   // openDbWebview — called from CodeLens with a direct path, or from slash command with (docUri, line, char)
+  const resolveDbIndex = (fsPath: string): string | undefined =>
+    isDbFile(fsPath) ? fsPath : findParentDbIndex(fsPath);
+
   context.subscriptions.push(
     hostEditor.registerCommand(Cmd.openDbWebview, async (...args: any[]) => {
+      let fsPath: string | undefined;
+
       if (args.length >= 1 && typeof args[0] === "string" && !args[0].startsWith("file:")) {
         // Called from CodeLens — direct fsPath to the database index.md
-        await openDbWebview(args[0]);
+        fsPath = args[0];
       } else if (args.length >= 3 && typeof args[0] === "string" && typeof args[1] === "number") {
         // Called from slash command — (docUri, line, character)
         const doc = await hostEditor.openTextDocument(Uri.parse(args[0]));
-        await openDbWebview(doc.uri.fsPath);
+        fsPath = doc.uri.fsPath;
       } else {
         // Called from command palette — use active editor
         const doc = hostEditor.getDocument();
@@ -124,8 +129,15 @@ export function activate(context: ExtensionContext) {
           hostEditor.showWarning("Lotion: No active editor. Open a database file first.");
           return;
         }
-        await openDbWebview(doc.uri.fsPath);
+        fsPath = doc.uri.fsPath;
       }
+
+      const dbIndexPath = resolveDbIndex(fsPath);
+      if (!dbIndexPath) {
+        hostEditor.showWarning("Lotion: This file is not part of a database.");
+        return;
+      }
+      await openDbWebview(dbIndexPath);
     }),
   );
 

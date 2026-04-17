@@ -29,7 +29,7 @@ export {
   syncPropertyFieldOrder,
 } from "./dbFrontmatter";
 
-export { DbEntry, readDbEntries, isDbFile, cursorInDb } from "./dbEntries";
+export { DbEntry, readDbEntries, isDbFile, cursorInDb, cursorInDbEntry, findParentDbIndex } from "./dbEntries";
 
 export {
   handleDatabaseCommand,

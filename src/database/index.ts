@@ -13,6 +13,9 @@ export {
   parseSchemaFromFile,
   parsePropertyTable,
   cursorInDb,
+  cursorInDbEntry,
+  findParentDbIndex,
+  isDbFile,
   DbColumn,
   DbSchema,
 } from "./database";

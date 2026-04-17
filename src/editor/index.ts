@@ -30,6 +30,7 @@ export {
 } from "./processor";
 export { handleDictateCommand } from "./dictate";
 export { createEditorDecorations } from "./editorDecorations";
+export { searchWorkspaceCommands } from "./searchCommands";
 
 // ── Slash commands ─────────────────────────────────────────────────
 import type { SlashCommand } from "../core/slashCommands";
