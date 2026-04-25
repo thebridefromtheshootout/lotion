@@ -247,21 +247,7 @@ async function insertBelow(selection: Selection, prefix: string): Promise<void> 
   hostEditor.setSelection(new Selection(newPos, newPos));
 }
 
-/** Clear the current line (remove the dangling list marker). */
+/** Clear the current line's content (remove the dangling list marker). */
 async function clearLine(line: TextLine): Promise<void> {
-  const doc = hostEditor.getDocument()!;
-  let op: EditOp;
-  if (line.lineNumber < doc.lineCount - 1) {
-    // Delete from start of current line to start of next line (removes line + \n)
-    const nextStart = doc.lineAt(line.lineNumber + 1).range.start;
-    op = { type: OpType.Delete, range: new Range(line.range.start, nextStart) };
-  } else if (line.lineNumber > 0) {
-    // Last line — delete from end of previous line to end of current line
-    const prevEnd = doc.lineAt(line.lineNumber - 1).range.end;
-    op = { type: OpType.Delete, range: new Range(prevEnd, line.range.end) };
-  } else {
-    // Only line — just clear content
-    op = { type: OpType.Replace, range: line.range, text: "" };
-  }
-  await hostEditor.batchEdit([op]);
+  await hostEditor.batchEdit([{ type: OpType.Replace, range: line.range, text: "" }]);
 }
