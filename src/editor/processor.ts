@@ -53,6 +53,44 @@ interface Processor {
   command: string;
   /** Optional shell path/command used to execute the processor command. */
   shell?: string;
+  /**
+   * Optional working directory the command runs in.  Absolute paths are
+   * used as-is; relative paths are resolved against the document's
+   * directory.  When unset, the document's directory is used.
+   */
+  cwd?: string;
+}
+
+function defaultProcessorCwd(docPath: string): string {
+  return path.join(path.dirname(docPath), ".rsrc");
+}
+
+function resolveProcessorCwd(proc: Processor, docPath: string): string {
+  const raw = proc.cwd?.trim();
+  let resolved: string;
+  if (!raw) {
+    resolved = defaultProcessorCwd(docPath);
+  } else if (path.isAbsolute(raw)) {
+    resolved = raw;
+  } else {
+    resolved = path.resolve(path.dirname(docPath), raw);
+  }
+  if (!fs.existsSync(resolved)) {
+    fs.mkdirSync(resolved, { recursive: true });
+  }
+  return resolved;
+}
+
+async function promptProcessorCwd(current?: string): Promise<string | undefined> {
+  const v = await hostEditor.showInputBox({
+    prompt: "Working directory for the processor (leave blank to use this file's .rsrc directory)",
+    value: current ?? "",
+    placeHolder: "absolute path, or relative to this file's directory",
+  });
+  if (v === undefined) {
+    return undefined;
+  }
+  return v.trim();
 }
 
 // ── Storage helpers ────────────────────────────────────────────────
@@ -412,16 +450,26 @@ export async function handleProcessorCommand(document: TextDocument, position: P
     }
   }
 
+  const cwd = await promptProcessorCwd();
+  if (cwd === undefined) {
+    return;
+  }
+
   const guid = generateGuid();
   const docPath = document.uri.fsPath;
 
-  // Save processor to JSON (only id + command)
+  const proc: Processor = { id: guid, command, shell };
+  if (cwd.length > 0) {
+    proc.cwd = cwd;
+  }
+
+  // Save processor to JSON (only id + command + optional shell/cwd)
   const processors = loadProcessors(docPath);
-  processors.push({ id: guid, command, shell });
+  processors.push(proc);
   saveProcessors(docPath, processors);
 
   // Run the command to get initial output
-  const { output } = runCommand(command, path.dirname(docPath), undefined, shell);
+  const { output } = runCommand(command, resolveProcessorCwd(proc, docPath), undefined, shell);
 
   // Build the block text (no input body initially)
   const block = buildProcessorBlock(guid, output);
@@ -472,7 +520,7 @@ export async function handleRefreshCommand(document: TextDocument, _position: Po
       }
     }
 
-    const { output } = runCommand(proc.command, path.dirname(docPath), inputText, shell);
+    const { output } = runCommand(proc.command, resolveProcessorCwd(proc, docPath), inputText, shell);
 
     // Replace the summary content with the new output
     const summaryStartPos = new Position(block.summaryStart, 0);
@@ -528,7 +576,12 @@ export async function handleUpdateProcessorCommand(document: TextDocument, posit
     prompt: "New shell command",
     value: targetProc.command,
   });
-  if (!newCommand || newCommand === targetProc.command) {
+  if (newCommand === undefined || newCommand.length === 0) {
+    return;
+  }
+
+  const newCwd = await promptProcessorCwd(targetProc.cwd);
+  if (newCwd === undefined) {
     return;
   }
 
@@ -541,6 +594,11 @@ export async function handleUpdateProcessorCommand(document: TextDocument, posit
   }
 
   targetProc.command = newCommand;
+  if (newCwd.length > 0) {
+    targetProc.cwd = newCwd;
+  } else {
+    delete targetProc.cwd;
+  }
   saveProcessors(docPath, processors);
 
   // Ask if they want to re-run

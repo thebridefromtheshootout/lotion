@@ -48,7 +48,13 @@ type DragPayload = DragPayloadTree | DragPayloadStaging;
 export function FilterBar({ schema, titleFieldLabel, filterTree, setFilterTree }: FilterBarProps) {
   const colRef = useRef<HTMLSelectElement>(null);
   const opRef = useRef<HTMLSelectElement>(null);
-  const valRef = useRef<HTMLInputElement>(null);
+
+  const [selectedCol, setSelectedCol] = useState<string>("__title");
+  const [selectedOp, setSelectedOp] = useState<DbFilterOperator>("contains");
+  const [filterValue, setFilterValue] = useState<string>("");
+
+  const currentColumn = schema.find((c) => c.name === selectedCol);
+  const valueKind = inputKindFor(currentColumn?.type, selectedOp);
 
   // ── Staging area: tiles created but not yet placed in the tree ──
   const [stagedTiles, setStagedTiles] = useState<FilterLeaf[]>([]);
@@ -181,17 +187,17 @@ export function FilterBar({ schema, titleFieldLabel, filterTree, setFilterTree }
   }
 
   function clearValueInput() {
-    valRef.current!.value = "";
+    setFilterValue("");
   }
 
   function readFilterLeafInput(): FilterLeaf | null {
-    if (!colRef.current || !opRef.current || !valRef.current) {
+    if (!colRef.current || !opRef.current) {
       return null;
     }
     return {
       col: colRef.current.value,
       op: opRef.current.value as DbFilterOperator,
-      value: valRef.current.value.trim(),
+      value: filterValue.trim(),
     };
   }
 
@@ -212,25 +218,33 @@ export function FilterBar({ schema, titleFieldLabel, filterTree, setFilterTree }
     <>
       <div className="filter-bar">
         <div className="filter-bar-inputs">
-          <select ref={colRef} id="filterCol">
+          <select
+            ref={colRef}
+            id="filterCol"
+            value={selectedCol}
+            onChange={(e) => setSelectedCol(e.target.value)}
+          >
             <option value="__title">{titleFieldLabel}</option>
             <ColumnNameOptions columns={schema} />
           </select>
-          <select ref={opRef} id="filterOp">
+          <select
+            ref={opRef}
+            id="filterOp"
+            value={selectedOp}
+            onChange={(e) => setSelectedOp(e.target.value as DbFilterOperator)}
+          >
             {OPERATORS.map((o) => (
               <option key={o.value} value={o.value}>
                 {o.label}
               </option>
             ))}
           </select>
-          <input
-            ref={valRef}
-            id="filterVal"
-            type="text"
-            placeholder="value…"
-            onKeyDown={(e) => {
-              if (e.key === "Enter") createFilterTile();
-            }}
+          <FilterValueInput
+            kind={valueKind}
+            options={currentColumn?.options}
+            value={filterValue}
+            onChange={setFilterValue}
+            onSubmit={createFilterTile}
           />
           <button onClick={createFilterTile}>Create Filter Tile</button>
         </div>
@@ -270,6 +284,96 @@ export function FilterBar({ schema, titleFieldLabel, filterTree, setFilterTree }
         </div>
       </details>
     </>
+  );
+}
+
+// ── Type-aware value input ─────────────────────────────────────────
+
+type ValueInputKind = "text" | "number" | "date" | "boolean" | "select" | "none";
+
+function inputKindFor(type: DbColumn["type"] | undefined, op: DbFilterOperator): ValueInputKind {
+  if (op === "isempty" || op === "isnotempty") {
+    return "none";
+  }
+  // Multi-value / pattern operators expect a string list or regex —
+  // route them through plain text regardless of the column type.
+  if (
+    op === "in" ||
+    op === "!in" ||
+    op === "has_any" ||
+    op === "has_all" ||
+    op === "between" ||
+    op === "matches_regex"
+  ) {
+    return "text";
+  }
+  switch (type) {
+    case "number":
+      return "number";
+    case "date":
+      return "date";
+    case "checkbox":
+      return "boolean";
+    case "select":
+      return "select";
+    default:
+      return "text";
+  }
+}
+
+interface FilterValueInputProps {
+  kind: ValueInputKind;
+  options: string[] | undefined;
+  value: string;
+  onChange: (v: string) => void;
+  onSubmit: () => void;
+}
+
+function FilterValueInput({ kind, options, value, onChange, onSubmit }: FilterValueInputProps) {
+  if (kind === "none") {
+    return (
+      <input
+        id="filterVal"
+        type="text"
+        placeholder="(no value)"
+        value=""
+        disabled
+        readOnly
+      />
+    );
+  }
+  if (kind === "boolean") {
+    return (
+      <select id="filterVal" value={value} onChange={(e) => onChange(e.target.value)}>
+        <option value="">—</option>
+        <option value="true">true</option>
+        <option value="false">false</option>
+      </select>
+    );
+  }
+  if (kind === "select") {
+    return (
+      <select id="filterVal" value={value} onChange={(e) => onChange(e.target.value)}>
+        <option value="">—</option>
+        {(options ?? []).map((o) => (
+          <option key={o} value={o}>
+            {o}
+          </option>
+        ))}
+      </select>
+    );
+  }
+  return (
+    <input
+      id="filterVal"
+      type={kind}
+      placeholder="value…"
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") onSubmit();
+      }}
+    />
   );
 }
 

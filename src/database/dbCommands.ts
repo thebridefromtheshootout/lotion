@@ -1478,34 +1478,36 @@ export async function logEntryAndPromptNew(entryFilePath: string, columns: DbCol
     return;
   }
 
-  let content: string = fs.readFileSync(entryFilePath, "utf-8");
-  const properties = parsePropertyTable(content);
+  const originalContent: string = fs.readFileSync(entryFilePath, "utf-8");
+  const properties = parsePropertyTable(originalContent);
   if (!properties) {
     hostEditor.showWarning("No property table found in entry.");
     return;
   }
 
-  // Collect current values
-  const fieldNames = columns.map((c) => c.name);
-  const currentValues: string[] = fieldNames.map((name) => properties[name] || "");
-
-  // Append to log table (or create it)
-  content = appendToLogTable(content, fieldNames, currentValues);
-
-  // Clear property table fields
-  content = clearPropertyFields(content, fieldNames);
-
-  // Write intermediate state
-  fs.writeFileSync(entryFilePath, content, "utf-8");
-
-  // Prompt user for new values
+  // Prompt for all new values FIRST.  If the user hits Escape on any
+  // prompt, abort the whole flow without touching the file — otherwise
+  // we'd leave properties cleared with no replacement values.
+  const newValues: Record<string, string> = {};
   for (const col of columns) {
     const val = await promptForColumnValue(col);
     if (val === undefined) {
-      // User cancelled, leave field empty
-      continue;
+      return;
     }
-    updateEntryProperty(entryFilePath, col.name, val);
+    newValues[col.name] = val;
+  }
+
+  // Commit: append the prior values to the log table, then clear the
+  // property fields, then write the new values.
+  const fieldNames = columns.map((c) => c.name);
+  const currentValues: string[] = fieldNames.map((name) => properties[name] || "");
+
+  let content = appendToLogTable(originalContent, fieldNames, currentValues);
+  content = clearPropertyFields(content, fieldNames);
+  fs.writeFileSync(entryFilePath, content, "utf-8");
+
+  for (const col of columns) {
+    updateEntryProperty(entryFilePath, col.name, newValues[col.name]);
   }
 }
 
