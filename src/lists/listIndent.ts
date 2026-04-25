@@ -1,9 +1,9 @@
 
 import { Position, Range, Selection } from "../hostEditor/EditorTypes";
-import type { TextDocument } from "../hostEditor/EditorTypes";
 import { hostEditor } from "../hostEditor/HostingEditor";
 import { collectOrderedList, renumberEdits, applyRenumberEdits } from "./listModel";
 import type { ListNode } from "./listModel";
+import { classifyMarker, findMarkerAtIndent, isCheckboxMarker } from "./listMarker";
 import { Regex } from "../core/regex";
 
 // ── Smart list indent / outdent ────────────────────────────────────
@@ -18,59 +18,10 @@ import { Regex } from "../core/regex";
 
 const LIST_RE = Regex.listItem;
 const ANY_MARKER_RE = Regex.anyListPrefix;
-const CHECKBOX_RE = /^[-*+] \[[ xX]\] $/;
-
-interface MarkerKind {
-  ordered: boolean;
-  bullet?: string;
-  sep?: string;
-  num?: number;
-}
 
 function getIndentSize(): number {
   const tabSize = hostEditor.getTabSize();
   return tabSize > 0 ? tabSize : 2;
-}
-
-function classifyMarker(marker: string): MarkerKind {
-  const m = marker.match(/^(\d+)([.)])\s$/);
-  if (m) {
-    return { ordered: true, sep: m[2], num: parseInt(m[1], 10) };
-  }
-  return { ordered: false, bullet: marker[0] };
-}
-
-/**
- * Walk upward from `lineNum - 1` to find the parent marker style at
- * `targetIndentLen` columns of indent.  Skips blank lines and lines at
- * deeper indent (continuation / sub-list content).  Returns null when a
- * line at *shallower* indent than the target is hit (we left the scope)
- * or we run out of document.
- */
-function findParentMarker(
-  doc: TextDocument,
-  lineNum: number,
-  targetIndentLen: number,
-): MarkerKind | null {
-  for (let i = lineNum - 1; i >= 0; i--) {
-    const text = doc.lineAt(i).text;
-    if (text.trim() === "") {
-      continue;
-    }
-    const lineIndentLen = text.match(Regex.lineIndent)?.[1].length ?? 0;
-    if (lineIndentLen < targetIndentLen) {
-      return null;
-    }
-    if (lineIndentLen > targetIndentLen) {
-      continue;
-    }
-    const m = text.match(ANY_MARKER_RE);
-    if (m && m[1].length === targetIndentLen) {
-      return classifyMarker(m[2]);
-    }
-    // same-indent line with no marker → continuation, keep walking
-  }
-  return null;
 }
 
 /**
@@ -122,11 +73,11 @@ async function smartListLineShift(direction: "in" | "out"): Promise<boolean> {
 
   // Pick the new marker.  Checkboxes preserve their own identity; for
   // everything else, adopt the parent's style at the new indent, or
-  // fall back to the current style (resetting ordered to start at 1).
-  const parent = findParentMarker(document, lineNum, newIndent.length);
+  // fall back to a fresh `- ` list when no parent is found.
+  const parent = findMarkerAtIndent(document, lineNum, newIndent.length);
   let newMarker: string;
   let adoptedOrderedParent = false;
-  if (CHECKBOX_RE.test(oldMarker)) {
+  if (isCheckboxMarker(oldMarker)) {
     newMarker = oldMarker;
   } else if (parent) {
     if (parent.ordered) {

@@ -3,6 +3,7 @@ import { Position, Range, Selection } from "../hostEditor/EditorTypes";
 import type { TextLine } from "../hostEditor/EditorTypes";
 import { hostEditor, OpType, type EditOp } from "../hostEditor/HostingEditor";
 import { collectOrderedList, renumberEdits, applyRenumberEdits } from "./listModel";
+import { continuationMarker, findSameIndentParentMarker } from "./listMarker";
 import { Regex } from "../core/regex";
 
 /**
@@ -164,65 +165,17 @@ export async function handleListContinue(): Promise<void> {
   }
 
   // No marker on this line, but it may be a same-indent continuation of
-  // a marker line above (per the user's convention).  Walk upward through
-  // same-indent, marker-less lines until a marker is found (continue the
-  // list) or the indent changes (give up and do a normal Enter).
-  const continuation = findSameIndentParent(document, selection.active.line);
-  if (continuation) {
-    await insertBelow(selection, `${continuation.indent}${continuation.newMarker}`);
+  // a marker line above.  Walk upward through same-indent, marker-less
+  // lines until a marker is found (continue the list) or the indent
+  // changes (give up and fall through to a normal Enter).
+  const parent = findSameIndentParentMarker(document, selection.active.line);
+  if (parent) {
+    await insertBelow(selection, `${parent.indent}${continuationMarker(parent.parentMarker)}`);
     return;
   }
 
   // No list detected → normal Enter
   await hostEditor.executeCommand("type", { text: "\n" });
-}
-
-/**
- * Walk upward from `lineNum` looking for a list-marker line at the same
- * indent as the current line, skipping intermediate marker-less lines.
- * Returns the new marker to use for continuation, or null when the indent
- * changes / a blank line is hit / no marker is found.
- */
-function findSameIndentParent(
-  doc: import("../hostEditor/EditorTypes").TextDocument,
-  lineNum: number,
-): { indent: string; newMarker: string } | null {
-  const currentText = doc.lineAt(lineNum).text;
-  if (currentText.trim() === "") {
-    return null;
-  }
-  if (currentText.match(Regex.anyListPrefix)) {
-    return null; // already handled by a marker path above
-  }
-  const currentIndent = currentText.match(Regex.lineIndent)?.[1] ?? "";
-
-  for (let i = lineNum - 1; i >= 0; i--) {
-    const text = doc.lineAt(i).text;
-    if (text.trim() === "") {
-      return null;
-    }
-    const lineIndent = text.match(Regex.lineIndent)?.[1] ?? "";
-    if (lineIndent !== currentIndent) {
-      return null;
-    }
-    const m = text.match(Regex.anyListPrefix);
-    if (m && m[1] === currentIndent) {
-      return { indent: currentIndent, newMarker: nextMarker(m[2]) };
-    }
-    // same-indent no-marker continuation → keep walking
-  }
-  return null;
-}
-
-function nextMarker(parentMarker: string): string {
-  const ord = parentMarker.match(/^(\d+)([.)])\s$/);
-  if (ord) {
-    return `${parseInt(ord[1], 10) + 1}${ord[2]} `;
-  }
-  if (/^[-*+] \[[ xX]\] $/.test(parentMarker)) {
-    return `${parentMarker[0]} [ ] `;
-  }
-  return parentMarker;
 }
 
 // ── Helpers ────────────────────────────────────────────────────────

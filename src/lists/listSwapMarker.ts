@@ -4,6 +4,7 @@ import { hostEditor } from "../hostEditor/HostingEditor";
 import { Regex } from "../core/regex";
 import { cursorInCodeContext } from "../editor/codeContext";
 import { collectListSiblingsBelow } from "./listModel";
+import { classifyMarker, sameStyle, type MarkerKind } from "./listMarker";
 
 // ── List-marker swap on inline retype ──────────────────────────────
 //
@@ -19,28 +20,6 @@ import { collectListSiblingsBelow } from "./listModel";
 const ANY_MARKER_SRC = "(?:[-*+] \\[[ x]\\] |[-*+] |\\d+[.)] )";
 const NEW_MARKER_SRC = "(?:[-*+] |\\d+[.)] )";
 const SWAP_RE = new RegExp(`^(\\s*)(${ANY_MARKER_SRC})(${NEW_MARKER_SRC})$`);
-
-interface MarkerKind {
-  ordered: boolean;
-  bullet?: string;
-  sep?: string;
-  num?: number;
-}
-
-function classifyMarker(marker: string): MarkerKind {
-  const m = marker.match(/^(\d+)([.)])\s$/);
-  if (m) {
-    return { ordered: true, sep: m[2], num: parseInt(m[1], 10) };
-  }
-  return { ordered: false, bullet: marker[0] };
-}
-
-function sameStyle(a: MarkerKind, b: MarkerKind): boolean {
-  if (a.ordered !== b.ordered) {
-    return false;
-  }
-  return a.ordered ? a.sep === b.sep : a.bullet === b.bullet;
-}
 
 export function createListSwapMarker(): Disposable {
   let processing = false;
