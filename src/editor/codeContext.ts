@@ -1,6 +1,7 @@
 import { Position } from "../hostEditor/EditorTypes";
 import type { TextDocument } from "../hostEditor/EditorTypes";
 import { Regex } from "../core/regex";
+import { getBlockIndex } from "../core/blockIndex";
 
 /**
  * Returns true if `position` is inside either:
@@ -8,20 +9,10 @@ import { Regex } from "../core/regex";
  * - an inline code span delimited by backticks.
  */
 export function cursorInCodeContext(document: TextDocument, position: Position): boolean {
-  if (isInsideFencedCodeBlock(document, position.line)) {
+  if (getBlockIndex(document).isInCodeFence(position.line)) {
     return true;
   }
   return isInsideInlineCode(document.lineAt(position.line).text, position.character);
-}
-
-function isInsideFencedCodeBlock(document: TextDocument, line: number): boolean {
-  let fenced = false;
-  for (let i = 0; i < line; i++) {
-    if (Regex.fencedCodeDelimiter.test(document.lineAt(i).text)) {
-      fenced = !fenced;
-    }
-  }
-  return fenced;
 }
 
 function isInsideInlineCode(lineText: string, character: number): boolean {

@@ -14,6 +14,7 @@ import type { TextDocument, TreeDataProvider } from "../hostEditor/EditorTypes";
 import { hostEditor } from "../hostEditor/HostingEditor";
 import { Cmd } from "../core/commands";
 import { Regex } from "../core/regex";
+import { getBlockIndex } from "../core/blockIndex";
 
 // ── Heading outline tree view ──────────────────────────────────────
 //
@@ -92,21 +93,11 @@ function nodeToItem(node: HeadingNode): HeadingItem {
 function buildHeadingTree(document: TextDocument): HeadingNode[] {
   const headings: HeadingNode[] = [];
   const HEADING_RE = Regex.headingLineWithText;
-  let inFence = false;
+  const idx = getBlockIndex(document);
 
   for (let i = 0; i < document.lineCount; i++) {
-    const text = document.lineAt(i).text;
-    // Track fenced code blocks in a single linear pass
-    if (Regex.fencedBackticksOnly.test(text.trim())) {
-      inFence = !inFence;
-      continue;
-    }
-    // Skip headings inside code blocks
-    if (inFence) {
-      continue;
-    }
-
-    const match = text.match(HEADING_RE);
+    if (idx.isInCodeFence(i)) continue;
+    const match = document.lineAt(i).text.match(HEADING_RE);
     if (match) {
       headings.push({
         label: match[2].trim(),

@@ -1,7 +1,8 @@
 import { Disposable, Position, Range } from "../hostEditor/EditorTypes";
-import type { TextDocument, TextDocumentContentChangeEvent } from "../hostEditor/EditorTypes";
+import type { TextDocument } from "../hostEditor/EditorTypes";
 import { hostEditor } from "../hostEditor/HostingEditor";
 import { Regex } from "../core/regex";
+import { getBlockIndex } from "../core/blockIndex";
 
 const TRIGGER_CHARS = new Set([" ", ",", ".", ";", ":", "!", "?", ")", "]", "}"]);
 const WORD_BEFORE = /(\w+)$/;
@@ -16,13 +17,7 @@ interface CaseSettings {
 }
 
 function isInsideCode(doc: TextDocument, pos: Position): boolean {
-  let fenced = false;
-  for (let i = 0; i < pos.line; i++) {
-    if (Regex.fencedCodeDelimiter.test(doc.lineAt(i).text)) {
-      fenced = !fenced;
-    }
-  }
-  if (fenced) {
+  if (getBlockIndex(doc).isInCodeFence(pos.line)) {
     return true;
   }
   const before = doc.lineAt(pos.line).text.substring(0, pos.character);
