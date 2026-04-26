@@ -3,6 +3,7 @@ import { Position, Range, Selection } from "../hostEditor/EditorTypes";
 import type { TextDocument } from "../hostEditor/EditorTypes";
 import { hostEditor } from "../hostEditor/HostingEditor";
 import { Regex } from "../core/regex";
+import { getBlockIndex } from "../core/blockIndex";
 
 // ── Table detection ────────────────────────────────────────────────
 const TABLE_ROW_RE = Regex.markdownTableRow;
@@ -41,7 +42,7 @@ export function getTableRange(document: TextDocument, line: number): { start: nu
  * Returns true if the cursor is currently inside a markdown table.
  */
 export function cursorInTable(document: TextDocument, position: Position): boolean {
-  return getTableRange(document, position.line) !== undefined;
+  return getBlockIndex(document).tableAt(position.line) !== undefined;
 }
 
 // ── Table parsing & serialization ──────────────────────────────────
