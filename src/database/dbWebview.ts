@@ -87,8 +87,9 @@ export async function openDbWebview(dbIndexPath: string): Promise<void> {
   });
 
   communicator.registerOnOpenEntry(async (msg) => {
-    const target = Uri.file(path.join(dbDir, msg.relativePath));
-    await hostEditor.executeCommand("vscode.open", target);
+    const resolved = resolveEntryPath(dbDir, msg.relativePath);
+    if (!resolved) return;
+    await hostEditor.executeCommand("vscode.open", Uri.file(resolved));
   });
 
   communicator.registerOnAddEntry(async (msg) => {
@@ -101,7 +102,8 @@ export async function openDbWebview(dbIndexPath: string): Promise<void> {
   });
 
   communicator.registerOnUpdateEntryProperty((msg) => {
-    const entryFile = path.join(dbDir, msg.relativePath);
+    const entryFile = resolveEntryPath(dbDir, msg.relativePath);
+    if (!entryFile) return;
     updateEntryProperty(entryFile, msg.column, msg.value);
     softRefreshDbWebview(dbIndexPath);
   });
@@ -161,8 +163,9 @@ export async function openDbWebview(dbIndexPath: string): Promise<void> {
     if (pick) {
       const entry = readDbEntries(dbDir).find((e) => e.title === pick);
       if (entry) {
-        const target = Uri.file(path.join(dbDir, entry.relativePath));
-        await hostEditor.executeCommand("vscode.open", target);
+        const resolved = resolveEntryPath(dbDir, entry.relativePath);
+        if (!resolved) return;
+        await hostEditor.executeCommand("vscode.open", Uri.file(resolved));
       }
     }
   });
@@ -172,7 +175,8 @@ export async function openDbWebview(dbIndexPath: string): Promise<void> {
     if (!schema) {
       return;
     }
-    const entryFile = path.join(dbDir, msg.relativePath);
+    const entryFile = resolveEntryPath(dbDir, msg.relativePath);
+    if (!entryFile) return;
     await logEntryAndPromptNew(entryFile, schema.columns);
     await refreshPanel();
   });
@@ -242,6 +246,20 @@ function resolveDbEntries(dbIndexPath: string): { dbDir: string; entries: DbEntr
   const dbDir = path.dirname(dbIndexPath);
   const entries = mapEntries(readDbEntries(dbDir));
   return { dbDir, entries };
+}
+
+/**
+ * Resolve a webview-supplied relative path against the database dir, rejecting any
+ * value that escapes the directory (e.g. "../../../etc/passwd"). Returns the
+ * absolute path on success, or undefined if the path traverses outside dbDir.
+ */
+function resolveEntryPath(dbDir: string, relativePath: string): string | undefined {
+  const dbDirAbs = path.resolve(dbDir);
+  const target = path.resolve(dbDirAbs, relativePath);
+  if (target !== dbDirAbs && !target.startsWith(dbDirAbs + path.sep)) {
+    return undefined;
+  }
+  return target;
 }
 
 function mapEntries(entries: DbEntry[]): DbEntry[] {
