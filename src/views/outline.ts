@@ -92,11 +92,17 @@ function nodeToItem(node: HeadingNode): HeadingItem {
 function buildHeadingTree(document: TextDocument): HeadingNode[] {
   const headings: HeadingNode[] = [];
   const HEADING_RE = Regex.headingLineWithText;
+  let inFence = false;
 
   for (let i = 0; i < document.lineCount; i++) {
     const text = document.lineAt(i).text;
+    // Track fenced code blocks in a single linear pass
+    if (Regex.fencedBackticksOnly.test(text.trim())) {
+      inFence = !inFence;
+      continue;
+    }
     // Skip headings inside code blocks
-    if (isInsideFence(document, i)) {
+    if (inFence) {
       continue;
     }
 
@@ -135,16 +141,6 @@ function nestHeadings(flat: HeadingNode[]): HeadingNode[] {
   }
 
   return root;
-}
-
-function isInsideFence(document: TextDocument, line: number): boolean {
-  let fenceCount = 0;
-  for (let i = 0; i < line; i++) {
-    if (Regex.fencedBackticksOnly.test(document.lineAt(i).text.trim())) {
-      fenceCount++;
-    }
-  }
-  return fenceCount % 2 !== 0;
 }
 
 export function revealHeading(line: number): void {
