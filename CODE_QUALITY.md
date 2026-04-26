@@ -96,7 +96,7 @@ Cyclomatic-complexity-by-eye hot spots: `findDetailsBlock` ([`lockBlock.ts:349-4
 
 ---
 
-## 6. Dead code
+## 6. Dead code [Addressed]
 
 There's a sizable graveyard of disabled features still on disk. **1768 lines** across 15 files are imported nowhere except via commented-out `// disabled` lines.
 
@@ -219,9 +219,9 @@ Mostly consistent. Spotted issues:
 
 | Severity | Finding | Citation |
 |---|---|---|
-| **Medium** | `core/commands.ts` declares 144 command IDs (one per line, all `lotion.*`). At least 10 are dead — declared here but the handlers are commented out everywhere ([`Cmd.toggleFocusMode`](src/core/commands.ts#L8), [`Cmd.wrapWith`](src/core/commands.ts#L82), [`Cmd.toggleListType`](src/core/commands.ts#L97), [`Cmd.showTagIndex`](src/core/commands.ts#L109), [`Cmd.wikiSearch`](src/core/commands.ts#L114), [`Cmd.findUnusedImages`](src/core/commands.ts#L119), [`Cmd.pomodoroStart/Break/Stop`](src/core/commands.ts#L158)). They still appear in completions if anyone imports `Cmd.foo`. | [`commands.ts`](src/core/commands.ts) |
-| **Medium** | `package.json` declares 1095 lines including `commands`, `keybindings`, `views`, `configuration`, `submenus`. With ~10 dead `Cmd.*` entries, the corresponding `package.json` `commands` and `keybindings` may declare orphaned entries. | [`package.json`](package.json) |
-| **Low** | `extension.ts` registration block ([`extension.ts:223-262`](src/extension.ts#L223)) lists 7 commented-out registrations. Once the dead-code purge happens, this block can be cut by ~30%. | as cited |
+| **Medium** [Addressed] | `core/commands.ts` declares 144 command IDs (one per line, all `lotion.*`). At least 10 are dead — declared here but the handlers are commented out everywhere ([`Cmd.toggleFocusMode`](src/core/commands.ts#L8), [`Cmd.wrapWith`](src/core/commands.ts#L82), [`Cmd.toggleListType`](src/core/commands.ts#L97), [`Cmd.showTagIndex`](src/core/commands.ts#L109), [`Cmd.wikiSearch`](src/core/commands.ts#L114), [`Cmd.findUnusedImages`](src/core/commands.ts#L119), [`Cmd.pomodoroStart/Break/Stop`](src/core/commands.ts#L158)). They still appear in completions if anyone imports `Cmd.foo`. | [`commands.ts`](src/core/commands.ts) |
+| **Medium** [Addressed] | `package.json` declares 1095 lines including `commands`, `keybindings`, `views`, `configuration`, `submenus`. With ~10 dead `Cmd.*` entries, the corresponding `package.json` `commands` and `keybindings` may declare orphaned entries. *Note: `lotion.insertTemplate` and `lotion.expandSnippet` package.json entries also became orphans after the purge — left in place; can be cleaned in a follow-up.* | [`package.json`](package.json) |
+| **Low** [Addressed] | `extension.ts` registration block ([`extension.ts:223-262`](src/extension.ts#L223)) lists 7 commented-out registrations. Once the dead-code purge happens, this block can be cut by ~30%. | as cited |
 
 ---
 
@@ -251,7 +251,7 @@ Ranked by **(impact × ease) / risk**.
 ### 3. Replace document-wide rescans with a per-document cached block index (perf, ~150 lines)
 A single new module `core/blockIndex.ts` that produces, per document version: (a) fenced-code-block ranges, (b) `<details>` ranges, (c) callout ranges, (d) secretbox ranges. Consumers in [`outline.ts:140`](src/views/outline.ts#L140), [`autoInlineCode.ts:18`](src/formatting/autoInlineCode.ts#L18), [`codeContext.ts:17`](src/editor/codeContext.ts#L17), [`lockBlock.ts:79`](src/blocks/lockBlock.ts#L79), [`structureLint.ts:34`](src/core/structureLint.ts#L34), [`editorDecorations.ts:120`](src/editor/editorDecorations.ts#L120) become O(1) lookups. Removes at least three O(N²) hotspots that fire per keystroke. Risk: medium (touches many sites, but each site is small). Impact: large — typing latency in long files improves significantly.
 
-### 4. Delete or sequester the 1768 lines of disabled code (cleanup, mechanical)
+### 4. Delete or sequester the 1768 lines of disabled code (cleanup, mechanical) [Addressed — git rm]
 The 15 files in §6 are imported nowhere except via `// disabled` lines. Either git-rm them (history retains everything) or move to `experimental/` excluded from `tsconfig`. Risk: nil if you keep the git history; the user can restore any time. Impact: removes 1768 lines from the build, simplifies the dependency graph, eliminates the visual noise of disabled imports throughout `extension.ts`, `simpleCommands.ts`, and module barrels.
 
 ### 5. Extract `getExecErrorText` / `isMissingCommandError` and `loadJsonStore` / `saveJsonStore` (dedup, ~80 lines deleted) [Addressed]
