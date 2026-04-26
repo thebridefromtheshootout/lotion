@@ -2,6 +2,7 @@ import { hostEditor } from "../hostEditor/HostingEditor";
 import { Diagnostic, DiagnosticSeverity, Disposable, Position, Range } from "../hostEditor/EditorTypes";
 import type { DiagnosticCollection, TextDocument } from "../hostEditor/EditorTypes";
 import { Regex } from "./regex";
+import { getBlockIndex } from "./blockIndex";
 
 /**
  * Document structure linter for markdown.
@@ -28,28 +29,12 @@ function lintDocument(doc: TextDocument): void {
   let prevHeadingLevel = 0;
   let h1Count = 0;
   const headingTexts: Map<string, number> = new Map();
-  let inCodeFence = false;
-  let codeFenceStart = -1;
+  const idx = getBlockIndex(doc);
 
   for (let i = 0; i < doc.lineCount; i++) {
+    if (idx.isInCodeFence(i)) continue;
     const line = doc.lineAt(i);
     const text = line.text;
-
-    // Code fence tracking
-    if (Regex.fencedBackticksOnly.test(text)) {
-      if (!inCodeFence) {
-        inCodeFence = true;
-        codeFenceStart = i;
-      } else {
-        inCodeFence = false;
-        codeFenceStart = -1;
-      }
-      continue;
-    }
-
-    if (inCodeFence) {
-      continue;
-    }
 
     // Heading analysis
     const headingMatch = text.match(Regex.headingLineWithText);
@@ -122,14 +107,18 @@ function lintDocument(doc: TextDocument): void {
   }
 
   // Unclosed code fence
-  if (inCodeFence && codeFenceStart >= 0) {
-    diagnostics.push(
-      new Diagnostic(
-        doc.lineAt(codeFenceStart).range,
-        "Unclosed code fence (no matching ```).",
-        DiagnosticSeverity.Warning,
-      ),
-    );
+  const trailingFence = idx.codeFences[idx.codeFences.length - 1];
+  if (trailingFence && trailingFence.endLine === doc.lineCount - 1) {
+    const closingLine = doc.lineAt(trailingFence.endLine).text.trim();
+    if (!closingLine.startsWith(trailingFence.fenceChar.repeat(3))) {
+      diagnostics.push(
+        new Diagnostic(
+          doc.lineAt(trailingFence.startLine).range,
+          "Unclosed code fence (no matching ```).",
+          DiagnosticSeverity.Warning,
+        ),
+      );
+    }
   }
 
   diagnosticCollection.set(doc.uri, diagnostics);

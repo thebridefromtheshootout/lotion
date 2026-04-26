@@ -2,6 +2,7 @@ import { Disposable, OverviewRulerLane, Range } from "../hostEditor/EditorTypes"
 import type { DecorationOptions, TextEditorDecorationType } from "../hostEditor/EditorTypes";
 import { hostEditor } from "../hostEditor/HostingEditor";
 import { Regex } from "../core/regex";
+import { getBlockIndex } from "../core/blockIndex";
 
 // ── Editor decorations for callouts, highlights, and code blocks ───
 //
@@ -101,81 +102,42 @@ export function createEditorDecorations(): Disposable {
       return;
     }
     const doc = hostEditor.getDocument()!;
+    const idx = getBlockIndex(doc);
 
     // Callout buckets
     const calloutBuckets: Map<string, DecorationOptions[]> = new Map();
     for (const key of calloutTypes.keys()) {
       calloutBuckets.set(key, []);
     }
+    for (const callout of idx.callouts) {
+      const bucket = calloutBuckets.get(callout.kind);
+      if (!bucket) continue;
+      for (let i = callout.startLine; i <= callout.endLine; i++) {
+        const lineLen = doc.lineAt(i).text.length;
+        bucket.push({ range: new Range(i, 0, i, lineLen) });
+      }
+    }
 
-    // Highlight ranges
-    const highlightRanges: DecorationOptions[] = [];
-
-    // Code block ranges
+    // Code block ranges (whole-line)
     const codeBlockRanges: DecorationOptions[] = [];
+    for (const fence of idx.codeFences) {
+      for (let i = fence.startLine; i <= fence.endLine; i++) {
+        const lineLen = doc.lineAt(i).text.length;
+        codeBlockRanges.push({ range: new Range(i, 0, i, lineLen) });
+      }
+    }
 
-    let inFence = false;
-    let currentCalloutType: string | null = null;
-
+    // Highlight ranges (skip lines inside fences)
+    const highlightRanges: DecorationOptions[] = [];
     for (let i = 0; i < doc.lineCount; i++) {
+      if (idx.isInCodeFence(i)) continue;
       const lineText = doc.lineAt(i).text;
-
-      // ── Fenced code blocks ──
-      if (Regex.fencedBackticksOnly.test(lineText.trim())) {
-        if (inFence) {
-          // Closing fence — include this line
-          codeBlockRanges.push({
-            range: new Range(i, 0, i, lineText.length),
-          });
-          inFence = false;
-          continue;
-        } else {
-          inFence = true;
-          codeBlockRanges.push({
-            range: new Range(i, 0, i, lineText.length),
-          });
-          continue;
-        }
-      }
-
-      if (inFence) {
-        codeBlockRanges.push({
-          range: new Range(i, 0, i, lineText.length),
-        });
-        continue;
-      }
-
-      // ── Callout blocks ──
-      const calloutMatch = lineText.match(Regex.calloutOpen);
-      if (calloutMatch) {
-        currentCalloutType = calloutMatch[1].toUpperCase();
-        const bucket = calloutBuckets.get(currentCalloutType);
-        if (bucket) {
-          bucket.push({ range: new Range(i, 0, i, lineText.length) });
-        }
-        continue;
-      }
-
-      if (currentCalloutType && Regex.calloutContinuation.test(lineText)) {
-        const bucket = calloutBuckets.get(currentCalloutType);
-        if (bucket) {
-          bucket.push({ range: new Range(i, 0, i, lineText.length) });
-        }
-        continue;
-      } else {
-        currentCalloutType = null;
-      }
-
-      // ── Inline highlights ==text== ──
       let hm: RegExpExecArray | null;
       Regex.highlightDelimitedGlobal.lastIndex = 0;
       while ((hm = Regex.highlightDelimitedGlobal.exec(lineText)) !== null) {
-        // Decorate just the content (skip the == markers)
         const contentStart = hm.index + 2;
         const contentEnd = hm.index + hm[0].length - 2;
-        highlightRanges.push({
-          range: new Range(i, contentStart, i, contentEnd),
-        });
+        highlightRanges.push({ range: new Range(i, contentStart, i, contentEnd) });
       }
     }
 
