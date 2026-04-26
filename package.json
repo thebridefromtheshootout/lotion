@@ -189,12 +189,6 @@
         "category": "Lotion"
       },
       {
-        "command": "lotion.moveBlock",
-        "title": "Lotion: Move Block to Page",
-        "icon": "$(arrow-right)",
-        "category": "Lotion"
-      },
-      {
         "command": "lotion.insertEmoji",
         "title": "Lotion: Insert Emoji",
         "icon": "$(smiley)",
@@ -429,12 +423,6 @@
         "category": "Lotion"
       },
       {
-        "command": "lotion.toggleFocusMode",
-        "title": "Lotion: Toggle Focus Mode",
-        "icon": "$(eye)",
-        "category": "Lotion"
-      },
-      {
         "command": "lotion.insertLink",
         "title": "Lotion: Insert Internal Link",
         "icon": "$(link)",
@@ -477,12 +465,6 @@
         "category": "Lotion"
       },
       {
-        "command": "lotion.showTagIndex",
-        "title": "Lotion: Browse by Tag",
-        "icon": "$(tag)",
-        "category": "Lotion"
-      },
-      {
         "command": "lotion.indentList",
         "title": "Lotion: Indent List Item",
         "icon": "$(indent)",
@@ -492,12 +474,6 @@
         "command": "lotion.outdentList",
         "title": "Lotion: Outdent List Item",
         "icon": "$(indent)",
-        "category": "Lotion"
-      },
-      {
-        "command": "lotion.toggleListType",
-        "title": "Lotion: Toggle List Type",
-        "icon": "$(list-unordered)",
         "category": "Lotion"
       },
       {
@@ -519,12 +495,6 @@
         "category": "Lotion"
       },
       {
-        "command": "lotion.findUnusedImages",
-        "title": "Lotion: Find Unused Images",
-        "icon": "$(search)",
-        "category": "Lotion"
-      },
-      {
         "command": "lotion.selectBlock",
         "title": "Lotion: Select Block",
         "icon": "$(whole-word)",
@@ -540,12 +510,6 @@
         "command": "lotion.swapBlockDown",
         "title": "Lotion: Swap Block Down",
         "icon": "$(arrow-down)",
-        "category": "Lotion"
-      },
-      {
-        "command": "lotion.wrapWith",
-        "title": "Lotion: Wrap With…",
-        "icon": "$(symbol-string)",
         "category": "Lotion"
       },
       {
@@ -642,36 +606,6 @@
         "command": "lotion.openBookmark",
         "title": "Lotion: Open Bookmark",
         "icon": "$(bookmark)",
-        "category": "Lotion"
-      },
-      {
-        "command": "lotion.wikiSearch",
-        "title": "Lotion: Search All Pages",
-        "icon": "$(search)",
-        "category": "Lotion"
-      },
-      {
-        "command": "lotion.pomodoroStart",
-        "title": "Lotion: Start Pomodoro",
-        "icon": "$(play)",
-        "category": "Lotion"
-      },
-      {
-        "command": "lotion.pomodoroBreak",
-        "title": "Lotion: Start Break",
-        "icon": "$(watch)",
-        "category": "Lotion"
-      },
-      {
-        "command": "lotion.pomodoroStop",
-        "title": "Lotion: Stop Pomodoro",
-        "icon": "$(debug-stop)",
-        "category": "Lotion"
-      },
-      {
-        "command": "lotion.pasteFromHistory",
-        "title": "Lotion: Paste from Clipboard History",
-        "icon": "$(history)",
         "category": "Lotion"
       },
       {
@@ -863,12 +797,6 @@
         "when": "editorTextFocus && editorLangId == markdown && !inSnippetMode && !suggestWidgetVisible"
       },
       {
-        "command": "lotion.toggleListType",
-        "key": "",
-        "mac": "",
-        "when": "false"
-      },
-      {
         "command": "lotion.promoteHeading",
         "key": "alt+shift+left",
         "mac": "alt+shift+left",
@@ -905,12 +833,6 @@
         "when": "editorTextFocus && editorLangId == markdown"
       },
       {
-        "command": "lotion.wrapWith",
-        "key": "ctrl+shift+w",
-        "mac": "cmd+shift+w",
-        "when": "editorTextFocus && editorLangId == markdown"
-      },
-      {
         "command": "lotion.recentPages",
         "key": "alt+r",
         "mac": "alt+r",
@@ -934,13 +856,6 @@
           "type": "number",
           "default": 230,
           "description": "Words per minute used to estimate reading time."
-        },
-        "lotion.focusModeOpacity": {
-          "type": "number",
-          "default": 0.35,
-          "minimum": 0,
-          "maximum": 1,
-          "description": "Opacity for unfocused blocks in focus mode (0 = invisible, 1 = fully visible)."
         },
         "lotion.smartTypography": {
           "type": "boolean",

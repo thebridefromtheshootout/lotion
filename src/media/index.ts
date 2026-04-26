@@ -4,7 +4,6 @@ export {
  } from "./graph";
 export { createImageDropProvider } from "./imageDrop";
 export { createImageHoverProvider } from "./imageHover";
-// export { findUnusedImages } from "./unusedImages"; // disabled
 
 // ── Slash commands ─────────────────────────────────────────────────
 import type { SlashCommand } from "../core/slashCommands";

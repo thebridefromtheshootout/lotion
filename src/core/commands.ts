@@ -5,7 +5,6 @@
 export const Cmd = {
   // ── Editor ─────────────────────────────────────────────────────────
   smartPaste: "lotion.smartPaste",
-  toggleFocusMode: "lotion.toggleFocusMode",
   editFrontmatter: "lotion.editFrontmatter",
   addComment: "lotion.addComment",
   showCommentPanel: "lotion.showCommentPanel",
@@ -69,7 +68,6 @@ export const Cmd = {
   insertSecretbox: "lotion.insertSecretbox",
   lockBlock: "lotion.lockBlock",
   unlockBlock: "lotion.unlockBlock",
-  moveBlock: "lotion.moveBlock",
 
   // ── Formatting ─────────────────────────────────────────────────────
   toggleBold: "lotion.toggleBold",
@@ -79,7 +77,6 @@ export const Cmd = {
   toggleHighlight: "lotion.toggleHighlight",
   promoteHeading: "lotion.promoteHeading",
   demoteHeading: "lotion.demoteHeading",
-  wrapWith: "lotion.wrapWith",
 
   // ── Links ──────────────────────────────────────────────────────────
   linksToReference: "lotion.linksToReference",
@@ -94,7 +91,6 @@ export const Cmd = {
   toggleCheckbox: "lotion.toggleCheckbox",
   indentList: "lotion.indentList",
   outdentList: "lotion.outdentList",
-  toggleListType: "lotion.toggleListType",
   renumberList: "lotion.renumberList",
   cleanList: "lotion.cleanList",
   olToUl: "lotion.olToUl",
@@ -106,17 +102,14 @@ export const Cmd = {
   jumpToHeading: "lotion.jumpToHeading",
   findOrphanPages: "lotion.findOrphanPages",
   extractToSubpage: "lotion.extractToSubpage",
-  showTagIndex: "lotion.showTagIndex",
   recentPages: "lotion.recentPages",
   renamePage: "lotion.renamePage",
   movePage: "lotion.movePage",
   quickSwitch: "lotion.quickSwitch",
-  wikiSearch: "lotion.wikiSearch",
   createPage: "lotion.createPage",
   turnInto: "lotion.turnInto",
 
   // ── Media ──────────────────────────────────────────────────────────
-  findUnusedImages: "lotion.findUnusedImages",
   insertImage: "lotion.insertImage",
   insertResource: "lotion.insertResource",
   insertCarousel: "lotion.insertCarousel",
@@ -151,13 +144,9 @@ export const Cmd = {
   bookmarkPage: "lotion.bookmarkPage",
   removeBookmark: "lotion.removeBookmark",
   openBookmark: "lotion.openBookmark",
-  pasteFromHistory: "lotion.pasteFromHistory",
   copyToClipboard: "lotion.copyToClipboard",
   cutToClipboard: "lotion.cutToClipboard",
   openDailyNote: "lotion.openDailyNote",
-  pomodoroStart: "lotion.pomodoroStart",
-  pomodoroBreak: "lotion.pomodoroBreak",
-  pomodoroStop: "lotion.pomodoroStop",
   gitCommit: "lotion.gitCommit",
   expandSnippet: "lotion.expandSnippet",
 } as const;

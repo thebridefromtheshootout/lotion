@@ -10,19 +10,18 @@ import { matchesSavedHash } from "./fileHashTracker";
 
 // Editor handlers
 import { handleUpdateDate, editFrontmatter, handleSmartPaste, addComment, searchWorkspaceCommands } from "../editor";
-// import { toggleFocusMode } from "../editor"; // disabled
 
 // Block handlers
 import { swapBlockUp, swapBlockDown, handleDuplicateBlock, selectBlock } from "../blocks";
 
 // Formatting handlers
-import { promoteHeading, demoteHeading /* , wrapWith */ } from "../formatting";
+import { promoteHeading, demoteHeading } from "../formatting";
 
 // Link handlers
 import { convertLinksToReference, convertLinksToInline, searchWorkspaceLinks } from "../links";
 
 // List handlers
-import { toggleCheckbox, handleListContinue, indentListItem, outdentListItem /* , toggleListType */ } from "../lists";
+import { toggleCheckbox, handleListContinue, indentListItem, outdentListItem } from "../lists";
 
 // Navigation handlers
 import {
@@ -33,12 +32,7 @@ import {
   findOrphanPages,
   quickSwitchPage,
   showRecentPages,
-  // showTagIndex,
-  // wikiSearch,
 } from "../navigation";
-
-// Media handlers
-// import { findUnusedImages } from "../media"; // disabled
 
 // View handlers
 import { revealHeading, setPageIcon } from "../views";
@@ -48,11 +42,7 @@ import {
   bookmarkPage,
   removeBookmark,
   openBookmark,
-  pasteFromHistory,
   openDailyNote,
-  // pomodoroStart, // disabled
-  // pomodoroBreak, // disabled
-  // pomodoroStop, // disabled
   handleGitCommitCommand,
   fireInto,
 } from "../productivity";
@@ -132,7 +122,6 @@ export function slashHandler(handler: SlashCommandHandler, cleanLine?: boolean):
 export const SIMPLE_COMMANDS: [string, (...args: any[]) => any][] = [
   // Editor
   [Cmd.smartPaste, handleSmartPaste],
-  // [Cmd.toggleFocusMode, toggleFocusMode], // disabled
   [Cmd.editFrontmatter, editFrontmatter],
   [Cmd.addComment, addComment],
   // Blocks
@@ -143,7 +132,6 @@ export const SIMPLE_COMMANDS: [string, (...args: any[]) => any][] = [
   // Formatting
   [Cmd.promoteHeading, promoteHeading],
   [Cmd.demoteHeading, demoteHeading],
-  // [Cmd.wrapWith, wrapWith],  // disabled
   // Links
   [Cmd.linksToReference, convertLinksToReference],
   [Cmd.linksToInline, convertLinksToInline],
@@ -154,19 +142,14 @@ export const SIMPLE_COMMANDS: [string, (...args: any[]) => any][] = [
   [Cmd.toggleCheckbox, toggleCheckbox],
   [Cmd.indentList, indentListItem],
   [Cmd.outdentList, outdentListItem],
-  // [Cmd.toggleListType, toggleListType],  // disabled
   // Navigation
   [Cmd.jumpToNextHeading, jumpToNextHeading],
   [Cmd.jumpToPrevHeading, jumpToPrevHeading],
   [Cmd.jumpToHeading, jumpToHeadingPicker],
   [Cmd.findOrphanPages, findOrphanPages],
   [Cmd.extractToSubpage, handleExtractToSubpage],
-  // [Cmd.showTagIndex, showTagIndex], // disabled
   [Cmd.recentPages, showRecentPages],
   [Cmd.quickSwitch, quickSwitchPage],
-  // [Cmd.wikiSearch, wikiSearch], // disabled
-  // Media
-  // [Cmd.findUnusedImages, findUnusedImages], // disabled
   // Views
   [Cmd.revealHeading, revealHeading],
   [Cmd.setPageIcon, setPageIcon],
@@ -174,11 +157,7 @@ export const SIMPLE_COMMANDS: [string, (...args: any[]) => any][] = [
   [Cmd.bookmarkPage, bookmarkPage],
   [Cmd.removeBookmark, removeBookmark],
   [Cmd.openBookmark, openBookmark],
-  [Cmd.pasteFromHistory, pasteFromHistory],
   [Cmd.openDailyNote, openDailyNote],
-  // [Cmd.pomodoroStart, pomodoroStart], // disabled
-  // [Cmd.pomodoroBreak, pomodoroBreak], // disabled
-  // [Cmd.pomodoroStop, pomodoroStop], // disabled
   [Cmd.gitCommit, slashHandler(handleGitCommitCommand)],
   [Cmd.fireInto, fireInto],
 ];

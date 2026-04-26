@@ -6,7 +6,6 @@ import {
   updateCwd,
   createSlashCompletionProvider,
   createStructureLinter,
-  createTrailingNewlineFixer,
   initWebviewShell,
   SLASH_COMMANDS,
   Cmd,
@@ -22,7 +21,6 @@ import {
 
 import {
   handleUpdateDate,
-  // createSnippetExpander,  // disabled
   tableKeybindingCommands,
   cursorInTable,
   createTocAutoUpdater,
@@ -35,7 +33,7 @@ import {
 
 import { createSecretboxGuard, createSecretboxSaveGuard } from "./blocks";
 
-import { toggleWrap, createHeadingColors, createSmartPairs, createSmartTypography, createAutoInlineCode, createLinkFactory } from "./formatting";
+import { toggleWrap, createHeadingColors, createSmartTypography, createAutoInlineCode, createLinkFactory } from "./formatting";
 
 import {
   createBacklinkCodeLensProvider,
@@ -47,7 +45,7 @@ import {
 
 import { createListRenumber, createListSwapMarker } from "./lists";
 
-import { createBreadcrumbStatusBar, createHeadingAnchorDecorations, createRecentPagesTracker } from "./navigation";
+import { createBreadcrumbStatusBar, createRecentPagesTracker } from "./navigation";
 
 import { refreshAllDbWebviews, handleDbEntryCommand, openDbWebview, findParentDbIndex, isDbFile } from "./database";
 
@@ -62,9 +60,6 @@ import {
 
 import {
   createBookmarkTreeView,
-  // createClipboardHistoryTracker, // disabled
-  // createPomodoroStatusBar, // disabled
-  // createTaskProgressStatusBar, // disabled
   createStrikethroughDecorations,
 } from "./productivity";
 
@@ -228,7 +223,6 @@ export function activate(context: ExtensionContext) {
     // Decorations
     createEditorDecorations(),
     createHeadingColors(),
-    // createHeadingAnchorDecorations(),  // disabled
     createStrikethroughDecorations(),
     // Auto-fixers & validators
     createListRenumber(),
@@ -240,11 +234,8 @@ export function activate(context: ExtensionContext) {
     createTocAutoUpdater(),
     createStructureLinter(),
     createLinkValidator(),
-    // createTrailingNewlineFixer(),  // disabled
     createSecretboxGuard(),
     createSecretboxSaveGuard(),
-    // createSmartPairs(),  // disabled
-    // createSnippetExpander(),  // disabled
     // Hover providers
     createImageHoverProvider(),
     createLinkHoverProvider(),
@@ -252,13 +243,10 @@ export function activate(context: ExtensionContext) {
     createWordCountStatusBar(),
     createBreadcrumbStatusBar(),
     createReadingProgress(),
-    // createPomodoroStatusBar(), // disabled
-    // createTaskProgressStatusBar(), // disabled
     // Tree views & trackers
     createRecentPagesTracker(),
     createPageIconProvider(),
     createBookmarkTreeView(),
-    // createClipboardHistoryTracker(), // disabled
   );
 
   // Refresh DB webviews on save
