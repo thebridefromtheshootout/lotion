@@ -6,6 +6,7 @@ import * as https from "https";
 import * as http from "http";
 import { getCwd } from "../core/cwd";
 import { Regex } from "../core/regex";
+import { escHtml } from "../core/html";
 import { probeClipboardImage, imageFromClipboard } from "../media/clipboard";
 import { cursorInCodeContext } from "./codeContext";
 
@@ -193,14 +194,6 @@ export function truncateLabel(text: string): string {
 }
 
 const IMAGE_URL_EXTS = new Set([".png", ".jpg", ".jpeg", ".gif", ".webp", ".bmp", ".svg", ".avif"]);
-
-export function escHtml(text: string): string {
-  return text
-    .replace(Regex.htmlEscapeAmp, "&amp;")
-    .replace(Regex.htmlEscapeLt, "&lt;")
-    .replace(Regex.htmlEscapeGt, "&gt;")
-    .replace(Regex.htmlEscapeQuote, "&quot;");
-}
 
 function isImageUrl(url: URL): boolean {
   return IMAGE_URL_EXTS.has(path.extname(url.pathname).toLowerCase());

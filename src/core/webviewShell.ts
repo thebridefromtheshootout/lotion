@@ -1,7 +1,7 @@
 
 import { Uri } from "../hostEditor/EditorTypes";
 import type { Webview } from "../hostEditor/EditorTypes";
-import { Regex } from "./regex";
+import { escHtml } from "./html";
 
 let _extensionUri: Uri | undefined;
 
@@ -30,14 +30,6 @@ export function getNonce(): string {
     text += possible.charAt(Math.floor(Math.random() * possible.length));
   }
   return text;
-}
-
-function escapeHtml(s: string): string {
-  return s
-    .replace(Regex.htmlEscapeAmp, "&amp;")
-    .replace(Regex.htmlEscapeLt, "&lt;")
-    .replace(Regex.htmlEscapeGt, "&gt;")
-    .replace(Regex.htmlEscapeQuote, "&quot;");
 }
 
 export interface ShellOptions {
@@ -76,7 +68,7 @@ export function getWebviewShellHtml(opts: ShellOptions): string {
   <meta charset="UTF-8" />
   <meta http-equiv="Content-Security-Policy" content="${csp}" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>${escapeHtml(title)}</title>
+  <title>${escHtml(title)}</title>
   <link rel="stylesheet" href="${styleUri}" />
 </head>
 <body>

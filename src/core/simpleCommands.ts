@@ -63,7 +63,7 @@ export type SlashCommandHandler = (doc: TextDocument, pos: Position) => Promise<
 
 async function cleanMarkerLine(doc: TextDocument, lineNumber: number): Promise<void> {
   const lineText = doc.lineAt(lineNumber).text;
-  const indent = lineText.match(/^(\s*)/)?.[1] ?? "";
+  const indent = lineText.match(Regex.lineIndent)?.[1] ?? "";
   const content = lineText.slice(indent.length);
   if (content.length > 0 && Regex.emptyLineMarker.test(content)) {
     await hostEditor.replaceRange(
