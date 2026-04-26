@@ -4,6 +4,8 @@ import { hostEditor } from "../hostEditor/HostingEditor";
 import * as crypto from "crypto";
 import { Cmd } from "../core/commands";
 import { Regex } from "../core/regex";
+import { getBlockIndex } from "../core/blockIndex";
+import type { DetailsBlock as IndexedDetailsBlock } from "../core/blockIndex";
 import type { SlashCommand } from "../core/slashCommands";
 import { Filter } from "../core/cmdFilter";
 
@@ -78,17 +80,10 @@ async function withGuardSuppressed<T>(fn: () => PromiseLike<T> | T): Promise<T> 
  */
 function getEncryptedRanges(document: TextDocument): [number, number][] {
   const ranges: [number, number][] = [];
-  for (let i = 0; i < document.lineCount; i++) {
-    const text = document.lineAt(i).text;
-    if (!SECRETBOX_TAG_RE.test(text)) {
-      continue;
-    }
-    // Found a secretbox <details>; find its summary end + body + </details>
-    const block = findDetailsBlock(document, i);
-    if (!block || !block.isEncrypted) {
-      continue;
-    }
-    // Guard the body lines: summaryEndLine+1 through endLine-1
+  for (const indexed of getBlockIndex(document).detailsBlocks) {
+    if (indexed.kind !== "secretbox") continue;
+    const block = enrichDetailsBlock(document, indexed);
+    if (!block.isEncrypted) continue;
     if (block.summaryEndLine + 1 < block.endLine) {
       ranges.push([block.summaryEndLine + 1, block.endLine - 1]);
     }
@@ -106,19 +101,14 @@ function getEncryptedZones(
   document: TextDocument,
 ): { guardStart: number; guardEnd: number; summaryLine: number; afterLine: number }[] {
   const zones: { guardStart: number; guardEnd: number; summaryLine: number; afterLine: number }[] = [];
-  for (let i = 0; i < document.lineCount; i++) {
-    const text = document.lineAt(i).text;
-    if (!SECRETBOX_TAG_RE.test(text)) {
-      continue;
-    }
-    const block = findDetailsBlock(document, i);
-    if (!block || !block.isEncrypted) {
-      continue;
-    }
+  for (const indexed of getBlockIndex(document).detailsBlocks) {
+    if (indexed.kind !== "secretbox") continue;
+    const block = enrichDetailsBlock(document, indexed);
+    if (!block.isEncrypted) continue;
     if (block.summaryEndLine + 1 <= block.endLine) {
       zones.push({
         guardStart: block.summaryEndLine + 1,
-        guardEnd: block.endLine, // includes </details>
+        guardEnd: block.endLine,
         summaryLine: block.summaryEndLine,
         afterLine: Math.min(block.endLine + 1, document.lineCount - 1),
       });
@@ -347,87 +337,21 @@ interface DetailsBlock {
 }
 
 function findDetailsBlock(document: TextDocument, cursorLine: number): DetailsBlock | undefined {
-  const lineCount = document.lineCount;
+  const indexed = getBlockIndex(document).detailsBlockAt(cursorLine);
+  if (!indexed) return undefined;
+  return enrichDetailsBlock(document, indexed);
+}
 
-  // Search upward for <details>
-  let startLine = -1;
-  for (let i = cursorLine; i >= 0; i--) {
-    if (document.lineAt(i).text.trimStart().toLowerCase().startsWith("<details")) {
-      startLine = i;
-      break;
-    }
-  }
-  if (startLine === -1) {
-    return undefined;
-  }
-
-  // Search downward for </details>
-  let endLine = -1;
-  for (let i = cursorLine; i < lineCount; i++) {
-    if (document.lineAt(i).text.trimStart().toLowerCase().startsWith("</details>")) {
-      endLine = i;
-      break;
-    }
-  }
-  // Also search downward from startLine in case cursor is above the closing tag
-  if (endLine === -1) {
-    for (let i = startLine; i < lineCount; i++) {
-      if (document.lineAt(i).text.trimStart().toLowerCase().startsWith("</details>")) {
-        endLine = i;
-        break;
-      }
-    }
-  }
-  if (endLine === -1) {
-    return undefined;
-  }
-
-  // Verify cursor is inside this block
-  if (cursorLine < startLine || cursorLine > endLine) {
-    return undefined;
-  }
-
-  // Find </summary> line
-  let summaryEndLine = -1;
-  let summaryText = "";
-  for (let i = startLine; i <= endLine; i++) {
-    const line = document.lineAt(i).text;
-    // <summary>Title</summary> on one line
-    const oneLineMatch = line.match(Regex.summaryTagInline);
-    if (oneLineMatch) {
-      summaryEndLine = i;
-      summaryText = oneLineMatch[1].replace(Regex.lockIconPrefix, "").trim();
-      break;
-    }
-    // Standalone </summary>
-    if (line.trimStart().toLowerCase().startsWith("</summary>")) {
-      summaryEndLine = i;
-      break;
-    }
-  }
-  if (summaryEndLine === -1) {
-    return undefined;
-  }
-
-  // If summary text not found yet (multi-line summary), gather it
-  if (!summaryText) {
-    for (let i = startLine; i <= summaryEndLine; i++) {
-      const line = document.lineAt(i).text;
-      const openMatch = line.match(Regex.summaryTagStartCapture);
-      if (openMatch) {
-        summaryText = openMatch[1].replace(Regex.lockIconPrefix, "").trim();
-        break;
-      }
-    }
-  }
-
-  // Collect body lines (between summaryEndLine+1 and endLine-1)
+/**
+ * Enrich an indexed DetailsBlock with the runtime data lockBlock handlers need:
+ * collected body lines, lock-marker detection, and isSecretbox flag.
+ */
+function enrichDetailsBlock(document: TextDocument, indexed: IndexedDetailsBlock): DetailsBlock {
   const bodyLines: string[] = [];
-  for (let i = summaryEndLine + 1; i < endLine; i++) {
+  for (let i = indexed.bodyStartLine; i <= indexed.bodyEndLine; i++) {
     bodyLines.push(document.lineAt(i).text);
   }
 
-  // Check if encrypted
   let isEncrypted = false;
   let encryptedBlob: string | undefined;
   for (const line of bodyLines) {
@@ -440,14 +364,14 @@ function findDetailsBlock(document: TextDocument, cursorLine: number): DetailsBl
   }
 
   return {
-    startLine,
-    endLine,
-    summaryEndLine,
-    summaryText,
+    startLine: indexed.startLine,
+    endLine: indexed.endLine,
+    summaryEndLine: indexed.summaryEndLine,
+    summaryText: indexed.summaryText,
     bodyLines,
     isEncrypted,
     encryptedBlob,
-    isSecretbox: SECRETBOX_TAG_RE.test(document.lineAt(startLine).text),
+    isSecretbox: indexed.kind === "secretbox",
   };
 }
 
@@ -626,14 +550,10 @@ export function cursorInSecretbox(document: TextDocument, position: Position): b
  * is **not** encrypted (i.e. plaintext is exposed).
  */
 function hasUnlockedSecretbox(document: TextDocument): boolean {
-  for (let i = 0; i < document.lineCount; i++) {
-    if (!SECRETBOX_TAG_RE.test(document.lineAt(i).text)) {
-      continue;
-    }
-    const block = findDetailsBlock(document, i);
-    if (block && block.isSecretbox && !block.isEncrypted) {
-      return true;
-    }
+  for (const indexed of getBlockIndex(document).detailsBlocks) {
+    if (indexed.kind !== "secretbox") continue;
+    const block = enrichDetailsBlock(document, indexed);
+    if (!block.isEncrypted) return true;
   }
   return false;
 }
@@ -648,15 +568,11 @@ async function lockAllBoxes(document: TextDocument): Promise<boolean> {
   }
 
   // Collect all unlocked secretbox blocks (scan bottom-up so line numbers stay valid)
-  const blocks: ReturnType<typeof findDetailsBlock>[] = [];
-  for (let i = 0; i < document.lineCount; i++) {
-    if (!SECRETBOX_TAG_RE.test(document.lineAt(i).text)) {
-      continue;
-    }
-    const block = findDetailsBlock(document, i);
-    if (block && block.isSecretbox && !block.isEncrypted) {
-      blocks.push(block);
-    }
+  const blocks: DetailsBlock[] = [];
+  for (const indexed of getBlockIndex(document).detailsBlocks) {
+    if (indexed.kind !== "secretbox") continue;
+    const block = enrichDetailsBlock(document, indexed);
+    if (!block.isEncrypted) blocks.push(block);
   }
   if (blocks.length === 0) {
     return true;
@@ -675,12 +591,9 @@ async function lockAllBoxes(document: TextDocument): Promise<boolean> {
   lastPassword = password;
 
   // Lock bottom-up so earlier line numbers remain valid
-  blocks.sort((a, b) => b!.startLine - a!.startLine);
+  blocks.sort((a, b) => b.startLine - a.startLine);
   await withGuardSuppressed(async () => {
     for (const block of blocks) {
-      if (!block) {
-        continue;
-      }
       const plaintext = block.bodyLines.join("\n");
       if (!plaintext.trim()) {
         continue;
