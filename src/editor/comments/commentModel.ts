@@ -4,6 +4,7 @@ import { Comment } from "../../contracts/comment";
 import { hostEditor } from "../../hostEditor/HostingEditor";
 import { commentMarker, findCommentLine } from "./commentCommands";
 import { Selection, WorkspaceEdit } from "../../hostEditor/EditorTypes";
+import { loadJsonStore, saveJsonStore } from "../../core/jsonStore";
 
 // ── Storage helpers ────────────────────────────────────────────────
 export async function saveNewComment(comment: Comment, selection: Selection, docPath: string) {
@@ -28,24 +29,11 @@ function getCommentsFilePath(docPath: string): string {
 }
 
 export function loadComments(docPath: string): Comment[] {
-  const file = getCommentsFilePath(docPath);
-  if (!fs.existsSync(file)) {
-    return [];
-  }
-  try {
-    return JSON.parse(fs.readFileSync(file, "utf-8"));
-  } catch {
-    return [];
-  }
+  return loadJsonStore<Comment[]>(getCommentsFilePath(docPath), []);
 }
 
 export function saveComments(docPath: string, comments: Comment[]): void {
-  const file = getCommentsFilePath(docPath);
-  const dir = path.dirname(file);
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-  }
-  fs.writeFileSync(file, JSON.stringify(comments, null, 2), "utf-8");
+  saveJsonStore(getCommentsFilePath(docPath), comments);
 }
 
 /**

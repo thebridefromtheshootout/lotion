@@ -27,9 +27,9 @@ Cyclic imports: I traced none. The strict downward slope from `extension.ts → 
 
 | Severity | Finding | Citation | Recommended fix |
 |---|---|---|---|
-| **High** | `getExecErrorText` and `isMissingCommandError` are copy-pasted **three times** with subtle differences (`processor` matches `command not found`, `clipboard` matches the broader `not found`). | [`processor.ts:133-152`](src/editor/processor.ts#L133), [`dictate.ts:40-59`](src/editor/dictate.ts#L40), [`clipboard.ts:40-59`](src/media/clipboard.ts#L40) | Extract into `core/execErrors.ts` (or a new `shell/` module) with a single regex set. The divergence is itself a bug surface. |
+| **High** [Addressed] | `getExecErrorText` and `isMissingCommandError` are copy-pasted **three times** with subtle differences (`processor` matches `command not found`, `clipboard` matches the broader `not found`). | [`processor.ts:133-152`](src/editor/processor.ts#L133), [`dictate.ts:40-59`](src/editor/dictate.ts#L40), [`clipboard.ts:40-59`](src/media/clipboard.ts#L40) | Extract into `core/execErrors.ts` (or a new `shell/` module) with a single regex set. The divergence is itself a bug surface. |
 | **High** | CSV parsing reimplemented twice with subtly different semantics (one trims cells, one keeps quoted whitespace). | [`smartPaste.ts:512-541`](src/editor/smartPaste.ts#L512) (`parseCSVLine`), [`dbCommands.ts:1121-1170`](src/database/dbCommands.ts#L1121) (`parseCsvText`) | Extract a single `csv.ts` helper. The TODO at [`dbCommands.ts:1408`](src/database/dbCommands.ts#L1408) already calls this out. |
-| **High** | Three near-identical typed-JSON `load/save` pairs for `.rsrc/<name>.json` data: comments, processors, bookmarks. | [`commentModel.ts:30-49`](src/editor/comments/commentModel.ts#L30), [`processor.ts:104-123`](src/editor/processor.ts#L104), [`bookmarks.ts:32-54`](src/productivity/bookmarks.ts#L32) | Extract `core/jsonStore.ts` with `loadJsonStore<T>(filePath, fallback): T` and `saveJsonStore(filePath, data)`. Three call-sites collapse into one. |
+| **High** [Addressed] | Three near-identical typed-JSON `load/save` pairs for `.rsrc/<name>.json` data: comments, processors, bookmarks. | [`commentModel.ts:30-49`](src/editor/comments/commentModel.ts#L30), [`processor.ts:104-123`](src/editor/processor.ts#L104), [`bookmarks.ts:32-54`](src/productivity/bookmarks.ts#L32) | Extract `core/jsonStore.ts` with `loadJsonStore<T>(filePath, fallback): T` and `saveJsonStore(filePath, data)`. Three call-sites collapse into one. |
 | **Medium** | Markdown table parsing duplicated. The TODO acknowledges it. | [`table.ts:78-94`](src/editor/table.ts#L78) (`parseTable`), [`dbCommands.ts:1086-1118`](src/database/dbCommands.ts#L1086) (`parseMarkdownTableAtCursor`) | Reuse `parseTable` from `editor/table.ts` and pass it `start`/`end` line numbers from `dbCommands`. |
 | **Medium** | "Locate file in disk-cache, hash workspace key, read JSON, validate version, write back" pattern is duplicated across the two workspace-search commands. | [`searchLinks.ts:30-95`](src/links/searchLinks.ts#L30), [`searchCommands.ts:32-83`](src/editor/searchCommands.ts#L32) | Extract a `WorkspaceCache<T>` class taking version, validator, and bucket name. |
 | **Medium** | `escHtml` (escape `& < > "`) is implemented in [`smartPaste.ts:197-203`](src/editor/smartPaste.ts#L197) and [`webviewShell.ts:35-41`](src/core/webviewShell.ts#L35). Identical body. | both files | Move to a single `core/html.ts` and import. |
@@ -242,10 +242,10 @@ Mostly consistent. Spotted issues:
 
 Ranked by **(impact × ease) / risk**.
 
-### 1. Render `dangerouslySetInnerHTML` as text by default (security, 1-line fix)
+### 1. Render `dangerouslySetInnerHTML` as text by default (security, 1-line fix) [Wontfix — intentional]
 [`FormatCell.tsx:46`](src/webview/components/database/tableview/FormatCell.tsx#L46) — change the `default:` branch to `<span>{value}</span>`. The current code is an XSS sink reachable through any database property table or inline-edit input. Risk: nil (the only thing rendered as HTML today is unrecognised types; nothing depends on that being HTML). Impact: closes the most direct user-injection vector.
 
-### 2. Validate `relativePath` against `dbDir` in `dbWebview.ts` (security, ~10 lines)
+### 2. Validate `relativePath` against `dbDir` in `dbWebview.ts` (security, ~10 lines) [Addressed]
 [`dbWebview.ts:90-175`](src/database/dbWebview.ts#L90) — add `if (!path.resolve(dbDir, p).startsWith(path.resolve(dbDir) + path.sep)) return;` at the top of each of the four entry-path handlers. Risk: nil for legitimate use. Impact: prevents the webview-message path traversal class of bug.
 
 ### 3. Replace document-wide rescans with a per-document cached block index (perf, ~150 lines)
@@ -254,7 +254,7 @@ A single new module `core/blockIndex.ts` that produces, per document version: (a
 ### 4. Delete or sequester the 1768 lines of disabled code (cleanup, mechanical)
 The 15 files in §6 are imported nowhere except via `// disabled` lines. Either git-rm them (history retains everything) or move to `experimental/` excluded from `tsconfig`. Risk: nil if you keep the git history; the user can restore any time. Impact: removes 1768 lines from the build, simplifies the dependency graph, eliminates the visual noise of disabled imports throughout `extension.ts`, `simpleCommands.ts`, and module barrels.
 
-### 5. Extract `getExecErrorText` / `isMissingCommandError` and `loadJsonStore` / `saveJsonStore` (dedup, ~80 lines deleted)
+### 5. Extract `getExecErrorText` / `isMissingCommandError` and `loadJsonStore` / `saveJsonStore` (dedup, ~80 lines deleted) [Addressed]
 [`processor.ts:133`](src/editor/processor.ts#L133), [`dictate.ts:40`](src/editor/dictate.ts#L40), [`clipboard.ts:40`](src/media/clipboard.ts#L40) collapse to a single import. Same for [`commentModel.ts:30`](src/editor/comments/commentModel.ts#L30), [`processor.ts:104`](src/editor/processor.ts#L104), [`bookmarks.ts:32`](src/productivity/bookmarks.ts#L32). Bonus: the existing inconsistency between `command not found` (processor) and `not found` (clipboard) regexes gets resolved in one place. Risk: low (pure helpers, behaviour preserved). Impact: ~80 lines deleted, future maintenance amortised.
 
 ---

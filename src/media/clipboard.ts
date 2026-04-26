@@ -4,6 +4,7 @@ import * as path from "path";
 import * as fs from "fs";
 import { execSync } from "child_process";
 import { Regex } from "../core/regex";
+import { isMissingCommandError } from "../core/execErrors";
 
 // ── Platform detection ─────────────────────────────────────────────
 
@@ -36,27 +37,6 @@ function getPlatform(): Platform {
 
 const PLATFORM = getPlatform();
 const IS_WSL = process.platform === "linux" && PLATFORM === "win32";
-
-function getExecErrorText(err: any): string {
-  const parts = [err?.message, err?.stderr, err?.stdout].filter((v) => typeof v === "string" && v.length > 0);
-  return parts.join("\n");
-}
-
-function isMissingCommandError(err: any, command?: string): boolean {
-  const text = getExecErrorText(err);
-  const genericMissing =
-    /not found/i.test(text) ||
-    /is not recognized as an internal or external command/i.test(text) ||
-    /The term .* is not recognized/i.test(text) ||
-    /ENOENT/i.test(text);
-  if (!genericMissing) {
-    return false;
-  }
-  if (!command) {
-    return true;
-  }
-  return text.toLowerCase().includes(command.toLowerCase());
-}
 
 const CLIPBOARD_HANDLERS: Record<Platform, ClipboardPlatformHandler> = {
   win32: {

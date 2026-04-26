@@ -9,6 +9,8 @@ import { Regex } from "../core/regex";
 import { createCodeLensProvider, codeLens } from "../core/codeLens";
 import type { SlashCommand } from "../core/slashCommands";
 import { Filter } from "../core/cmdFilter";
+import { isMissingCommandError } from "../core/execErrors";
+import { loadJsonStore, saveJsonStore } from "../core/jsonStore";
 
 export const PROCESSOR_SLASH_COMMAND: SlashCommand = {
   label: "/processor",
@@ -102,24 +104,11 @@ function getProcessorsFilePath(docPath: string): string {
 }
 
 export function loadProcessors(docPath: string): Processor[] {
-  const file = getProcessorsFilePath(docPath);
-  if (!fs.existsSync(file)) {
-    return [];
-  }
-  try {
-    return JSON.parse(fs.readFileSync(file, "utf-8"));
-  } catch {
-    return [];
-  }
+  return loadJsonStore<Processor[]>(getProcessorsFilePath(docPath), []);
 }
 
 export function saveProcessors(docPath: string, processors: Processor[]): void {
-  const file = getProcessorsFilePath(docPath);
-  const dir = path.dirname(file);
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-  }
-  fs.writeFileSync(file, JSON.stringify(processors, null, 2), "utf-8");
+  saveJsonStore(getProcessorsFilePath(docPath), processors);
 }
 
 export function generateGuid(): string {
@@ -128,27 +117,6 @@ export function generateGuid(): string {
     const v = c === "x" ? r : (r & 0x3) | 0x8;
     return v.toString(16);
   });
-}
-
-function getExecErrorText(err: any): string {
-  const pieces = [err?.message, err?.stderr, err?.stdout].filter((v) => typeof v === "string" && v.length > 0);
-  return pieces.join("\n");
-}
-
-function isMissingCommandError(err: any, command?: string): boolean {
-  const text = getExecErrorText(err);
-  const genericMissing =
-    /command not found/i.test(text) ||
-    /is not recognized as an internal or external command/i.test(text) ||
-    /The term .* is not recognized/i.test(text) ||
-    /ENOENT/i.test(text);
-  if (!genericMissing) {
-    return false;
-  }
-  if (!command) {
-    return true;
-  }
-  return text.toLowerCase().includes(command.toLowerCase());
 }
 
 function getCommandToken(command: string): string {

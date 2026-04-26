@@ -5,6 +5,7 @@ import * as path from "path";
 import * as fs from "fs";
 import { TreeView } from "../core/commands";
 import { Regex } from "../core/regex";
+import { loadJsonStore, saveJsonStore } from "../core/jsonStore";
 
 /**
  * Bookmark / pin system for frequently-accessed pages.
@@ -31,14 +32,10 @@ function getBookmarksFile(): string | undefined {
 
 function loadBookmarks(): BookmarkEntry[] {
   const file = getBookmarksFile();
-  if (!file || !fs.existsSync(file)) {
+  if (!file) {
     return [];
   }
-  try {
-    return JSON.parse(fs.readFileSync(file, "utf-8"));
-  } catch {
-    return [];
-  }
+  return loadJsonStore<BookmarkEntry[]>(file, []);
 }
 
 function saveBookmarks(entries: BookmarkEntry[]): void {
@@ -46,11 +43,7 @@ function saveBookmarks(entries: BookmarkEntry[]): void {
   if (!file) {
     return;
   }
-  const dir = path.dirname(file);
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-  }
-  fs.writeFileSync(file, JSON.stringify(entries, null, 2), "utf-8");
+  saveJsonStore(file, entries);
 }
 
 export async function bookmarkPage(): Promise<void> {

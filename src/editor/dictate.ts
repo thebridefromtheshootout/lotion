@@ -8,6 +8,7 @@ import * as https from "https";
 import * as http from "http";
 import { execSync } from "child_process";
 import { getExtensionUri, getWebviewShellHtml } from "../core/webviewShell";
+import { isMissingCommandError } from "../core/execErrors";
 import { ExtensionToDictatePanelCommunicator } from "../communicators/dictatePanelCommunicator";
 
 // ── Model configuration ────────────────────────────────────────────
@@ -35,27 +36,6 @@ function isModelReady(): boolean {
     fs.existsSync(path.join(dir, "decoder-epoch-99-avg-1.onnx")) &&
     fs.existsSync(path.join(dir, "joiner-epoch-99-avg-1.onnx"))
   );
-}
-
-function getExecErrorText(err: any): string {
-  const parts = [err?.message, err?.stderr, err?.stdout].filter((v) => typeof v === "string" && v.length > 0);
-  return parts.join("\n");
-}
-
-function isMissingCommandError(err: any, command?: string): boolean {
-  const text = getExecErrorText(err);
-  const genericMissing =
-    /command not found/i.test(text) ||
-    /is not recognized as an internal or external command/i.test(text) ||
-    /The term .* is not recognized/i.test(text) ||
-    /ENOENT/i.test(text);
-  if (!genericMissing) {
-    return false;
-  }
-  if (!command) {
-    return true;
-  }
-  return text.toLowerCase().includes(command.toLowerCase());
 }
 
 // ── Model download helpers ─────────────────────────────────────────
