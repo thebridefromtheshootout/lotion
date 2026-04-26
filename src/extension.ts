@@ -6,6 +6,7 @@ import {
   updateCwd,
   createSlashCompletionProvider,
   createStructureLinter,
+  initBlockIndex,
   initWebviewShell,
   SLASH_COMMANDS,
   Cmd,
@@ -73,6 +74,9 @@ export function activate(context: ExtensionContext) {
 
   // ── File hash tracker (for slash-command dirty-state detection) ────
   context.subscriptions.push(createFileHashTracker());
+
+  // ── Per-document block index (cached, throttled rebuild on text change) ──
+  context.subscriptions.push(initBlockIndex());
 
 
   const updateCursorContext = () => {

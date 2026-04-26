@@ -11,6 +11,8 @@ export type { SlashCommandHandler } from "./simpleCommands";
 export { updateCwd } from "./cwd";
 export { createSlashCompletionProvider, SLASH_COMMANDS, SlashCommand } from "./slashCommands";
 export { createStructureLinter } from "./structureLint";
+export { initBlockIndex, getBlockIndex } from "./blockIndex";
+export type { BlockIndex, CodeFence, DetailsBlock, MarkdownCallout, MarkdownTable } from "./blockIndex";
 export { initWebviewShell } from "./webviewShell";
 export { createFileHashTracker } from "./fileHashTracker";
 export { computeCursorContext } from "./cursorContext";
