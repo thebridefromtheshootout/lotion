@@ -1,7 +1,6 @@
 /**
  * Tests for miscellaneous aesthetic/UX improvements:
  *   - Outline heading icon/color mapping
- *   - Breadcrumb crumb building
  *   - Reading progress percentage computation
  *   - Task strikethrough regex matching
  */
@@ -38,56 +37,6 @@ describe("Outline heading icon mapping", () => {
     for (const { color } of Object.values(LEVEL_ICONS)) {
       expect(color).toMatch(/^charts\./);
     }
-  });
-});
-
-// ── Breadcrumb crumb building ──────────────────────────────────────
-
-/**
- * Extracted from breadcrumb.ts: builds pretty crumbs from a
- * workspace-relative path.
- */
-function buildCrumbs(relativePath: string): string[] {
-  const parts = relativePath.replace(/\\/g, "/").split("/");
-  const crumbs: string[] = [];
-
-  for (const part of parts) {
-    if (part === "index.md") {
-      continue;
-    }
-    if (part.endsWith(".md")) {
-      crumbs.push(part.slice(0, -3));
-      continue;
-    }
-    crumbs.push(part);
-  }
-
-  return crumbs.map((c) => c.replace(/[-_]/g, " ").replace(/\b\w/g, (ch) => ch.toUpperCase()));
-}
-
-describe("buildCrumbs", () => {
-  it("strips index.md from path", () => {
-    expect(buildCrumbs("movies/kill-bill-1/index.md")).toEqual(["Movies", "Kill Bill 1"]);
-  });
-
-  it("prettifies kebab-case to Title Case", () => {
-    expect(buildCrumbs("my-project/sub-page/index.md")).toEqual(["My Project", "Sub Page"]);
-  });
-
-  it("handles Windows-style backslashes", () => {
-    expect(buildCrumbs("notes\\daily\\index.md")).toEqual(["Notes", "Daily"]);
-  });
-
-  it("strips .md from non-index filenames", () => {
-    expect(buildCrumbs("notes/readme.md")).toEqual(["Notes", "Readme"]);
-  });
-
-  it("returns empty for bare index.md", () => {
-    expect(buildCrumbs("index.md")).toEqual([]);
-  });
-
-  it("prettifies underscored names", () => {
-    expect(buildCrumbs("my_folder/index.md")).toEqual(["My Folder"]);
   });
 });
 

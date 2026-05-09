@@ -1,5 +1,4 @@
 // ── Navigation module barrel ────────────────────────────────────────
-export { createBreadcrumbStatusBar } from "./breadcrumb";
 export { handleExtractToSubpage } from "./extractSubpage";
 export { jumpToNextHeading, jumpToPrevHeading, jumpToHeadingPicker } from "./headingNav";
 export { findOrphanPages } from "./orphanPages";

@@ -46,7 +46,7 @@ import {
 
 import { createListRenumber, createListSwapMarker } from "./lists";
 
-import { createBreadcrumbStatusBar, createRecentPagesTracker } from "./navigation";
+import { createRecentPagesTracker } from "./navigation";
 
 import { refreshAllDbWebviews, handleDbEntryCommand, openDbWebview, findParentDbIndex, isDbFile } from "./database";
 
@@ -245,7 +245,6 @@ export function activate(context: ExtensionContext) {
     createLinkHoverProvider(),
     // Status bars
     createWordCountStatusBar(),
-    createBreadcrumbStatusBar(),
     createReadingProgress(),
     // Tree views & trackers
     createRecentPagesTracker(),

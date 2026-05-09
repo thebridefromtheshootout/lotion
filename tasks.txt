@@ -2,5 +2,24 @@ Planning board for next implementation pass.
 Non-complex items are split into phases, with target files and acceptance checks.
 Do not attempt items marked [Complex].
 ---
-1. expose a new user setting: autoInlineCodeCases {PascalCase: true
-    false, camelCase:true|false, snake_case: true|false} to auto inline code  every time the user types a word in the case
+1. Db view fixes
+    1.1 tags in db columns should have their text wrapping. their column should always be the width of the longest tag. tag widths should be therefore truncated at 30
+    1.2 allow resizing of columns in db views.
+    1.3 expose buttons atop each column to copy the values in that column joined by \n 
+    1.4 drag and drop of filter tiles from root and into an or node doesn't work, check what's wrong, document the bug for me, and fix it.
+    1.5 filter bar still uses text for a variety of types. 
+        -> the value cell in the filter bar used to create filters should function exactly as a table cell does based on its type. so tags are edited using a list of checkbox items. true/false checkbox types are edited using checkboxes. etc.
+        -> dates should have the date webview open to the side.
+    1.6 the default view though loaded isn't set in the select for dbviews. the select needs to be set
+    1.7 dbview must expose a copy view button that copies a csv of the currently active view.
+2. ✅ remove breadcrumbs from status bar. vscode already provides breadcrumbs.
+3. new status bar toggle button: linelock
+    default off
+    when it is turned on, on pressing a newline, the vscode editor window should scroll up bythe same height as a newline to ensure the current cursor position height is unchanged across newline entries. same for up/down cursor nav. 
+    say the cursor was at the 9th visible line in the editor when the line lock was turned on.
+    say that original position was in document line 20.
+    user presses enter ->scroll editor window up by one line height.
+    user navigates up/down -> scroll editor window up/down by corresponding line height.
+    VSCode shouldexpose a good api for this, do not handroll the scroll offsets.
+4. linting doesn't work for list items if the text runs multiple lines. fix the lintingissue.
+5. codeblock allows entering h1/h2/h3 inside it. this is wrong. do an analysis of semantically invalid insertions that are allowed then plan on extending the cmdfilter infra to filter these invalid combinations out.
