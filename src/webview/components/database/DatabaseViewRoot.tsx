@@ -31,6 +31,7 @@ export function DatabaseViewRoot() {
   const [kanbanGroupCol, setKanbanGroupCol] = useState<string | undefined>(undefined);
   const [calendarDateCol, setCalendarDateCol] = useState<string | undefined>(undefined);
   const [calendarEndDateCol, setCalendarEndDateCol] = useState<string | undefined>(undefined);
+  const [activeViewName, setActiveViewName] = useState("");
   const [ready, setReady] = useState(false);
 
   // ── Apply a saved view ──
@@ -75,7 +76,10 @@ export function DatabaseViewRoot() {
 
       // Load default view
       const def = msg.views.find((v: DbViewData) => v.default);
-      if (def) applyView(def, msg.schema);
+      if (def) {
+        applyView(def, msg.schema);
+        setActiveViewName(def.name);
+      }
 
       setReady(true);
     });
@@ -110,6 +114,7 @@ export function DatabaseViewRoot() {
   // ── Load view ──
   const handleLoadView = useCallback(
     (name: string) => {
+      setActiveViewName(name);
       if (!name) {
         setSortCol(null);
         setSortDir("asc");
@@ -159,6 +164,7 @@ export function DatabaseViewRoot() {
         setLayout={setLayout}
         schema={schema}
         views={views}
+        activeViewName={activeViewName}
         onLoadView={handleLoadView}
         onSaveView={handleSaveView}
         communicator={communicator}

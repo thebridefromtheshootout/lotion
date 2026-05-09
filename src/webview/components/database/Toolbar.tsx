@@ -2,7 +2,16 @@ import React from "react";
 import { DbColumn, DbViewData, LayoutKind, ToolbarProps } from "../../types";
 import type { DbPanelToExtensionCommunicator } from "../../communicators/DbPanelToExtensionCommunicator";
 
-export function Toolbar({ layout, setLayout, schema, views, onLoadView, onSaveView, communicator }: ToolbarProps) {
+export function Toolbar({
+  layout,
+  setLayout,
+  schema,
+  views,
+  activeViewName,
+  onLoadView,
+  onSaveView,
+  communicator,
+}: ToolbarProps) {
   const hasSelect = schema.some((c) => c.type === "select");
   const hasDate = schema.some((c) => c.type === "date");
   const hasCoordinates = schema.some((c) => c.type === "coordinates");
@@ -48,7 +57,7 @@ export function Toolbar({ layout, setLayout, schema, views, onLoadView, onSaveVi
       <button onClick={() => communicator.sendAddEntry()}>＋ New Entry</button>
       <button onClick={() => communicator.sendRefresh()}>↻ Refresh</button>
       <button onClick={onSaveView}>💾 Save View</button>
-      <select onChange={(e) => onLoadView(e.target.value)} defaultValue="">
+      <select value={activeViewName} onChange={(e) => onLoadView(e.target.value)}>
         <option value="">— Views —</option>
         {views.map((v) => (
           <option key={v.name} value={v.name}>

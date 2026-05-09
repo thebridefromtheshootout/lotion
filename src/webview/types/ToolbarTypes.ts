@@ -6,6 +6,7 @@ export interface ToolbarProps {
   setLayout: (l: LayoutKind) => void;
   schema: DbColumn[];
   views: DbViewData[];
+  activeViewName: string;
   onLoadView: (name: string) => void;
   onSaveView: () => void;
   communicator: DbPanelToExtensionCommunicator;
