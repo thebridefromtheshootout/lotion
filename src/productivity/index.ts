@@ -4,4 +4,5 @@ export { openDailyNote } from "./dailyNote";
 export { createStrikethroughDecorations } from "./taskStrikethrough";
 export { handleGitCommitCommand } from "./gitCommit";
 export { fireInto } from "./fireInto";
+export { createLineLock } from "./lineLock";
 

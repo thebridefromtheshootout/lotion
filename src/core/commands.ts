@@ -149,6 +149,7 @@ export const Cmd = {
   openDailyNote: "lotion.openDailyNote",
   gitCommit: "lotion.gitCommit",
   expandSnippet: "lotion.expandSnippet",
+  toggleLineLock: "lotion.toggleLineLock",
 } as const;
 
 export type CmdId = (typeof Cmd)[keyof typeof Cmd];

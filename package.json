@@ -63,6 +63,12 @@
         "category": "Lotion"
       },
       {
+        "command": "lotion.toggleLineLock",
+        "title": "Lotion: Toggle Line Lock",
+        "icon": "$(lock)",
+        "category": "Lotion"
+      },
+      {
         "command": "lotion.dictate",
         "title": "Lotion: Dictate (Speech to Text)",
         "icon": "$(record)",

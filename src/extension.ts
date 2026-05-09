@@ -62,6 +62,7 @@ import {
 import {
   createBookmarkTreeView,
   createStrikethroughDecorations,
+  createLineLock,
 } from "./productivity";
 
 // ── Extension activation ───────────────────────────────────────────
@@ -246,6 +247,7 @@ export function activate(context: ExtensionContext) {
     // Status bars
     createWordCountStatusBar(),
     createReadingProgress(),
+    createLineLock(),
     // Tree views & trackers
     createRecentPagesTracker(),
     createPageIconProvider(),

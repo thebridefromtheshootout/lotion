@@ -13,7 +13,7 @@ Do not attempt items marked [Complex].
     1.6 ✅ the default view though loaded isn't set in the select for dbviews. the select needs to be set
     1.7 ✅ dbview must expose a copy view button that copies a csv of the currently active view.
 2. ✅ remove breadcrumbs from status bar. vscode already provides breadcrumbs.
-3. new status bar toggle button: linelock
+3. ✅ new status bar toggle button: linelock
     default off
     when it is turned on, on pressing a newline, the vscode editor window should scroll up bythe same height as a newline to ensure the current cursor position height is unchanged across newline entries. same for up/down cursor nav. 
     say the cursor was at the 9th visible line in the editor when the line lock was turned on.
