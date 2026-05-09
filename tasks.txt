@@ -15,9 +15,16 @@ Do not attempt items marked [Complex].
         Fix: extracted the helpers into webview/utils/filterTree.ts and added
         adjustPathAfterRemoval(toPath, removedPath) which decrements indices that
         are about to shift. Covered by 12 unit tests.
-    1.5 filter bar still uses text for a variety of types. 
+    1.5 ✅ filter bar still uses text for a variety of types.
         -> the value cell in the filter bar used to create filters should function exactly as a table cell does based on its type. so tags are edited using a list of checkbox items. true/false checkbox types are edited using checkboxes. etc.
         -> dates should have the date webview open to the side.
+        Done: multi-select → checkbox list, checkbox → real checkbox toggle,
+        url → input type=url. has_any/has_all/in/!in on a select column also
+        get a checkbox list (multi-pick).
+        Deferred (per user): swapping the native date input for the date
+        webview — needs datePanel.ts to learn a non-document "filter target"
+        mode + a return path through the dbview communicator. Native
+        <input type="date"> still gives a calendar popup in the meantime.
     1.6 ✅ the default view though loaded isn't set in the select for dbviews. the select needs to be set
     1.7 ✅ dbview must expose a copy view button that copies a csv of the currently active view.
 2. ✅ remove breadcrumbs from status bar. vscode already provides breadcrumbs.

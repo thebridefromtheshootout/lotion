@@ -294,24 +294,19 @@ export function FilterBar({ schema, titleFieldLabel, filterTree, setFilterTree }
 
 // ── Type-aware value input ─────────────────────────────────────────
 
-type ValueInputKind = "text" | "number" | "date" | "boolean" | "select" | "none";
+type ValueInputKind = "text" | "number" | "date" | "url" | "boolean" | "select" | "multi-select" | "none";
 
 function inputKindFor(type: DbColumn["type"] | undefined, op: DbFilterOperator): ValueInputKind {
   if (op === "isempty" || op === "isnotempty") {
     return "none";
   }
-  // Multi-value / pattern operators expect a string list or regex —
-  // route them through plain text regardless of the column type.
-  if (
-    op === "in" ||
-    op === "!in" ||
-    op === "has_any" ||
-    op === "has_all" ||
-    op === "between" ||
-    op === "matches_regex"
-  ) {
+  // Regex / between are always free-form text regardless of column type.
+  if (op === "matches_regex" || op === "between") {
     return "text";
   }
+  // `in` / `!in` accept a comma-separated list. For column types where we
+  // know the option set (select / multi-select), still let the user check
+  // multiple options to build that list.
   switch (type) {
     case "number":
       return "number";
@@ -319,8 +314,17 @@ function inputKindFor(type: DbColumn["type"] | undefined, op: DbFilterOperator):
       return "date";
     case "checkbox":
       return "boolean";
+    case "url":
+      return "url";
     case "select":
+      // For has_any / has_all / in / !in on a single-select column, fall
+      // back to a checkbox list so the user can pick multiple options.
+      if (op === "has_any" || op === "has_all" || op === "in" || op === "!in") {
+        return "multi-select";
+      }
       return "select";
+    case "multi-select":
+      return "multi-select";
     default:
       return "text";
   }
@@ -348,12 +352,18 @@ function FilterValueInput({ kind, options, value, onChange, onSubmit }: FilterVa
     );
   }
   if (kind === "boolean") {
+    // True/false columns get an actual checkbox + a label so the picked
+    // value is unambiguous. Click toggles between "true" and "false".
+    const checked = value === "true";
     return (
-      <select id="filterVal" value={value} onChange={(e) => onChange(e.target.value)}>
-        <option value="">—</option>
-        <option value="true">true</option>
-        <option value="false">false</option>
-      </select>
+      <label id="filterVal" className="filter-checkbox-value" title="Filter value">
+        <input
+          type="checkbox"
+          checked={checked}
+          onChange={(e) => onChange(e.target.checked ? "true" : "false")}
+        />
+        <span>{checked ? "true" : "false"}</span>
+      </label>
     );
   }
   if (kind === "select") {
@@ -366,6 +376,38 @@ function FilterValueInput({ kind, options, value, onChange, onSubmit }: FilterVa
           </option>
         ))}
       </select>
+    );
+  }
+  if (kind === "multi-select") {
+    const selected = new Set(
+      value
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean),
+    );
+    function toggle(opt: string, checked: boolean) {
+      const next = new Set(selected);
+      if (checked) next.add(opt);
+      else next.delete(opt);
+      onChange(Array.from(next).join(", "));
+    }
+    return (
+      <div id="filterVal" className="filter-multi-select" role="group">
+        {(options ?? []).length === 0 ? (
+          <span className="filter-empty-options">no options defined</span>
+        ) : (
+          (options ?? []).map((o) => (
+            <label key={o} className="filter-multi-select-option">
+              <input
+                type="checkbox"
+                checked={selected.has(o)}
+                onChange={(e) => toggle(o, e.target.checked)}
+              />
+              <span>{o}</span>
+            </label>
+          ))
+        )}
+      </div>
     );
   }
   return (

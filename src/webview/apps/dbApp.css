@@ -131,6 +131,55 @@ h2 {
   width: 180px;
 }
 
+/* Type-aware filter value cells */
+.filter-bar .filter-checkbox-value {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 10px;
+  border-radius: 8px;
+  border: 1px solid var(--input-border);
+  background: var(--input-bg);
+  font-size: 12px;
+  user-select: none;
+  cursor: pointer;
+}
+.filter-bar .filter-checkbox-value input {
+  margin: 0;
+  width: auto;
+  height: auto;
+  padding: 0;
+}
+.filter-bar .filter-multi-select {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-width: 360px;
+  padding: 6px 8px;
+  border: 1px solid var(--input-border);
+  border-radius: 8px;
+  background: var(--input-bg);
+}
+.filter-bar .filter-multi-select-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  cursor: pointer;
+}
+.filter-bar .filter-multi-select-option input {
+  margin: 0;
+  width: auto;
+  height: auto;
+  padding: 0;
+}
+.filter-bar .filter-empty-options {
+  font-size: 11px;
+  color: var(--muted);
+  font-style: italic;
+}
+
 /* ── Filter staging area ─────────────────── */
 .filter-staging {
   display: flex;
