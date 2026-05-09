@@ -62,7 +62,11 @@ export function TableView({
               </button>
             </th>
             {schema.map((c) => (
-              <th key={c.name} onClick={() => onToggleSort(c.name)}>
+              <th
+                key={c.name}
+                className={c.type === "select" || c.type === "multi-select" ? "tag-cell" : undefined}
+                onClick={() => onToggleSort(c.name)}
+              >
                 <span className="col-header-label">{c.name}</span>
                 {arrow(c.name)}
                 <button
@@ -137,10 +141,11 @@ function RenderCell(
   setEditCell: React.Dispatch<React.SetStateAction<{ relPath: string; colName: string } | null>>,
   baseUri: string,
 ) {
+  const isTagCell = c.type === "select" || c.type === "multi-select";
   return (
     <td
       key={c.name}
-      className="editable-cell"
+      className={`editable-cell${isTagCell ? " tag-cell" : ""}`}
       onClick={() => {
         if (isEditing) return;
         if (c.type === "checkbox") {

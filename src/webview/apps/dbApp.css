@@ -391,6 +391,25 @@ table {
   margin-bottom: 4px;
 }
 
+/* Tag (select / multi-select) cells: badges stack one per line so the
+ * column width = the widest single badge. Each badge is truncated at
+ * 30ch with an ellipsis. */
+.db-table th.tag-cell,
+.db-table td.tag-cell {
+  max-width: 30ch;
+}
+.db-table td.tag-cell {
+  white-space: normal;
+}
+.db-table td.tag-cell .badge {
+  display: block;
+  width: fit-content;
+  max-width: 30ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 th,
 td {
   text-align: left;
