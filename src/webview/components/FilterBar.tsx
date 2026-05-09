@@ -1,6 +1,7 @@
 import React, { useRef, useState } from "react";
 import { DbColumn, FilterNode, FilterGroup, FilterLeaf, isLeaf } from "../types";
 import { pruneEmptyGroups } from "../utils/filterSort";
+import { adjustPathAfterRemoval, getNodeByPath, isAncestor } from "../utils/filterTree";
 import type { DbFilterOperator } from "../../contracts/databaseTypes";
 import { ColumnNameOptions } from "./ColumnNameOptions";
 
@@ -108,12 +109,16 @@ export function FilterBar({ schema, titleFieldLabel, filterTree, setFilterTree }
   }
 
   function moveTreeNode(fromPath: number[], toGroupPath: number[]) {
+    // Don't allow dropping a group into one of its own descendants.
     if (isAncestor(fromPath, toGroupPath)) return;
     const next = deepClone(filterTree);
     const node = getNodeByPath(next, fromPath);
     const fromParent = getNodeByPath(next, fromPath.slice(0, -1)) as FilterGroup;
     fromParent.clauses.splice(fromPath[fromPath.length - 1], 1);
-    const target = getNodeByPath(next, toGroupPath) as FilterGroup;
+    // After the splice, indices of later siblings (and any path that
+    // traverses one of them) shift down by one. Re-target accordingly.
+    const adjustedPath = adjustPathAfterRemoval(toGroupPath, fromPath);
+    const target = getNodeByPath(next, adjustedPath) as FilterGroup;
     target.clauses.push(node);
     pruneEmptyGroups(next);
     ensureRootAnd(next);
@@ -528,19 +533,6 @@ function FilterChipText({ leaf, titleFieldLabel }: { leaf: FilterLeaf; titleFiel
 
 function deepClone<T>(obj: T): T {
   return JSON.parse(JSON.stringify(obj));
-}
-
-function getNodeByPath(root: FilterGroup, path: number[]): FilterNode {
-  let node: FilterNode = root;
-  for (const idx of path) {
-    node = (node as FilterGroup).clauses[idx];
-  }
-  return node;
-}
-
-function isAncestor(ancestor: number[], descendant: number[]): boolean {
-  if (ancestor.length >= descendant.length) return false;
-  return ancestor.every((v, i) => descendant[i] === v);
 }
 
 function ensureRootAnd(tree: FilterGroup) {
