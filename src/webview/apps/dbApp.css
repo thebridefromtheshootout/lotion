@@ -417,6 +417,23 @@ th .sort-arrow {
   margin-left: 6px;
   font-size: 11px;
 }
+th .col-copy-btn {
+  margin-left: 6px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 11px;
+  padding: 2px 4px;
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+th:hover .col-copy-btn,
+th .col-copy-btn:focus-visible {
+  opacity: 0.85;
+}
+th .col-copy-btn:hover {
+  opacity: 1;
+}
 tbody tr:nth-child(2n) td {
   background: color-mix(in srgb, var(--surface) 85%, transparent);
 }

@@ -33,19 +33,48 @@ export function TableView({
     setEditCell(null);
   }
 
+  function copyColumn(colName: string) {
+    const values =
+      colName === "__title"
+        ? entries.map((e) => e.title ?? "")
+        : entries.map((e) => e.properties[colName] ?? "");
+    const label = colName === "__title" ? `${titleFieldLabel} column` : `${colName} column`;
+    communicator.sendCopyToClipboard(values.join("\n"), label);
+  }
+
   return (
     <div className="table-wrap">
       <table className="db-table">
         <thead>
           <tr>
             <th onClick={() => onToggleSort("__title")}>
-              {titleFieldLabel}
+              <span className="col-header-label">{titleFieldLabel}</span>
               {arrow("__title")}
+              <button
+                className="col-copy-btn"
+                title={`Copy values from ${titleFieldLabel} (newline-joined)`}
+                onClick={(ev) => {
+                  ev.stopPropagation();
+                  copyColumn("__title");
+                }}
+              >
+                📋
+              </button>
             </th>
             {schema.map((c) => (
               <th key={c.name} onClick={() => onToggleSort(c.name)}>
-                {c.name}
+                <span className="col-header-label">{c.name}</span>
                 {arrow(c.name)}
+                <button
+                  className="col-copy-btn"
+                  title={`Copy values from ${c.name} (newline-joined)`}
+                  onClick={(ev) => {
+                    ev.stopPropagation();
+                    copyColumn(c.name);
+                  }}
+                >
+                  📋
+                </button>
               </th>
             ))}
             <th style={{ width: 60 }}>Actions</th>
