@@ -381,6 +381,25 @@ table {
   border-radius: 0;
 }
 
+th.resizable-col {
+  position: relative;
+}
+th.resizable-col .col-resize-handle {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 6px;
+  height: 100%;
+  cursor: col-resize;
+  user-select: none;
+  background: transparent;
+  z-index: 1;
+}
+th.resizable-col .col-resize-handle:hover,
+th.resizable-col .col-resize-handle:active {
+  background: color-mix(in srgb, var(--accent) 50%, transparent);
+}
+
 .db-table td {
   white-space: normal;
   word-break: break-word;

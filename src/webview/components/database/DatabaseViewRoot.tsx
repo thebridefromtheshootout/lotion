@@ -228,6 +228,7 @@ export function DatabaseViewRoot() {
           sortDir={sortDir}
           onToggleSort={toggleSort}
           baseUri={baseUri}
+          dbName={dbName}
           communicator={communicator}
         />
       )}

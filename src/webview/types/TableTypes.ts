@@ -11,6 +11,8 @@ export interface TableViewProps {
   sortDir: "asc" | "desc";
   onToggleSort: (col: string) => void;
   baseUri: string;
+  /** Used to namespace persisted column widths in localStorage. */
+  dbName: string;
   communicator: DbPanelToExtensionCommunicator;
 }
 
