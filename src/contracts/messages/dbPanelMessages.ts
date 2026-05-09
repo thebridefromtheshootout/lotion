@@ -74,6 +74,12 @@ export interface IDbPanelLogEntryMessage extends IExtensionPanelMessage<"logEntr
   relativePath: string;
 }
 
+export interface IDbPanelCopyToClipboardMessage extends IExtensionPanelMessage<"copyToClipboard"> {
+  text: string;
+  /** Short label for the user-facing confirmation toast. */
+  label?: string;
+}
+
 export type IDbPanelToExtensionMessage =
   | IDbPanelReadyMessage
   | IDbPanelOpenEntryMessage
@@ -83,4 +89,5 @@ export type IDbPanelToExtensionMessage =
   | IDbPanelPromptSaveViewMessage
   | IDbPanelShowWarningMessage
   | IDbPanelShowDayEventsMessage
-  | IDbPanelLogEntryMessage;
+  | IDbPanelLogEntryMessage
+  | IDbPanelCopyToClipboardMessage;

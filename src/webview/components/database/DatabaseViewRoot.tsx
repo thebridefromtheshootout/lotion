@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { DbColumn, DbEntryData, DbViewData, LayoutKind, FilterGroup, FilterNode, isLeaf, GraphLink } from "../../types";
 import { matchesFilters, compareFn } from "../../utils/filterSort";
+import { entriesToCsv } from "../../utils/csv";
 import { DbPanelToExtensionCommunicator } from "../../communicators/DbPanelToExtensionCommunicator";
 import { Toolbar } from "./Toolbar";
 import { FilterBar } from "../FilterBar";
@@ -127,6 +128,13 @@ export function DatabaseViewRoot() {
     [views, schema, applyView],
   );
 
+  // ── Copy active view as CSV ──
+  const handleCopyViewAsCsv = useCallback(() => {
+    const csv = entriesToCsv(entries, schema, titleFieldLabel);
+    const label = activeViewName ? `view "${activeViewName}" as CSV` : "view as CSV";
+    communicator.sendCopyToClipboard(csv, label);
+  }, [entries, schema, titleFieldLabel, activeViewName]);
+
   // ── Save view ──
   const handleSaveView = useCallback(() => {
     const flatFilters: DbViewFilter[] = [];
@@ -167,6 +175,7 @@ export function DatabaseViewRoot() {
         activeViewName={activeViewName}
         onLoadView={handleLoadView}
         onSaveView={handleSaveView}
+        onCopyViewAsCsv={handleCopyViewAsCsv}
         communicator={communicator}
       />
       <FilterBar

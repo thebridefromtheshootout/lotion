@@ -9,5 +9,6 @@ export interface ToolbarProps {
   activeViewName: string;
   onLoadView: (name: string) => void;
   onSaveView: () => void;
+  onCopyViewAsCsv: () => void;
   communicator: DbPanelToExtensionCommunicator;
 }

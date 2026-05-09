@@ -53,6 +53,10 @@ export class DbPanelToExtensionCommunicator extends PanelToExtensionCommunicator
     this.sendMessageOut({ type: "logEntry", relativePath });
   }
 
+  sendCopyToClipboard(text: string, label?: string): void {
+    this.sendMessageOut({ type: "copyToClipboard", text, label });
+  }
+
   // ── Incoming (extension → panel) ───────────────────────────────
 
   registerOnInit(action: (msg: IExtensionToDbPanelInitMessage) => void): void {

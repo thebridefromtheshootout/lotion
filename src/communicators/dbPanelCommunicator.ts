@@ -13,6 +13,7 @@ import {
   IDbPanelShowWarningMessage,
   IDbPanelShowDayEventsMessage,
   IDbPanelLogEntryMessage,
+  IDbPanelCopyToClipboardMessage,
 } from "../contracts/messages/dbPanelMessages";
 
 // ── Communicator ───────────────────────────────────────────────────
@@ -67,5 +68,9 @@ export class ExtensionToDbPanelCommunicator extends ExtensionToPanelCommunicator
 
   registerOnLogEntry(action: (msg: IDbPanelLogEntryMessage) => void): void {
     this.onMessageIn("logEntry", action);
+  }
+
+  registerOnCopyToClipboard(action: (msg: IDbPanelCopyToClipboardMessage) => void): void {
+    this.onMessageIn("copyToClipboard", action);
   }
 }

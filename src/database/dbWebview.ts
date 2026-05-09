@@ -181,6 +181,12 @@ export async function openDbWebview(dbIndexPath: string): Promise<void> {
     await refreshPanel();
   });
 
+  communicator.registerOnCopyToClipboard(async (msg) => {
+    if (typeof msg.text !== "string" || msg.text.length === 0) return;
+    await hostEditor.writeClipboardText(msg.text);
+    await hostEditor.showInformation(`Copied ${msg.label ?? "to clipboard"}.`);
+  });
+
   // Send initial data; webview will request again via "ready" once mounted.
   await refreshPanel();
 }

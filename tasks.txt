@@ -11,7 +11,7 @@ Do not attempt items marked [Complex].
         -> the value cell in the filter bar used to create filters should function exactly as a table cell does based on its type. so tags are edited using a list of checkbox items. true/false checkbox types are edited using checkboxes. etc.
         -> dates should have the date webview open to the side.
     1.6 ✅ the default view though loaded isn't set in the select for dbviews. the select needs to be set
-    1.7 dbview must expose a copy view button that copies a csv of the currently active view.
+    1.7 ✅ dbview must expose a copy view button that copies a csv of the currently active view.
 2. ✅ remove breadcrumbs from status bar. vscode already provides breadcrumbs.
 3. new status bar toggle button: linelock
     default off
