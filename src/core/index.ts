@@ -18,3 +18,5 @@ export { createFileHashTracker } from "./fileHashTracker";
 export { computeCursorContext } from "./cursorContext";
 export type { CursorContext } from "./cursorContext";
 export { Filter, CmdFilter } from "./cmdFilter";
+export { parseCommandArgs } from "./commandArgs";
+export type { ParsedCommandArgs } from "./commandArgs";

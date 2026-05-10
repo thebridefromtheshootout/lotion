@@ -17,6 +17,7 @@ import {
   SIMPLE_COMMANDS,
   INLINE_FORMATS,
   slashHandler,
+  parseCommandArgs,
   createFileHashTracker,
 } from "./core";
 
@@ -120,14 +121,14 @@ export function activate(context: ExtensionContext) {
 
   context.subscriptions.push(
     hostEditor.registerCommand(Cmd.openDbWebview, async (...args: any[]) => {
+      const parsed = parseCommandArgs(args);
       let fsPath: string | undefined;
 
-      if (args.length >= 1 && typeof args[0] === "string" && !args[0].startsWith("file:")) {
+      if (parsed.kind === "fsPath") {
         // Called from CodeLens — direct fsPath to the database index.md
-        fsPath = args[0];
-      } else if (args.length >= 3 && typeof args[0] === "string" && typeof args[1] === "number") {
-        // Called from slash command — (docUri, line, character)
-        const doc = await hostEditor.openTextDocument(Uri.parse(args[0]));
+        fsPath = parsed.fsPath;
+      } else if (parsed.kind === "slash") {
+        const doc = await hostEditor.openTextDocument(Uri.parse(parsed.docUri));
         fsPath = doc.uri.fsPath;
       } else {
         // Called from command palette — use active editor
@@ -192,21 +193,18 @@ export function activate(context: ExtensionContext) {
   // Database entry command (complex arg handling for webview calls)
   context.subscriptions.push(
     hostEditor.registerCommand(Cmd.dbAddEntry, async (...args: any[]) => {
-      if (args.length >= 1 && typeof args[0] === "string" && !args[0].startsWith("file:")) {
+      const parsed = parseCommandArgs(args);
+      if (parsed.kind === "fsPath") {
         // Called from webview — path string + optional defaults
-        const dbIndexPath = args[0];
-        const defaults: Record<string, string> | undefined = args[1] ?? undefined;
-        const doc = await hostEditor.openTextDocument(dbIndexPath);
+        const defaults = parsed.rest[0] as Record<string, string> | undefined;
+        const doc = await hostEditor.openTextDocument(parsed.fsPath);
         const pos = new Position(doc.lineCount - 1, 0);
         await handleDbEntryCommand(doc, pos, false, defaults);
-      } else if (args.length >= 3 && typeof args[0] === "string" && typeof args[1] === "number") {
-        // Called from slash command
-        const [docUri, line, character] = args;
-        const doc = await hostEditor.openTextDocument(Uri.parse(docUri));
-        const pos = new Position(line, character);
+      } else if (parsed.kind === "slash") {
+        const doc = await hostEditor.openTextDocument(Uri.parse(parsed.docUri));
+        const pos = new Position(parsed.line, parsed.character);
         await handleDbEntryCommand(doc, pos, true);
       } else {
-        // Called from command palette
         const doc = hostEditor.getDocument();
         if (!doc) {
           hostEditor.showWarning("Lotion: No active editor. Open a database index.md file first.");

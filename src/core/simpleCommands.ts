@@ -5,6 +5,7 @@ import { Position, Range, Uri } from "../hostEditor/EditorTypes";
 import type { TextDocument } from "../hostEditor/EditorTypes";
 import { hostEditor } from "../hostEditor/HostingEditor";
 import { Cmd } from "./commands";
+import { parseCommandArgs } from "./commandArgs";
 import { Regex } from "./regex";
 import { matchesSavedHash } from "./fileHashTracker";
 
@@ -74,13 +75,13 @@ export function slashHandler(handler: SlashCommandHandler, cleanLine?: boolean):
     let pos: Position;
     let viaSlash = false;
 
-    if (args.length >= 3 && typeof args[0] === "string" && typeof args[1] === "number" && typeof args[2] === "number") {
-      // Slash-command path: (docUri, line, character)
-      doc = await hostEditor.openTextDocument(Uri.parse(args[0]));
-      pos = new Position(args[1], args[2]);
+    const parsed = parseCommandArgs(args);
+    if (parsed.kind === "slash") {
+      doc = await hostEditor.openTextDocument(Uri.parse(parsed.docUri));
+      pos = new Position(parsed.line, parsed.character);
       viaSlash = true;
     } else {
-      // Command palette / keybinding path: use active editor
+      // Command palette / keybinding / fsPath path: use active editor.
       const activeDoc = hostEditor.getDocument();
       if (!activeDoc) {
         hostEditor.showWarning("Lotion: No active editor. Open a Markdown file first.");
