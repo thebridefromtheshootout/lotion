@@ -18,6 +18,7 @@ import {
 } from "./dbFrontmatter";
 import { Cmd } from "../core/commands";
 import { Regex } from "../core/regex";
+import { parseCsvText } from "../core/csv";
 import { toPathSlug } from "../core/slug";
 import type { SlashCommand } from "../core/slashCommands";
 import { Filter } from "../core/cmdFilter";
@@ -1118,56 +1119,6 @@ function parseMarkdownTableAtCursor(document: TextDocument, position: Position):
   return { headers, rows, startLine: start, endLine: end };
 }
 
-function parseCsvText(text: string): string[][] {
-  const rows: string[][] = [];
-  let row: string[] = [];
-  let cell = "";
-  let inQuotes = false;
-
-  for (let i = 0; i < text.length; i++) {
-    const ch = text[i];
-    const next = text[i + 1];
-
-    if (ch === "\"") {
-      if (inQuotes && next === "\"") {
-        cell += "\"";
-        i++;
-      } else {
-        inQuotes = !inQuotes;
-      }
-      continue;
-    }
-
-    if (!inQuotes && ch === ",") {
-      row.push(cell);
-      cell = "";
-      continue;
-    }
-
-    if (!inQuotes && (ch === "\n" || ch === "\r")) {
-      if (ch === "\r" && next === "\n") {
-        i++;
-      }
-      row.push(cell);
-      const hasAnyValue = row.some((v) => v.trim().length > 0);
-      if (hasAnyValue) {
-        rows.push(row.map((v) => v.trim()));
-      }
-      row = [];
-      cell = "";
-      continue;
-    }
-
-    cell += ch;
-  }
-
-  row.push(cell);
-  if (row.some((v) => v.trim().length > 0)) {
-    rows.push(row.map((v) => v.trim()));
-  }
-
-  return rows;
-}
 
 interface PromptColumnDefinitionOptions {
   includeImageType?: boolean;

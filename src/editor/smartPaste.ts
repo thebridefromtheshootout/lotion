@@ -7,6 +7,7 @@ import * as http from "http";
 import { getCwd } from "../core/cwd";
 import { Regex } from "../core/regex";
 import { escHtml } from "../core/html";
+import { parseCsvLine } from "../core/csv";
 import { probeClipboardImage, imageFromClipboard } from "../media/clipboard";
 import { cursorInCodeContext } from "./codeContext";
 
@@ -473,7 +474,7 @@ function tryParseTableData(text: string): string | undefined {
   const allSameCommaCount = commaCounts.every((c) => c === commaCounts[0] && c >= 1);
 
   if (allSameCommaCount) {
-    return toMarkdownTable(lines.map((l) => parseCSVLine(l)));
+    return toMarkdownTable(lines.map((l) => parseCsvLine(l)));
   }
 
   return undefined;
@@ -502,33 +503,3 @@ function toMarkdownTable(rows: string[][]): string {
   return [header, sep, ...body].join("\n");
 }
 
-function parseCSVLine(line: string): string[] {
-  const cells: string[] = [];
-  let current = "";
-  let inQuotes = false;
-
-  for (let i = 0; i < line.length; i++) {
-    const ch = line[i];
-    if (inQuotes) {
-      if (ch === '"' && line[i + 1] === '"') {
-        current += '"';
-        i++;
-      } else if (ch === '"') {
-        inQuotes = false;
-      } else {
-        current += ch;
-      }
-    } else {
-      if (ch === '"') {
-        inQuotes = true;
-      } else if (ch === ",") {
-        cells.push(current.trim());
-        current = "";
-      } else {
-        current += ch;
-      }
-    }
-  }
-  cells.push(current.trim());
-  return cells;
-}
