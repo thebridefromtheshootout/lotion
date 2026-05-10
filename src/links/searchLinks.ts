@@ -137,39 +137,54 @@ function pushLinkRecord(
 
 async function collectWorkspaceHttpLinks(workspaceRoot: string): Promise<LinkRecord[]> {
   const files = await hostEditor.findFiles("**/*.md");
-  const out: LinkRecord[] = [];
   const seen = new Set<string>();
 
-  for (const file of files) {
-    const text = fs.readFileSync(file.fsPath, "utf-8");
-    const lines = text.split(Regex.lineBreakSplit);
-    const sourcePath = path.relative(workspaceRoot, file.fsPath).replace(Regex.windowsSlash, "/");
-
-    for (let lineIdx = 0; lineIdx < lines.length; lineIdx++) {
-      const lineText = lines[lineIdx];
-      const sourceLine = lineIdx + 1;
-
-      // Markdown links: [text](target)
-      Regex.markdownLinkGlobal.lastIndex = 0;
-      let match: RegExpExecArray | null;
-      while ((match = Regex.markdownLinkGlobal.exec(lineText)) !== null) {
-        const start = match.index;
-        const end = start + match[0].length;
-        pushLinkRecord(out, seen, sourcePath, sourceLine, lineText, start, end, match[2], match[1]);
+  // Read all files in parallel — this used to be a serial fs.readFileSync
+  // loop and was the main cost of regenerating the link cache for
+  // large workspaces.
+  const perFile = await Promise.all(
+    files.map(async (file): Promise<LinkRecord[]> => {
+      let text: string;
+      try {
+        text = await fs.promises.readFile(file.fsPath, "utf-8");
+      } catch {
+        return [];
       }
+      const lines = text.split(Regex.lineBreakSplit);
+      const sourcePath = path.relative(workspaceRoot, file.fsPath).replace(Regex.windowsSlash, "/");
+      const records: LinkRecord[] = [];
 
-      // HTML anchors: <a href="target">text</a>
-      Regex.htmlAnchorTagGlobal.lastIndex = 0;
-      while ((match = Regex.htmlAnchorTagGlobal.exec(lineText)) !== null) {
-        const href = (match[1] ?? match[2] ?? match[3] ?? "").trim();
-        const anchorText = (match[4] ?? "").replace(Regex.htmlTagGlobal, "").trim();
-        const start = match.index;
-        const end = start + match[0].length;
-        pushLinkRecord(out, seen, sourcePath, sourceLine, lineText, start, end, href, anchorText);
+      // Local clones of the global regexes to avoid lastIndex races between
+      // parallel runs.
+      const linkRe = new RegExp(Regex.markdownLinkGlobal.source, Regex.markdownLinkGlobal.flags);
+      const anchorRe = new RegExp(Regex.htmlAnchorTagGlobal.source, Regex.htmlAnchorTagGlobal.flags);
+
+      for (let lineIdx = 0; lineIdx < lines.length; lineIdx++) {
+        const lineText = lines[lineIdx];
+        const sourceLine = lineIdx + 1;
+
+        linkRe.lastIndex = 0;
+        let match: RegExpExecArray | null;
+        while ((match = linkRe.exec(lineText)) !== null) {
+          const start = match.index;
+          const end = start + match[0].length;
+          pushLinkRecord(records, seen, sourcePath, sourceLine, lineText, start, end, match[2], match[1]);
+        }
+
+        anchorRe.lastIndex = 0;
+        while ((match = anchorRe.exec(lineText)) !== null) {
+          const href = (match[1] ?? match[2] ?? match[3] ?? "").trim();
+          const anchorText = (match[4] ?? "").replace(Regex.htmlTagGlobal, "").trim();
+          const start = match.index;
+          const end = start + match[0].length;
+          pushLinkRecord(records, seen, sourcePath, sourceLine, lineText, start, end, href, anchorText);
+        }
       }
-    }
-  }
+      return records;
+    }),
+  );
 
+  const out = perFile.flat();
   out.sort((a, b) => a.source_path.localeCompare(b.source_path) || a.source_line - b.source_line);
   return out;
 }
