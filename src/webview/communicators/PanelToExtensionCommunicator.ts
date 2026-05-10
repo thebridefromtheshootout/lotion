@@ -1,3 +1,22 @@
+// ── Webview-side communicator base ─────────────────────────────────
+//
+// Mirror image of `src/communicators/extensionToPanelCommunicator.ts` on the
+// extension-host side. Each named webview (Db panel, Comment panel, Date
+// panel, Dictate panel, Gif panel) has a pair of communicators:
+//
+//   src/webview/communicators/<Name>ToExtensionCommunicator.ts        (this side)
+//   src/communicators/<lowercased>Communicator.ts                     (host side)
+//
+// Both subclass a base `Communicator<MessageIn, MessageOut>` from
+// `src/contracts/communicator.ts`. The contract types live in
+// `src/contracts/messages/<name>Messages.ts` and are imported by both
+// sides, so adding a new message type is a single contract edit + a
+// register/send method on each communicator.
+//
+// PanelToExtensionCommunicator wires the webview's `window` message
+// listener to `notifyMessageIn`, and exposes `sendMessageOut` that goes
+// out via the VS Code webview `postMessage` API.
+
 import { Communicator, IExtensionPanelMessage } from "../../contracts/communicator";
 
 declare function acquireVsCodeApi(): {
