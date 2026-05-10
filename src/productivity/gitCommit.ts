@@ -1,5 +1,4 @@
-import { ConfigurationTarget, Position, ProgressLocation } from "../hostEditor/EditorTypes";
-import type { TextDocument } from "../hostEditor/EditorTypes";
+import { ConfigurationTarget, ProgressLocation } from "../hostEditor/EditorTypes";
 import { hostEditor } from "../hostEditor/HostingEditor";
 import * as cp from "child_process";
 
@@ -63,9 +62,11 @@ async function getCurrentBranch(cwd: string): Promise<string> {
 }
 
 /**
- * Main handler for the /commit slash command.
+ * Main handler for the /commit slash command. Does not depend on the active
+ * editor — commits the whole workspace. Registered without `slashHandler`
+ * because nothing uses the (doc, pos) shape.
  */
-export async function handleGitCommitCommand(_document: TextDocument, _position: Position): Promise<void> {
+export async function handleGitCommitCommand(): Promise<void> {
   const cwd = getWorkspaceRoot();
   if (!cwd) {
     hostEditor.showError("Lotion Git: no workspace folder found.");

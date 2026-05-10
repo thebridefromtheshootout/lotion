@@ -159,6 +159,6 @@ export const SIMPLE_COMMANDS: [string, (...args: any[]) => any][] = [
   [Cmd.removeBookmark, removeBookmark],
   [Cmd.openBookmark, openBookmark],
   [Cmd.openDailyNote, openDailyNote],
-  [Cmd.gitCommit, slashHandler(handleGitCommitCommand)],
+  [Cmd.gitCommit, handleGitCommitCommand],
   [Cmd.fireInto, fireInto],
 ];
