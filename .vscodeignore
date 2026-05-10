@@ -1,4 +1,10 @@
 .vscode/**
-src/**
-# node_modules/**
+node_modules/**
 tsconfig.json
+*.md
+!LICENSE.md
+!README.md
+src
+diagrams
+.*
+lotion-tests
