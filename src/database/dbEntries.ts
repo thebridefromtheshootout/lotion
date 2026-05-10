@@ -52,15 +52,53 @@ export function readDbEntries(dbDir: string): DbEntry[] {
   return entries;
 }
 
+// ── isDbFile result cache ──────────────────────────────────────────
+//
+// `isDbFile` is on the cursor-context hot path (every cursor move fans
+// out to cursorInDbEntry → findParentDbIndex → isDbFile). It used to
+// fs.readFileSync the candidate index.md on every keystroke; here we
+// stat() instead and only re-read the file when mtime changes.
+//
+// Cache is also evicted explicitly on save (see invalidateDbFileCache),
+// covering the case where the user adds/removes a `lotion-db` fence.
+
+interface DbFileCacheEntry {
+  mtimeMs: number;
+  size: number;
+  isDb: boolean;
+}
+const dbFileCache = new Map<string, DbFileCacheEntry>();
+
+/** Drop the cached classification for `filePath` (call after a save). */
+export function invalidateDbFileCache(filePath: string): void {
+  dbFileCache.delete(filePath);
+}
+
 /**
  * Check if a file is a database index.md (contains a lotion-db code block).
+ * Cached by (path, mtime, size); explicit invalidation via invalidateDbFileCache.
  */
 export function isDbFile(filePath: string): boolean {
-  if (!fs.existsSync(filePath)) {
+  let stat: fs.Stats;
+  try {
+    stat = fs.statSync(filePath);
+  } catch {
     return false;
   }
-  const content = fs.readFileSync(filePath, "utf-8");
-  return Regex.dbSchemaFenceStartMultiline.test(content);
+  if (!stat.isFile()) return false;
+  const cached = dbFileCache.get(filePath);
+  if (cached && cached.mtimeMs === stat.mtimeMs && cached.size === stat.size) {
+    return cached.isDb;
+  }
+  let content: string;
+  try {
+    content = fs.readFileSync(filePath, "utf-8");
+  } catch {
+    return false;
+  }
+  const isDb = Regex.dbSchemaFenceStartMultiline.test(content);
+  dbFileCache.set(filePath, { mtimeMs: stat.mtimeMs, size: stat.size, isDb });
+  return isDb;
 }
 
 /**
@@ -93,6 +131,6 @@ export function findParentDbIndex(filePath: string): string | undefined {
   const dbDir = path.dirname(parentDir);              // dbDir
   const candidateIndex = path.join(dbDir, "index.md");
   if (candidateIndex === filePath) return undefined;   // this IS the index
-  if (!fs.existsSync(candidateIndex)) return undefined;
+  // isDbFile handles the existsSync (it returns false on stat failure)
   return isDbFile(candidateIndex) ? candidateIndex : undefined;
 }

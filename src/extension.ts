@@ -48,7 +48,14 @@ import { createListRenumber, createListSwapMarker } from "./lists";
 
 import { createRecentPagesTracker } from "./navigation";
 
-import { refreshAllDbWebviews, handleDbEntryCommand, openDbWebview, findParentDbIndex, isDbFile } from "./database";
+import {
+  refreshAllDbWebviews,
+  handleDbEntryCommand,
+  openDbWebview,
+  findParentDbIndex,
+  isDbFile,
+  invalidateDbFileCache,
+} from "./database";
 
 import { createImageDropProvider, createImageHoverProvider } from "./media";
 
@@ -254,8 +261,14 @@ export function activate(context: ExtensionContext) {
     createBookmarkTreeView(),
   );
 
-  // Refresh DB webviews on save
-  context.subscriptions.push(hostEditor.onDidSaveTextDocument(() => refreshAllDbWebviews()));
+  // Refresh DB webviews on save + drop cached isDbFile classification for the
+  // saved file (it may have just gained or lost its `lotion-db` fence).
+  context.subscriptions.push(
+    hostEditor.onDidSaveTextDocument((doc) => {
+      invalidateDbFileCache(doc.uri.fsPath);
+      refreshAllDbWebviews();
+    }),
+  );
 
   // ── Markdown preview plugin ──────────────────────────────
   return {

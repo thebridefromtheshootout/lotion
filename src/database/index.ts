@@ -16,6 +16,7 @@ export {
   cursorInDbEntry,
   findParentDbIndex,
   isDbFile,
+  invalidateDbFileCache,
   DbColumn,
   DbSchema,
 } from "./database";
