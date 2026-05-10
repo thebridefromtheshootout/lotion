@@ -229,7 +229,8 @@ const ENTITY_MAP: Record<string, string> = {
   nbsp: " ", ndash: "\u2013", mdash: "\u2014", hellip: "\u2026",
 };
 
-function decodeHtmlEntities(text: string): string {
+/** Exported for unit tests. */
+export function decodeHtmlEntities(text: string): string {
   return text.replace(HTML_ENTITY_RE, (_, dec, hex, named) => {
     if (dec) return String.fromCharCode(parseInt(dec, 10));
     if (hex) return String.fromCharCode(parseInt(hex, 16));
@@ -372,7 +373,8 @@ function cleanTitle(raw: string, url: URL): string {
   return title.trim() || raw;
 }
 
-function extractTitle(html: string, url?: URL): string | undefined {
+/** Exported for unit tests. */
+export function extractTitle(html: string, url?: URL): string | undefined {
   let raw: string | undefined;
   // Prefer og:title
   const og = html.match(OG_TITLE_RE) ?? html.match(OG_TITLE_RE_ALT);
