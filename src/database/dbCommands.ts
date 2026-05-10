@@ -19,6 +19,7 @@ import {
 import { Cmd } from "../core/commands";
 import { Regex } from "../core/regex";
 import { parseCsvText } from "../core/csv";
+import { Markers } from "../core/markers";
 import { toPathSlug } from "../core/slug";
 import type { SlashCommand } from "../core/slashCommands";
 import { Filter } from "../core/cmdFilter";
@@ -212,7 +213,7 @@ export async function handleDatabaseCommand(document: TextDocument, position: Po
   }
 
   const schemaYaml = serializeSchema(schema);
-  const dbContent = `# ${dbName}\n\n\`\`\`lotion-db\n${schemaYaml}\n\`\`\`\n\n---\n\n`;
+  const dbContent = `# ${dbName}\n\n\`\`\`${Markers.dbFenceLang}\n${schemaYaml}\n\`\`\`\n\n---\n\n`;
   fs.writeFileSync(dbFilePath, dbContent, "utf-8");
 
   // 6. Insert link in the current document
@@ -1292,7 +1293,7 @@ async function createDatabaseFromTabularData(
   fs.mkdirSync(dbDir, { recursive: true });
 
   const schemaYaml = serializeSchema(schema);
-  fs.writeFileSync(dbFilePath, `# ${dbName}\n\n\`\`\`lotion-db\n${schemaYaml}\n\`\`\`\n\n---\n\n`, "utf-8");
+  fs.writeFileSync(dbFilePath, `# ${dbName}\n\n\`\`\`${Markers.dbFenceLang}\n${schemaYaml}\n\`\`\`\n\n---\n\n`, "utf-8");
 
   const entryLinks: string[] = [];
   let created = 0;

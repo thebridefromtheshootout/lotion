@@ -7,6 +7,7 @@ import {
 } from "./dbSchema";
 import type { DbFilterOperator, DbViewFilter, DbFilterClause, DbView, LayoutKind } from "../contracts/databaseTypes";
 import { Regex } from "../core/regex";
+import { Markers } from "../core/markers";
 
 export type { DbFilterOperator, DbViewFilter, DbFilterClause, DbView, LayoutKind } from "../contracts/databaseTypes";
 
@@ -172,7 +173,7 @@ export function serializeViews(views: DbView[]): string {
 export function saveViewsToFile(filePath: string, views: DbView[]): void {
   const content = fs.readFileSync(filePath, "utf-8");
   const lines = content.split(Regex.lineBreakSplit);
-  const newBlock = "```lotion-db-views\n" + serializeViews(views) + "\n```";
+  const newBlock = "```" + Markers.dbViewsFenceLang + "\n" + serializeViews(views) + "\n```";
 
   // Find existing views block
   let blockStart = -1;

@@ -4,6 +4,7 @@ import { hostEditor } from "../hostEditor/HostingEditor";
 import * as crypto from "crypto";
 import { Cmd } from "../core/commands";
 import { Regex } from "../core/regex";
+import { Markers } from "../core/markers";
 import { getBlockIndex } from "../core/blockIndex";
 import type { DetailsBlock as IndexedDetailsBlock } from "../core/blockIndex";
 import type { SlashCommand } from "../core/slashCommands";
@@ -62,7 +63,7 @@ const PBKDF2_DIGEST = "sha512";
 const BLOB_VERSION_V2 = "v2";
 
 const LOCK_MARKER_RE = Regex.lockMarker;
-const SECRETBOX_MARKER = "<!--lotion-secretbox-->";
+const SECRETBOX_MARKER = Markers.secretboxMarkerHtml;
 const SECRETBOX_TAG_RE = Regex.secretboxTagLine;
 
 // ── Last-password memo (TTL-bounded) ───────────────────────────────
@@ -479,7 +480,7 @@ export async function handleLockCommand(document: TextDocument, position: Positi
 
   // Build replacement: locked summary + encrypted body
   const lockedSummary = `<summary>🔒 ${block.summaryText}</summary>`;
-  const lockedBody = ["", "`🔒 ENCRYPTED — use /unlock to decrypt`", "", `<!--lotion-lock:${blob}-->`].join("\n");
+  const lockedBody = ["", "`🔒 ENCRYPTED — use /unlock to decrypt`", "", `<!--${Markers.lockPrefix}:${blob}-->`].join("\n");
 
   // Replace the summary line and body
   const summaryLine = document.lineAt(block.summaryEndLine);
@@ -653,7 +654,7 @@ async function lockAllBoxes(document: TextDocument): Promise<boolean> {
 
       const blob = encrypt(plaintext, password);
       const lockedSummary = `<summary>🔒 ${block.summaryText}</summary>`;
-      const lockedBody = ["", "`🔒 ENCRYPTED — use /unlock to decrypt`", "", `<!--lotion-lock:${blob}-->`].join("\n");
+      const lockedBody = ["", "`🔒 ENCRYPTED — use /unlock to decrypt`", "", `<!--${Markers.lockPrefix}:${blob}-->`].join("\n");
 
       const bodyStart = new Position(block.summaryEndLine, 0);
       const bodyEnd = new Position(block.endLine, 0);
