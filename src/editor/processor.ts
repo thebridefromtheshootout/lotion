@@ -638,6 +638,15 @@ function runCommand(
       return { output: message.trim(), exitCode: err.status || 1 };
     }
 
+    // Timed out — execSync sends SIGTERM after the timeout window. Surface
+    // it explicitly so users don't blame the script for an empty output.
+    if (err.signal === "SIGTERM" || err.killed) {
+      const trailer = "[timed out after 30s]";
+      const body = stdioOutput.trimEnd();
+      const message = body ? `${body}\n${trailer}` : trailer;
+      return { output: message, exitCode: err.status || 124 };
+    }
+
     return { output: stdioOutput.trimEnd() || err.message, exitCode: err.status || 1 };
   }
 }
