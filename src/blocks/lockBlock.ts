@@ -57,8 +57,38 @@ const LOCK_MARKER_RE = Regex.lockMarker;
 const SECRETBOX_MARKER = "<!--lotion-secretbox-->";
 const SECRETBOX_TAG_RE = Regex.secretboxTagLine;
 
-/** Remember the last password entered during this session (never persisted). */
+// ── Last-password memo (TTL-bounded) ───────────────────────────────
+// Convenience for users who lock/unlock several boxes back-to-back. The
+// password is held in memory only — never persisted — and is wiped after
+// PASSWORD_TTL_MS so a long-lived extension host can't accumulate
+// secrets indefinitely. Prefer touchLastPassword() / readLastPassword()
+// over poking lastPassword directly.
+const PASSWORD_TTL_MS = 5 * 60 * 1000; // 5 minutes
 let lastPassword: string | undefined;
+let lastPasswordExpiry = 0;
+let lastPasswordTimer: ReturnType<typeof setTimeout> | undefined;
+
+function touchLastPassword(password: string): void {
+  lastPassword = password;
+  lastPasswordExpiry = Date.now() + PASSWORD_TTL_MS;
+  if (lastPasswordTimer) clearTimeout(lastPasswordTimer);
+  lastPasswordTimer = setTimeout(clearLastPassword, PASSWORD_TTL_MS);
+}
+
+function readLastPassword(): string | undefined {
+  if (lastPassword && Date.now() < lastPasswordExpiry) return lastPassword;
+  if (lastPassword) clearLastPassword();
+  return undefined;
+}
+
+function clearLastPassword(): void {
+  lastPassword = undefined;
+  lastPasswordExpiry = 0;
+  if (lastPasswordTimer) {
+    clearTimeout(lastPasswordTimer);
+    lastPasswordTimer = undefined;
+  }
+}
 
 /** Run an async block with the read-only guard suppressed (try/finally safe). */
 let _guardSuppressed = false;
@@ -409,7 +439,7 @@ export async function handleLockCommand(document: TextDocument, position: Positi
   const password = await hostEditor.showInputBox({
     prompt: "Password to encrypt this block",
     password: true,
-    value: lastPassword,
+    value: readLastPassword(),
     validateInput: (v) => {
       if (!v || v.length === 0) {
         return "Password cannot be empty";
@@ -420,7 +450,7 @@ export async function handleLockCommand(document: TextDocument, position: Positi
   if (!password) {
     return;
   }
-  lastPassword = password;
+  touchLastPassword(password);
 
   // Encrypt
   const blob = encrypt(plaintext, password);
@@ -485,7 +515,7 @@ export async function handleUnlockCommand(document: TextDocument, position: Posi
     hostEditor.showError("Wrong password or corrupted data.");
     return;
   }
-  lastPassword = password;
+  touchLastPassword(password);
 
   // Build replacement: unlocked summary + decrypted body
   const unlockedSummary = `<summary>${block.summaryText}</summary>`;
@@ -582,13 +612,13 @@ async function lockAllBoxes(document: TextDocument): Promise<boolean> {
   const password = await hostEditor.showInputBox({
     prompt: `Password to lock ${blocks.length} secret box${blocks.length > 1 ? "es" : ""}`,
     password: true,
-    value: lastPassword,
+    value: readLastPassword(),
     validateInput: (v) => (!v || v.length === 0 ? "Password cannot be empty" : undefined),
   });
   if (!password) {
     return false;
   }
-  lastPassword = password;
+  touchLastPassword(password);
 
   // Lock bottom-up so earlier line numbers remain valid
   blocks.sort((a, b) => b.startLine - a.startLine);
