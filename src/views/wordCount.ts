@@ -31,6 +31,26 @@ export function createWordCountStatusBar(): Disposable {
   return Disposable.from(...disposables);
 }
 
+// Cache the document-wide totals — they only change when the document
+// itself changes, not when the selection moves. The selection count is
+// cheap and recomputes per call.
+interface DocumentTotals {
+  wordCount: number;
+  charCount: number;
+}
+const documentTotalsCache = new WeakMap<object, { version: number; totals: DocumentTotals }>();
+
+function getDocumentTotals(): DocumentTotals | undefined {
+  const doc = hostEditor.getDocument();
+  if (!doc) return undefined;
+  const cached = documentTotalsCache.get(doc);
+  if (cached && cached.version === doc.version) return cached.totals;
+  const text = doc.getText();
+  const totals: DocumentTotals = { wordCount: countWords(text), charCount: text.length };
+  documentTotalsCache.set(doc, { version: doc.version, totals });
+  return totals;
+}
+
 function updateWordCount(): void {
   if (!statusBarItem) {
     return;
@@ -41,10 +61,12 @@ function updateWordCount(): void {
     return;
   }
 
-  const text = hostEditor.getDocumentText();
-
-  const wordCount = countWords(text);
-  const charCount = text.length;
+  const totals = getDocumentTotals();
+  if (!totals) {
+    statusBarItem.hide();
+    return;
+  }
+  const { wordCount, charCount } = totals;
   const wpm = hostEditor.getConfiguration("lotion").get<number>("readingSpeed", 230);
   const readingTimeMin = Math.max(1, Math.ceil(wordCount / wpm));
 
