@@ -1,8 +1,6 @@
 import { Disposable, Position, Range } from "../hostEditor/EditorTypes";
-import type { TextDocument } from "../hostEditor/EditorTypes";
 import { hostEditor } from "../hostEditor/HostingEditor";
-import { Regex } from "../core/regex";
-import { getBlockIndex } from "../core/blockIndex";
+import { cursorInCodeContext } from "../editor/codeContext";
 
 const TRIGGER_CHARS = new Set([" ", ",", ".", ";", ":", "!", "?", ")", "]", "}"]);
 const WORD_BEFORE = /(\w+)$/;
@@ -14,15 +12,6 @@ interface CaseSettings {
   PascalCase?: boolean;
   camelCase?: boolean;
   snake_case?: boolean;
-}
-
-function isInsideCode(doc: TextDocument, pos: Position): boolean {
-  if (getBlockIndex(doc).isInCodeFence(pos.line)) {
-    return true;
-  }
-  const before = doc.lineAt(pos.line).text.substring(0, pos.character);
-  const backticks = (before.match(Regex.backtick) || []).length;
-  return backticks % 2 === 1;
 }
 
 function matchesEnabledCase(word: string, cases: CaseSettings): boolean {
@@ -49,7 +38,7 @@ export function createAutoInlineCode(): Disposable {
       if (change.text.length !== 1 || !TRIGGER_CHARS.has(change.text)) continue;
 
       const pos = change.range.start;
-      if (isInsideCode(doc, pos)) continue;
+      if (cursorInCodeContext(doc, pos)) continue;
 
       const before = doc.lineAt(pos.line).text.substring(0, pos.character);
       const m = before.match(WORD_BEFORE);
