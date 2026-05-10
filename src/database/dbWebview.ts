@@ -228,7 +228,7 @@ async function sendInit(
     return;
   }
   const { dbDir, entries } = resolveDbEntries(dbIndexPath);
-  const links = extractEntryLinks(dbDir, entries);
+  const links = await extractEntryLinks(dbDir, entries);
   const views = parseViewsFromFile(dbIndexPath) || [];
 
   // Resolve a webview-safe base URI so the webview can load images from .rsrc
@@ -281,32 +281,41 @@ const LINK_RE = Regex.markdownLinkGlobal;
 /**
  * Scan each entry's markdown for internal links that point to other entries
  * in the same database, and return them as directed edges.
+ *
+ * Reads run in parallel via fs.promises so a database with hundreds of
+ * entries doesn't block the panel init on serial sync I/O. A single bad
+ * file (deleted between fs.exists/read) is silently skipped.
  */
-function extractEntryLinks(dbDir: string, entries: DbEntry[]): DbEntryLink[] {
+async function extractEntryLinks(dbDir: string, entries: DbEntry[]): Promise<DbEntryLink[]> {
   const entryPaths = new Set(entries.map((e) => e.relativePath));
-  const links: DbEntryLink[] = [];
 
-  for (const entry of entries) {
-    const entryFile = path.join(dbDir, entry.relativePath);
-    if (!fs.existsSync(entryFile)) continue;
-
-    const content = fs.readFileSync(entryFile, "utf-8");
-    const entryDir = path.dirname(entry.relativePath);
-
-    let match: RegExpExecArray | null;
-    LINK_RE.lastIndex = 0;
-    while ((match = LINK_RE.exec(content)) !== null) {
-      const rawTarget = match[2];
-      // Skip external links and anchors
-      if (rawTarget.startsWith("http") || rawTarget.startsWith("#")) continue;
-
-      // Resolve relative to entry directory, normalise separators
-      const resolved = path.posix.normalize(path.posix.join(entryDir, rawTarget));
-      if (entryPaths.has(resolved) && resolved !== entry.relativePath) {
-        links.push({ source: entry.relativePath, target: resolved });
+  const perEntry = await Promise.all(
+    entries.map(async (entry): Promise<DbEntryLink[]> => {
+      const entryFile = path.join(dbDir, entry.relativePath);
+      let content: string;
+      try {
+        content = await fs.promises.readFile(entryFile, "utf-8");
+      } catch {
+        // ENOENT / EISDIR / EACCES — skip this entry.
+        return [];
       }
-    }
-  }
+      const entryDir = path.dirname(entry.relativePath);
+      const out: DbEntryLink[] = [];
+      // Local regex with /g — using LINK_RE.lastIndex across parallel runs
+      // would race; clone instead.
+      const re = new RegExp(LINK_RE.source, LINK_RE.flags);
+      let match: RegExpExecArray | null;
+      while ((match = re.exec(content)) !== null) {
+        const rawTarget = match[2];
+        if (rawTarget.startsWith("http") || rawTarget.startsWith("#")) continue;
+        const resolved = path.posix.normalize(path.posix.join(entryDir, rawTarget));
+        if (entryPaths.has(resolved) && resolved !== entry.relativePath) {
+          out.push({ source: entry.relativePath, target: resolved });
+        }
+      }
+      return out;
+    }),
+  );
 
-  return links;
+  return perEntry.flat();
 }

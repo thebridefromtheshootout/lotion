@@ -45,15 +45,16 @@ function downloadFile(url: string, dest: string): Promise<void> {
   return new Promise((resolve, reject) => {
     const file = fs.createWriteStream(dest);
     const get = url.startsWith("https") ? https.get : http.get;
+    const safeUnlink = () => { if (fs.existsSync(dest)) fs.unlinkSync(dest); };
     get(url, (res) => {
       if (res.statusCode === 301 || res.statusCode === 302) {
         file.close();
-        fs.unlinkSync(dest);
+        safeUnlink();
         return downloadFile(res.headers.location!, dest).then(resolve, reject);
       }
       if (res.statusCode !== 200) {
         file.close();
-        fs.unlinkSync(dest);
+        safeUnlink();
         return reject(new Error(`HTTP ${res.statusCode}`));
       }
       res.pipe(file);
@@ -63,9 +64,7 @@ function downloadFile(url: string, dest: string): Promise<void> {
       });
     }).on("error", (e) => {
       file.close();
-      if (fs.existsSync(dest)) {
-        fs.unlinkSync(dest);
-      }
+      safeUnlink();
       reject(e);
     });
   });
