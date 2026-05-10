@@ -863,6 +863,11 @@
           "default": 230,
           "description": "Words per minute used to estimate reading time."
         },
+        "lotion.smartPaste.debug": {
+          "type": "boolean",
+          "default": false,
+          "description": "Log smart-paste decisions to the developer console for debugging."
+        },
         "lotion.smartTypography": {
           "type": "boolean",
           "default": false,

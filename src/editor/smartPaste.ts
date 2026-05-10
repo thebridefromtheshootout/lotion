@@ -14,7 +14,15 @@ import { cursorInCodeContext } from "./codeContext";
 const SMART_PASTE_LOG_PREFIX = "[Lotion][smartPaste]";
 const shownClipboardDependencyErrors = new Set<string>();
 
+/**
+ * Smart-paste tracing fires on every Ctrl+V. Only emit when the user has
+ * explicitly opted in via `lotion.smartPaste.debug`; otherwise the log
+ * stream pollutes the dev console for everyone.
+ */
 function logSmartPaste(step: string, details?: Record<string, unknown>): void {
+  if (!hostEditor.getConfiguration("lotion").get<boolean>("smartPaste.debug", false)) {
+    return;
+  }
   if (details) {
     console.log(`${SMART_PASTE_LOG_PREFIX} ${step}`, details);
   } else {
