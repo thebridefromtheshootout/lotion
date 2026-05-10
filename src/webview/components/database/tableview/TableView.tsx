@@ -86,12 +86,16 @@ export function TableView({
     return <span className="sort-arrow">{sortDir === "asc" ? "▲" : "▼"}</span>;
   };
 
-  function commitEdit(relPath: string, colName: string, newVal: string) {
-    communicator.sendUpdateEntryProperty(relPath, colName, newVal);
-    // Optimistic update via setState in the parent — never mutate prop arrays.
-    onLocalEntryUpdate(relPath, colName, newVal);
-    setEditCell(null);
-  }
+  // Stable identity for commitEdit so React.memo'd rows don't re-render
+  // every time the parent re-renders.
+  const commitEdit = useCallback(
+    (relPath: string, colName: string, newVal: string) => {
+      communicator.sendUpdateEntryProperty(relPath, colName, newVal);
+      onLocalEntryUpdate(relPath, colName, newVal);
+      setEditCell(null);
+    },
+    [communicator, onLocalEntryUpdate],
+  );
 
   function copyColumn(colName: string) {
     const values =
@@ -172,24 +176,50 @@ export function TableView({
           </tr>
         </thead>
         <tbody>
-          {entries.map((e) => RenderEntry(e, communicator, schema, editCell, commitEdit, setEditCell, baseUri))}
+          {entries.map((e) => (
+            <EntryRow
+              key={e.relativePath}
+              entry={e}
+              communicator={communicator}
+              schema={schema}
+              editingColName={editCell?.relPath === e.relativePath ? editCell.colName : null}
+              commitEdit={commitEdit}
+              setEditCell={setEditCell}
+              baseUri={baseUri}
+            />
+          ))}
         </tbody>
       </table>
     </div>
   );
 }
 
-function RenderEntry(
-  entry: DbEntryData,
-  communicator: DbPanelToExtensionCommunicator,
-  schema: DbColumn[],
-  editCell: { relPath: string; colName: string } | null,
-  commitEdit: commitEditMethodType,
-  setEditCell: React.Dispatch<React.SetStateAction<{ relPath: string; colName: string } | null>>,
-  baseUri: string,
-) {
+// React.memo'd so rows whose props are shallow-equal don't re-render on
+// every keystroke. `editingColName` is null for non-editing rows, so
+// editing one cell only re-renders that row.
+
+interface EntryRowProps {
+  entry: DbEntryData;
+  communicator: DbPanelToExtensionCommunicator;
+  schema: DbColumn[];
+  /** Column name being edited in this row, or null if no cell in this row is being edited. */
+  editingColName: string | null;
+  commitEdit: commitEditMethodType;
+  setEditCell: React.Dispatch<React.SetStateAction<{ relPath: string; colName: string } | null>>;
+  baseUri: string;
+}
+
+const EntryRow = React.memo(function EntryRow({
+  entry,
+  communicator,
+  schema,
+  editingColName,
+  commitEdit,
+  setEditCell,
+  baseUri,
+}: EntryRowProps) {
   return (
-    <tr key={entry.relativePath}>
+    <tr>
       <td className="title-cell">
         <a
           href="#"
@@ -203,8 +233,19 @@ function RenderEntry(
       </td>
       {schema.map((c) => {
         const val = entry.properties[c.name] || "";
-        const isEditing = editCell?.relPath === entry.relativePath && editCell?.colName === c.name;
-        return RenderCell(c, isEditing, commitEdit, entry, val, setEditCell, baseUri);
+        const isEditing = editingColName === c.name;
+        return (
+          <EntryCell
+            key={c.name}
+            column={c}
+            isEditing={isEditing}
+            commitEdit={commitEdit}
+            entry={entry}
+            val={val}
+            setEditCell={setEditCell}
+            baseUri={baseUri}
+          />
+        );
       })}
       <td>
         <button
@@ -217,42 +258,51 @@ function RenderEntry(
       </td>
     </tr>
   );
+});
+
+interface EntryCellProps {
+  column: DbColumn;
+  isEditing: boolean;
+  commitEdit: commitEditMethodType;
+  entry: DbEntryData;
+  val: string;
+  setEditCell: React.Dispatch<React.SetStateAction<{ relPath: string; colName: string } | null>>;
+  baseUri: string;
 }
 
-function RenderCell(
-  c: DbColumn,
-  isEditing: boolean,
-  commitEdit: commitEditMethodType,
-  entry: DbEntryData,
-  val: string,
-  setEditCell: React.Dispatch<React.SetStateAction<{ relPath: string; colName: string } | null>>,
-  baseUri: string,
-) {
-  const isTagCell = c.type === "select" || c.type === "multi-select";
+const EntryCell = React.memo(function EntryCell({
+  column,
+  isEditing,
+  commitEdit,
+  entry,
+  val,
+  setEditCell,
+  baseUri,
+}: EntryCellProps) {
+  const isTagCell = column.type === "select" || column.type === "multi-select";
   return (
     <td
-      key={c.name}
       className={`editable-cell${isTagCell ? " tag-cell" : ""}`}
       onClick={() => {
         if (isEditing) return;
-        if (c.type === "checkbox") {
-          commitEdit(entry.relativePath, c.name, val === "true" ? "false" : "true");
+        if (column.type === "checkbox") {
+          commitEdit(entry.relativePath, column.name, val === "true" ? "false" : "true");
           return;
         }
-        setEditCell({ relPath: entry.relativePath, colName: c.name });
+        setEditCell({ relPath: entry.relativePath, colName: column.name });
       }}
     >
       {isEditing ? (
         <InlineEditor
-          colType={c.type}
+          colType={column.type}
           currentVal={val}
-          options={c.options || []}
-          onCommit={(v) => commitEdit(entry.relativePath, c.name, v)}
+          options={column.options || []}
+          onCommit={(v) => commitEdit(entry.relativePath, column.name, v)}
           onCancel={() => setEditCell(null)}
         />
       ) : (
-        <ColumnValueCell column={c} value={val} baseUri={baseUri} />
+        <ColumnValueCell column={column} value={val} baseUri={baseUri} />
       )}
     </td>
   );
-}
+});
