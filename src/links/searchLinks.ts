@@ -71,10 +71,15 @@ function readCachedLinks(workspaceRoot: string): LinkRecord[] | undefined {
       payload.workspaceRoot !== workspaceRoot ||
       !Array.isArray(payload.records)
     ) {
+      // Stale-shape file — drop it so we don't repeatedly try to parse it.
+      try { fs.unlinkSync(cacheFilePath); } catch { /* ignore */ }
       return undefined;
     }
     return payload.records.filter(isValidLinkRecord);
   } catch {
+    // Unreadable / malformed JSON — drop the file so the next call regenerates
+    // from scratch instead of hitting the same parse failure.
+    try { fs.unlinkSync(cacheFilePath); } catch { /* ignore */ }
     return undefined;
   }
 }
