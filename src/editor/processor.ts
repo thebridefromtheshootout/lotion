@@ -656,7 +656,12 @@ function buildSummaryTag(output: string): string {
 }
 
 /**
- * True when the cursor is inside a processor block.
+ * True when the most recent processor marker above the cursor (`<!--lotion-processor:guid-->`)
+ * is followed by a `<details>` block whose range contains the cursor line.
+ *
+ * Returns false if the closest marker is a non-processor lotion marker, or
+ * if the marker has no enclosing details block, or if no marker is found
+ * walking up to line 0.
  */
 export function cursorInProcessor(document: TextDocument, position: Position): boolean {
   for (let i = position.line; i >= 0; i--) {

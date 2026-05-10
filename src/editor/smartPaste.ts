@@ -295,12 +295,15 @@ function fetchJson(url: URL): Promise<any> {
   });
 }
 
+/**
+ * Best-effort title lookup for a URL. Tries oEmbed first (cheap JSON, no
+ * bot-blocking), then falls back to scraping the page's `<title>` tag.
+ * Returns `undefined` if both paths fail (offline, 404, slow host, …) —
+ * callers should treat the missing title as a non-fatal degradation.
+ */
 export async function fetchPageTitle(url: URL): Promise<string | undefined> {
-  // Try oEmbed first — lightweight JSON, no bot-blocking
   const oembedTitle = await fetchOembedTitle(url);
   if (oembedTitle) return oembedTitle;
-
-  // Fall back to HTML scraping
   return fetchHtmlTitle(url);
 }
 

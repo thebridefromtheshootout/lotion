@@ -129,8 +129,14 @@ export function cursorInDbEntry(document: TextDocument, _position: Position): bo
 }
 
 /**
- * Given a file path, find the parent DB index.md if this file is a DB child entry.
- * Returns the DB index path, or undefined if not a child entry.
+ * Given a file path, find the parent DB index.md if this file sits at the
+ * `<dbDir>/<slug>/index.md` shape and `<dbDir>/index.md` actually contains a
+ * `lotion-db` schema fence.
+ *
+ * Returns `undefined` when:
+ *   - the file IS the index itself (`<dbDir>/index.md`),
+ *   - `<dbDir>/index.md` doesn't exist,
+ *   - or it exists but doesn't carry a `lotion-db` fence.
  */
 export function findParentDbIndex(filePath: string): string | undefined {
   // Child entry structure: dbDir/<slug>/index.md
