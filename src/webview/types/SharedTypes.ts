@@ -8,6 +8,7 @@ export type {
   DbFilterOperator,
   DbViewFilter,
   DbFilterClause,
+  DbFilterGroup,
   DbView,
   DbEntry,
   DbEntryLink,

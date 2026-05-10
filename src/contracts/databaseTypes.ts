@@ -49,14 +49,20 @@ export interface DbViewFilter {
   value: string;
 }
 
+/** The group branch of `DbFilterClause` — combines children with a logical operator. */
+export interface DbFilterGroup {
+  logic: "AND" | "OR";
+  clauses: DbFilterClause[];
+  not?: boolean;
+}
+
 /**
  * A compound filter clause supports nested AND / OR grouping.
  *
  * - A **leaf** clause is a simple `DbViewFilter` (`{ col, op, value }`).
- * - A **group** clause combines children with a logical operator:
- *   `{ logic: "AND"|"OR", clauses: [...], not?: true }`.
+ * - A **group** clause is a `DbFilterGroup` (`{ logic, clauses, not? }`).
  */
-export type DbFilterClause = DbViewFilter | { logic: "AND" | "OR"; clauses: DbFilterClause[]; not?: boolean };
+export type DbFilterClause = DbViewFilter | DbFilterGroup;
 
 export type LayoutKind = "table" | "kanban" | "calendar" | "graph" | "map";
 
