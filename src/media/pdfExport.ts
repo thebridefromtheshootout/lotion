@@ -4,7 +4,10 @@ import * as path from "path";
 import * as fs from "fs";
 import { Cmd } from "../core/commands";
 import { Regex } from "../core/regex";
+import { escHtml } from "../core/html";
 import type { SlashCommand } from "../core/slashCommands";
+
+export { escHtml };
 
 export const EXPORT_SLASH_COMMAND: SlashCommand = {
   label: "/export",
@@ -138,14 +141,6 @@ export function markdownToHtml(md: string): string {
   html = html.replace(Regex.htmlEmptyParagraphGlobal, "");
 
   return html;
-}
-
-export function escHtml(s: string): string {
-  return s
-    .replace(Regex.htmlEscapeAmp, "&amp;")
-    .replace(Regex.htmlEscapeLt, "&lt;")
-    .replace(Regex.htmlEscapeGt, "&gt;")
-    .replace(Regex.htmlEscapeQuote, "&quot;");
 }
 
 /**

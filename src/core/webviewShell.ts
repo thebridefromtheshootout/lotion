@@ -1,4 +1,5 @@
 
+import * as crypto from "crypto";
 import { Uri } from "../hostEditor/EditorTypes";
 import type { Webview } from "../hostEditor/EditorTypes";
 import { escHtml } from "./html";
@@ -21,15 +22,11 @@ export function getExtensionUri(): Uri {
 }
 
 /**
- * Generate a random nonce for CSP script tags.
+ * Generate a random nonce for CSP script tags. Uses a cryptographic RNG
+ * so the nonce can't be guessed by anyone who can sample timing.
  */
 export function getNonce(): string {
-  let text = "";
-  const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  for (let i = 0; i < 16; i++) {
-    text += possible.charAt(Math.floor(Math.random() * possible.length));
-  }
-  return text;
+  return crypto.randomBytes(16).toString("base64").replace(/[^A-Za-z0-9]/g, "");
 }
 
 export interface ShellOptions {

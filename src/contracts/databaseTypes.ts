@@ -91,5 +91,5 @@ export interface DbEntryLink {
 
 /** Type guard: true when the clause is a leaf (simple filter), not a group. */
 export function isFilterLeaf(node: DbFilterClause): node is DbViewFilter {
-  return (node as any).logic === undefined && (node as any).col !== undefined;
+  return !("logic" in node);
 }
