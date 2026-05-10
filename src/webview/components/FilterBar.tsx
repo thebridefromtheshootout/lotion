@@ -107,19 +107,48 @@ export function FilterBar({ schema, titleFieldLabel, filterTree, setFilterTree }
       true,
     );
   }
-
+  function printTree(node: FilterNode, indent=0) {
+    let prefix = '';
+    for(let i=0;i<indent;i+=1){
+      prefix += ' '; 
+    }
+    if (isLeaf(node)) {
+      console.debug(prefix +`${node.col} ${node.op} ${node.value}`)
+    }
+    else {
+      console.debug(prefix + `${node.not?'!':''} ${node.logic} (`)
+      for(const child of node.clauses) {
+        printTree(child,indent+1)
+      }
+      console.debug(prefix + ')')
+    }
+  }
   function moveTreeNode(fromPath: number[], toGroupPath: number[]) {
     // Don't allow dropping a group into one of its own descendants.
+    console.debug("from: ", fromPath)
+    console.debug("to: ", toGroupPath)
     if (isAncestor(fromPath, toGroupPath)) return;
     const next = deepClone(filterTree);
+    console.debug('next: ')
+    printTree(next, 0)
     const node = getNodeByPath(next, fromPath);
+    console.debug('node: ')
+    printTree(node, 0)
     const fromParent = getNodeByPath(next, fromPath.slice(0, -1)) as FilterGroup;
-    fromParent.clauses.splice(fromPath[fromPath.length - 1], 1);
+    console.debug('fromParent: ')
+    printTree(fromParent, 0)
+    const target = getNodeByPath(next, toGroupPath) as FilterGroup;
+    console.debug('target: ')
+    printTree(target, 0)
+    target.clauses.push(node);
+    console.debug('target (post insertion): ')
+    printTree(target, 0)
+    const nodeIndex = fromParent.clauses.indexOf(node);
+    fromParent.clauses.splice(nodeIndex, 1);
+    console.debug('fromParent (post removal): ')
+    printTree(fromParent, 0)
     // After the splice, indices of later siblings (and any path that
     // traverses one of them) shift down by one. Re-target accordingly.
-    const adjustedPath = adjustPathAfterRemoval(toGroupPath, fromPath);
-    const target = getNodeByPath(next, adjustedPath) as FilterGroup;
-    target.clauses.push(node);
     pruneEmptyGroups(next);
     ensureRootAnd(next);
     setFilterTree(next);
@@ -141,10 +170,13 @@ export function FilterBar({ schema, titleFieldLabel, filterTree, setFilterTree }
     ev.stopPropagation();
     const raw = ev.dataTransfer.getData("application/json");
     if (!raw) return;
+    console.debug('dropped')
     const payload: DragPayload = JSON.parse(raw);
     if (payload.source === "staging") {
+      console.debug("staging")
       dropStagedTile(payload.index, targetPath);
     } else if (payload.source === "tree") {
+      console.debug("tree")
       moveTreeNode(payload.path, targetPath);
     }
   }
@@ -451,22 +483,12 @@ function FilterTreeView({
   onDropToGroup,
   onDragStart,
 }: FilterTreeViewProps): React.JSX.Element | null {
-  if (isLeaf(node)) {
-    const leaf = node as FilterLeaf;
-    return (
-      <span className="filter-chip" draggable onDragStart={(e) => onDragStart(e, path)}>
-        <FilterChipText leaf={leaf} titleFieldLabel={titleFieldLabel} />
-        <span className="remove" onClick={() => onRemove(path)}>
-          ×
-        </span>
-      </span>
-    );
-  }
+  
 
-  const group = node as FilterGroup;
   const isRoot = path.length === 0;
   const [dragOver, setDragOver] = React.useState(false);
   const dragCounter = React.useRef(0);
+  const group = node as FilterGroup;
 
   return (
     <div
@@ -501,7 +523,16 @@ function FilterTreeView({
         onDropToGroup(e, path);
       }}
     >
-      <div className="filter-group-header">
+      {isLeaf(node) ?
+      <span className="filter-chip" draggable onDragStart={(e) => onDragStart(e, path)}>
+        <FilterChipText leaf={node} titleFieldLabel={titleFieldLabel} />
+        <span className="remove" onClick={() => onRemove(path)}>
+          ×
+        </span>
+      </span>
+      :
+        <>
+              <div className="filter-group-header">
         <div className="filter-group-badges">
           {!isRoot && <span className="drag-handle" title="Drag group">⠿</span>}
           <span
@@ -559,6 +590,8 @@ function FilterTreeView({
         })}
         {group.clauses.length === 0 && <div className="filter-empty">Drop filter tiles here</div>}
       </div>
+        </>
+      }
     </div>
   );
 }
