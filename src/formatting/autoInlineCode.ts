@@ -14,7 +14,8 @@ interface CaseSettings {
   snake_case?: boolean;
 }
 
-function matchesEnabledCase(word: string, cases: CaseSettings): boolean {
+/** Exported for unit tests; not part of the public API surface. */
+export function matchesEnabledCase(word: string, cases: CaseSettings): boolean {
   if (cases.PascalCase && PASCAL_CASE.test(word)) return true;
   if (cases.camelCase && CAMEL_CASE.test(word)) return true;
   if (cases.snake_case && SNAKE_CASE.test(word)) return true;
