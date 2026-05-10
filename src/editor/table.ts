@@ -46,7 +46,8 @@ export function cursorInTable(document: TextDocument, position: Position): boole
 }
 
 // ── Table parsing & serialization ──────────────────────────────────
-function parseRow(line: string): string[] {
+/** Exported for cross-feature reuse (e.g. database/dbCommands.ts table-to-db). */
+export function parseRow(line: string): string[] {
   // Split by |, drop first and last empty segments
   const parts = line.split("|");
   return parts.slice(1, -1).map((c) => c.trim());
@@ -76,7 +77,8 @@ function computeColWidths(headers: string[], rows: string[][]): number[] {
 }
 
 // ── Parse a full table from the document ───────────────────────────
-function parseTable(
+/** Exported for cross-feature reuse (e.g. database/dbCommands.ts table-to-db). */
+export function parseTable(
   document: TextDocument,
   range: { start: number; end: number },
 ): { headers: string[]; rows: string[][] } | undefined {

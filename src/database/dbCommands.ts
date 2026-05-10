@@ -25,6 +25,7 @@ import type { SlashCommand } from "../core/slashCommands";
 import { Filter } from "../core/cmdFilter";
 import { collectOrderedList, renumberEdits, applyRenumberEdits } from "../lists/listModel";
 import type { ListNode } from "../lists/listModel";
+import { parseTable } from "../editor/table";
 import { readDbEntries } from "./dbEntries";
 
 export const DATABASE_SLASH_COMMAND: SlashCommand = {
@@ -1072,17 +1073,6 @@ interface ParsedTabularData {
   endLine?: number;
 }
 
-function splitMarkdownRow(line: string): string[] {
-  let body = line.trim();
-  if (body.startsWith("|")) {
-    body = body.slice(1);
-  }
-  if (body.endsWith("|")) {
-    body = body.slice(0, -1);
-  }
-  return body.split("|").map((c) => c.trim());
-}
-
 function normalizeTabularHeaders(rawHeaders: string[]): string[] {
   const used = new Set<string>();
   return rawHeaders.map((raw, idx) => {
@@ -1125,21 +1115,21 @@ function parseMarkdownTableAtCursor(document: TextDocument, position: Position):
     end++;
   }
 
-  const lines: string[] = [];
-  for (let i = start; i <= end; i++) {
-    lines.push(document.lineAt(i).text);
-  }
-
-  if (lines.length < 3 || !Regex.markdownTableSeparatorRow.test(lines[1])) {
+  if (end - start < 2 || !Regex.markdownTableSeparatorRow.test(document.lineAt(start + 1).text)) {
     return undefined;
   }
 
-  const headers = normalizeTabularHeaders(splitMarkdownRow(lines[0]));
+  // Reuse the canonical parser from editor/table.ts. It returns { headers, rows }
+  // with cells trimmed; we then de-duplicate header names and pad each row to
+  // the header width so the database import gets a rectangular grid.
+  const parsed = parseTable(document, { start, end });
+  if (!parsed) return undefined;
+
+  const headers = normalizeTabularHeaders(parsed.headers);
   if (headers.length === 0) {
     return undefined;
   }
-
-  const rows = lines.slice(2).map((line) => normalizeRowWidth(splitMarkdownRow(line), headers.length));
+  const rows = parsed.rows.map((row) => normalizeRowWidth(row, headers.length));
   return { headers, rows, startLine: start, endLine: end };
 }
 
@@ -1379,8 +1369,13 @@ async function createDatabaseFromTabularData(
   hostEditor.showInformation(`Imported ${created} entr${created === 1 ? "y" : "ies"} from ${sourceLabel}.`);
 }
 
+/**
+ * `/table-to-db` — find the markdown table around the cursor, prompt for
+ * each column's database type, then create a new sibling-folder database
+ * (with a `lotion-db` schema fence) and one child entry per row. Removes
+ * the original markdown table so the data lives only in the new DB.
+ */
 export async function handleTableToDbCommand(document: TextDocument, position: Position): Promise<void> {
-  // TODO update this method to use parseTable from table.ts for table parsing logic.
   const parsed = parseMarkdownTableAtCursor(document, position);
   if (!parsed) {
     hostEditor.showWarning("Place cursor inside a valid markdown table to import.");
