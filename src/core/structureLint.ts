@@ -127,11 +127,29 @@ function lintDocument(doc: TextDocument): void {
 export function createStructureLinter(): Disposable {
   diagnosticCollection = hostEditor.createDiagnosticCollection(COLLECTION_NAME);
 
+  // Coalesce per-keystroke change events. VS Code's own markdown linter
+  // uses a similar 200ms cadence — we don't need diagnostics to update
+  // while a user is mid-word.
+  const pendingTimers = new WeakMap<TextDocument, ReturnType<typeof setTimeout>>();
+  function lintDebounced(doc: TextDocument): void {
+    const existing = pendingTimers.get(doc);
+    if (existing) clearTimeout(existing);
+    pendingTimers.set(
+      doc,
+      setTimeout(() => {
+        pendingTimers.delete(doc);
+        lintDocument(doc);
+      }, 200),
+    );
+  }
+
   const disposables = [
     diagnosticCollection,
     hostEditor.onDidOpenTextDocument(lintDocument),
+    // Save / open paths run synchronously so diagnostics are fresh when the
+    // user explicitly checks the Problems panel.
     hostEditor.onDidSaveTextDocument(lintDocument),
-    hostEditor.onDidChangeTextDocument((e) => lintDocument(e.document)),
+    hostEditor.onDidChangeTextDocument((e) => lintDebounced(e.document)),
     hostEditor.onDidCloseTextDocument((doc) => {
       diagnosticCollection.delete(doc.uri);
     }),
