@@ -13,6 +13,74 @@ Do not attempt items marked [Complex].
 2. sorting of db columns should happen if the button containing the sort caret or a button signifying no-sort (may up-arrow and down-arrow) is clicked
   - curently sorting happens whenever the column title is clicked.
   - this results in sorting happening unintentionally and when the column is being resized.
-3. OMFG dragging of tiles still doesn't work for 
+3. OMFG dragging of tiles still doesn't work for
   AND (OR ( t1, t2, AND ()))
-  and I attempt to drag t1 or t2 into the innermost AND  
+  and I attempt to drag t1 or t2 into the innermost AND
+4. WSL clipboard image paste still flaky. Replace the powershell.exe/wslpath
+   shell-out path in src/media/clipboard.ts with VS Code's native
+   `vscode.languages.registerDocumentPasteEditProvider` (added in 1.84+).
+
+   Why this fixes WSL specifically — the current pipeline shells out to
+   powershell.exe from inside WSL via wslpath, with four failure modes:
+     a. powershell.exe not on PATH (fresh distro, PATH missing
+        /mnt/c/Windows/System32/WindowsPowerShell/v1.0).
+     b. wslpath missing on older / non-Microsoft distros.
+     c. 200–800 ms cold-start tax on every paste for `powershell.exe -NoProfile`.
+     d. WSL2 9P filesystem races: powershell-side write → \\wsl$\… can race
+        WSL's filesystem watcher and produce a 0-byte file that hits the
+        "failed to save" branch.
+
+   The paste provider runs in VS Code's renderer (always on the Windows host
+   under WSL Remote) and ships the image bytes to the extension host through
+   the same RPC channel imageDrop.ts already uses. No powershell, no wslpath,
+   no xclip.
+
+   API shape (mirrors registerDocumentDropEditProvider in imageDrop.ts):
+
+     hostEditor.registerDocumentPasteEditProvider(
+       { language: "markdown" },
+       {
+         async provideDocumentPasteEdits(document, ranges, dataTransfer, ctx, token) {
+           const item = dataTransfer.get("image/png") ?? dataTransfer.get("image/jpeg");
+           if (!item) return undefined;
+           const file = await item.asFile();
+           if (!file) return undefined;
+           const bytes = await file.data();
+           // write bytes to .rsrc/<name>.png, return a DocumentPasteEdit
+           // whose snippet is `<img src=".rsrc/<name>.png" alt="<name>">`
+         },
+       },
+       {
+         providedPasteEditKinds: ["text.markdown"],
+         pasteMimeTypes: ["image/png", "image/jpeg", "image/gif", "image/webp"],
+       },
+     );
+
+   Migration path:
+     a. Add registerDocumentPasteEditProvider() to src/hostEditor/HostingEditor.ts
+        and re-export DocumentPasteEdit from src/hostEditor/EditorTypes.ts.
+     b. New file src/media/imagePaste.ts mirroring imageDrop.ts shape, handling
+        image/* mime types only, writing to .rsrc/, returning a DocumentPasteEdit.
+     c. Wire it in src/extension.ts next to createImageDropProvider().
+     d. Keep src/media/clipboard.ts as a fallback for now. In handleSmartPaste
+        (src/editor/smartPaste.ts), gate the existing image branch so it only
+        runs when the paste provider didn't fire (e.g. older VS Code). After a
+        release of stable use, delete the WSL/PowerShell branch entirely.
+
+   Doesn't fix on its own:
+     - Smart-paste link-unfurling (the <a href> building in smartPaste.ts).
+       Paste providers fire instead of editor.action.clipboardPasteAction, so
+       eventually one provider should handle both cases (text/uri-list →
+       unfurl link, image/png → save image). Returning undefined from the
+       provider falls through to default paste behavior, which lets the
+       existing handleSmartPaste keep handling the text path while we migrate.
+     - Multi-mime ranking — copying from a browser sometimes gives both
+       image/png AND text/html. Set explicit pasteMimeTypes priority so
+       image/* wins, otherwise VS Code may dispatch to a different provider.
+
+   Gotcha: handleSmartPaste calls editor.action.clipboardPasteAction for
+   fallthrough. Once the provider is live, that built-in command will trigger
+   the new paste provider too — risk of loop. Gate handleSmartPaste so it
+   doesn't call clipboardPasteAction when an image format is on the clipboard
+   (let the provider handle it). Drop provider has the same shape and works
+   because drop and paste are separate trigger paths.
