@@ -175,9 +175,12 @@ export const Regex = {
     /\b(?:Sun|Mon|Tue|Wed|Thu|Fri|Sat),?\s+(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},?\s+\d{4}\b/g, // ddd, MMMM D, YYYY
   ],
 
-  // Processor markers
-  processorMarkerGlobal: /<!--\s*lotion-processor:\s*([0-9a-f-]+)\s*-->/g,
-  processorStart: /^<!--\s*lotion-processor:\s*([0-9a-f-]+)\s*-->$/,
+  // Processor markers — GUID is the canonical 8-4-4-4-12 lowercase-hex shape
+  // produced by core/ids.guid(). Tightening the capture group from
+  // [0-9a-f-]+ to the explicit shape stops a malformed marker (or a
+  // hand-typed `lotion-processor:zzz`) from being accepted as a real GUID.
+  processorMarkerGlobal: /<!--\s*lotion-processor:\s*([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\s*-->/g,
+  processorStart: /^<!--\s*lotion-processor:\s*([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\s*-->$/,
   processorDetailsOpen: /^<details[^>]*>\s*$/,
   processorSummaryOpen: /^<summary>/,
   processorSummaryClose: /<\/summary>\s*$/,
@@ -230,7 +233,6 @@ export const Regex = {
   summaryTagInline: /<summary>(.*?)<\/summary>/i,
   summaryTagStartCapture: /<summary>(.*)/i,
   lockIconPrefix: /^🔒\s*/,
-  guidTemplateSlots: /[xy]/g,
 
   // Clipboard probes
   clipboardDarwinImageTypes: /«class PNGf»|«class TIFF»|public\.png|public\.tiff/,
