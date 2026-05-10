@@ -169,9 +169,19 @@ export function activate(context: ExtensionContext) {
   const outlineProvider = new HeadingOutlineProvider();
   hostEditor.registerTreeDataProvider(TreeView.outline, outlineProvider);
   hostEditor.onDidChangeActiveTextEditor(() => outlineProvider.refresh());
+  // Coalesce per-keystroke outline refreshes; the underlying scan is fast
+  // but firing it on every typed character is wasted work.
+  let outlineRefreshTimer: ReturnType<typeof setTimeout> | undefined;
+  function scheduleOutlineRefresh() {
+    if (outlineRefreshTimer) clearTimeout(outlineRefreshTimer);
+    outlineRefreshTimer = setTimeout(() => {
+      outlineRefreshTimer = undefined;
+      outlineProvider.refresh();
+    }, 150);
+  }
   context.subscriptions.push(
     hostEditor.registerCommand(Cmd.refreshOutline, () => outlineProvider.refresh()),
-    hostEditor.onDidChangeTextDocument(() => outlineProvider.refresh()),
+    hostEditor.onDidChangeTextDocument(scheduleOutlineRefresh),
   );
 
   // Backlinks panel (needs backlinksProvider instance)

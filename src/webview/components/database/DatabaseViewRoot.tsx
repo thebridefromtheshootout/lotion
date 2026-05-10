@@ -41,7 +41,7 @@ export function DatabaseViewRoot() {
     setSortDir(v.sortDir ?? "asc");
 
     if (v.filterTree) {
-      setFilterTree(JSON.parse(JSON.stringify(v.filterTree)));
+      setFilterTree(structuredClone(v.filterTree));
     } else if (v.filters && v.filters.length > 0) {
       setFilterTree({
         logic: "AND",
@@ -128,6 +128,17 @@ export function DatabaseViewRoot() {
     [views, schema, applyView],
   );
 
+  // ── Optimistic local update: patch a single entry's property ──
+  const handleLocalEntryUpdate = useCallback((relPath: string, colName: string, newVal: string) => {
+    setAllEntries((prev) =>
+      prev.map((e) =>
+        e.relativePath === relPath
+          ? { ...e, properties: { ...e.properties, [colName]: newVal } }
+          : e,
+      ),
+    );
+  }, []);
+
   // ── Copy active view as CSV ──
   const handleCopyViewAsCsv = useCallback(() => {
     const csv = entriesToCsv(entries, schema, titleFieldLabel);
@@ -151,7 +162,7 @@ export function DatabaseViewRoot() {
       sortCol,
       sortDir,
       filters: flatFilters,
-      filterTree: JSON.parse(JSON.stringify(filterTree)),
+      filterTree: structuredClone(filterTree),
       layout,
       kanbanGroupCol,
       calendarDateCol,
@@ -227,6 +238,7 @@ export function DatabaseViewRoot() {
           sortCol={sortCol}
           sortDir={sortDir}
           onToggleSort={toggleSort}
+          onLocalEntryUpdate={handleLocalEntryUpdate}
           baseUri={baseUri}
           dbName={dbName}
           communicator={communicator}

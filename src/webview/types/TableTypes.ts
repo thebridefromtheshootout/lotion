@@ -10,6 +10,8 @@ export interface TableViewProps {
   sortCol: string | null;
   sortDir: "asc" | "desc";
   onToggleSort: (col: string) => void;
+  /** Optimistic local update (replaces direct mutation of `entry.properties`). */
+  onLocalEntryUpdate: (relPath: string, colName: string, newVal: string) => void;
   baseUri: string;
   /** Used to namespace persisted column widths in localStorage. */
   dbName: string;

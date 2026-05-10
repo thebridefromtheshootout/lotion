@@ -574,7 +574,10 @@ function FilterChipText({ leaf, titleFieldLabel }: { leaf: FilterLeaf; titleFiel
 // ── Deep clone helper ───────────────────────────────────────────────
 
 function deepClone<T>(obj: T): T {
-  return JSON.parse(JSON.stringify(obj));
+  // structuredClone (Node 17+, all modern browsers / vscode webviews) is
+  // ~3× faster than the JSON.parse(JSON.stringify(...)) round-trip and
+  // doesn't need to round-trip through a string.
+  return structuredClone(obj);
 }
 
 function ensureRootAnd(tree: FilterGroup) {

@@ -18,6 +18,7 @@ export function TableView({
   sortCol,
   sortDir,
   onToggleSort,
+  onLocalEntryUpdate,
   baseUri,
   dbName,
   communicator,
@@ -87,9 +88,8 @@ export function TableView({
 
   function commitEdit(relPath: string, colName: string, newVal: string) {
     communicator.sendUpdateEntryProperty(relPath, colName, newVal);
-    // optimistic update
-    const entry = entries.find((e) => e.relativePath === relPath);
-    if (entry) entry.properties[colName] = newVal;
+    // Optimistic update via setState in the parent — never mutate prop arrays.
+    onLocalEntryUpdate(relPath, colName, newVal);
     setEditCell(null);
   }
 
