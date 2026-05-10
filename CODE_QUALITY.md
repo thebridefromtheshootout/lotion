@@ -142,7 +142,7 @@ Plus 13 entries in `core/commands.ts` ([L8, L82, L97, L109, L114, L119, L158-160
 
 | Module | Why it matters | Test approach |
 |---|---|---|
-| `lists/listModel.ts`, `lists/listMarker.ts`, `lists/listIndent.ts` | Most-used feature (typing in lists). Logic is pure: takes a `TextDocument`-like object, returns edits. | Mock `TextDocument` with a `lineAt(i)` shim. The existing vscode mock at [`__tests__/__mocks__/vscode.ts`](src/__tests__/__mocks__/vscode.ts) is already on disk. |
+| `lists/listModel.ts`, `lists/listMarker.ts`, `lists/listIndent.ts` | Most-used feature (typing in lists). Logic is pure: takes a `TextDocument`-like object, returns edits. | Mock `TextDocument` with a `lineAt(i)` shim. The existing vscode mock at [`__tests__/__mocks__/vscode.ts`](src/__tests__/__mocks__/vscode.ts) is already on disk. *listMarker now covered by 18 tests in `__tests__/listMarker.test.ts` (classifyMarker, isCheckboxMarker, sameStyle, continuationMarker, findMarkerAtIndent, findSameIndentParentMarker including the shift-enter case). listModel / listIndent still uncovered.* |
 | `blocks/lockBlock.ts` (crypto) | Encryption correctness is critical. `encrypt`/`decrypt` round-trip is a 5-line test. | Direct call. |
 | `editor/smartPaste.ts` (URL/title parsing, table detection) | Touched on every Ctrl+V. `tryParseTableData`, `extractTitle`, `deriveUrlLabel`, `cleanTitle` are all pure. | Direct call with fixture HTML strings. |
 | `editor/processor.ts` (block parsing, ID scan) | `findProcessorMarkerIds`, `duplicateProcessorMarkers`, `migrateProcessors` are pure given an in-memory text. | Direct call. |
