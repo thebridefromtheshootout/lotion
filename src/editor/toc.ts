@@ -15,7 +15,7 @@ export const TOC_SLASH_COMMAND: SlashCommand = {
   commandId: Cmd.insertToc,
   kind: 17,
   handler: handleTocCommand,
-  cmdFilter: Filter().pageIsNotDbIndex(),
+  cmdFilter: Filter().pageIsNotDbIndex().cursorAllowsBlockMarkdown(),
   cleanLine: true,
 };
 

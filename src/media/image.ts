@@ -20,7 +20,7 @@ export const IMAGE_SLASH_COMMAND: SlashCommand = {
   commandId: Cmd.insertImage,
   kind: 16,
   handler: handleImageCommand,
-  cmdFilter: Filter().pageIsNotDbIndex(),
+  cmdFilter: Filter().pageIsNotDbIndex().cursorAllowsBlockMarkdown(),
   cleanLine: true,
 };
 

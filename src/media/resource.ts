@@ -17,7 +17,7 @@ export const RESOURCE_SLASH_COMMAND: SlashCommand = {
   isAction: true,
   commandId: Cmd.insertResource,
   kind: 16,
-  cmdFilter: Filter().pageIsNotDbIndex(),
+  cmdFilter: Filter().pageIsNotDbIndex().cursorAllowsBlockMarkdown(),
   handler: handleResourceCommand,
 };
 

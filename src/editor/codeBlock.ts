@@ -14,7 +14,7 @@ export const CODE_SLASH_COMMAND: SlashCommand = {
   commandId: Cmd.insertCodeBlock,
   kind: 14,
   handler: handleCodeBlockCommand,
-  cmdFilter: Filter().pageIsNotDbIndex(),
+  cmdFilter: Filter().pageIsNotDbIndex().cursorAllowsBlockMarkdown(),
   cleanLine: true,
 };
 

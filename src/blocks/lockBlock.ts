@@ -16,7 +16,7 @@ export const SECRETBOX_SLASH_COMMAND: SlashCommand = {
   isAction: true,
   commandId: Cmd.insertSecretbox,
   kind: 5,
-  cmdFilter: Filter().pageIsNotDbIndex(),
+  cmdFilter: Filter().pageIsNotDbIndex().cursorAllowsBlockMarkdown(),
   handler: handleSecretboxCommand,
   cleanLine: true,
 };

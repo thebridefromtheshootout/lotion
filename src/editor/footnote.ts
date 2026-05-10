@@ -14,7 +14,7 @@ export const FOOTNOTE_SLASH_COMMAND: SlashCommand = {
   isAction: true,
   commandId: Cmd.insertFootnote,
   kind: 17,
-  cmdFilter: Filter().pageIsNotDbIndex(),
+  cmdFilter: Filter().pageIsNotDbIndex().cursorAllowsBlockMarkdown(),
   handler: handleFootnoteCommand,
 };
 

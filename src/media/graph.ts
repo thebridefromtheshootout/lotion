@@ -19,7 +19,7 @@ const GRAPH_SLASH_COMMAND: SlashCommand = {
   isAction: true,
   commandId: Cmd.insertGraph,
   kind: 14,
-  cmdFilter: Filter().pageIsNotDbIndex(),
+  cmdFilter: Filter().pageIsNotDbIndex().cursorAllowsBlockMarkdown(),
   handler: handleGraphCommand,
   cleanLine: true,
 };

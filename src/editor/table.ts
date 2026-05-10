@@ -903,7 +903,7 @@ export const TABLE_SLASH_COMMANDS: SlashCommand[] = [
     isAction: true,
     commandId: Cmd.insertTable,
     kind: 21,
-    cmdFilter: Filter().pageIsNotDbIndex(),
+    cmdFilter: Filter().pageIsNotDbIndex().cursorAllowsBlockMarkdown(),
     handler: handleTableCommand,
   },
   {

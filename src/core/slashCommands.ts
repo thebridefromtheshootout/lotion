@@ -36,7 +36,7 @@ export interface SlashCommand {
 
 // ── Static text-insert commands (no handlers needed) ──────────────
 const STATIC_SLASH_COMMANDS: SlashCommand[] = [
-  { label: "/inline-math", insertText: "$ $", detail: "🧮 Inline math — $ ... $", kind: 11, cmdFilter: Filter().pageIsNotDbIndex() },
+  { label: "/inline-math", insertText: "$ $", detail: "🧮 Inline math — $ ... $", kind: 11, cmdFilter: Filter().pageIsNotDbIndex().cursorNotInCode() },
   {
     label: "/section",
     insertText: "",
@@ -46,7 +46,7 @@ const STATIC_SLASH_COMMANDS: SlashCommand[] = [
     kind: 14,
     handler: handleSectionCommand,
     cleanLine: true,
-    cmdFilter: Filter().pageIsNotDbIndex(),
+    cmdFilter: Filter().pageIsNotDbIndex().cursorAllowsBlockMarkdown(),
   },
   {
     label: "/commit",

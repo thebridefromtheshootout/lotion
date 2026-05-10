@@ -6,7 +6,11 @@ import { Cmd } from "../core/commands";
 import type { SlashCommand } from "../core/slashCommands";
 import { Filter } from "../core/cmdFilter";
 
-const pageFilter = Filter().pageIsNotDbIndex();
+// All block inserts must:
+//  1. not be on a DB index page (those have their own command set), and
+//  2. be in a context where block-level markdown actually renders (i.e.
+//     not inside a code/graph/processor fence or a table cell).
+const pageFilter = Filter().pageIsNotDbIndex().cursorAllowsBlockMarkdown();
 
 // ── Factory ────────────────────────────────────────────────────────
 // text may be a string or a thunk (for values computed at call time, e.g. today's date)
