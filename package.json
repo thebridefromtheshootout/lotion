@@ -417,12 +417,6 @@
         "category": "Lotion"
       },
       {
-        "command": "lotion.insertTemplate",
-        "title": "Lotion: Insert Page Template",
-        "icon": "$(file-symlink-file)",
-        "category": "Lotion"
-      },
-      {
         "command": "lotion.extractToSubpage",
         "title": "Lotion: Extract to Subpage",
         "icon": "$(split-vertical)",
@@ -624,12 +618,6 @@
         "command": "lotion.editFrontmatter",
         "title": "Lotion: Edit Front Matter",
         "icon": "$(edit)",
-        "category": "Lotion"
-      },
-      {
-        "command": "lotion.expandSnippet",
-        "title": "Lotion: Expand Snippet",
-        "icon": "$(symbol-snippet)",
         "category": "Lotion"
       },
       {

@@ -31,7 +31,6 @@ export const Cmd = {
   insertEmoji: "lotion.insertEmoji",
   insertFootnote: "lotion.insertFootnote",
   copyCode: "lotion.copyCode",
-  insertTemplate: "lotion.insertTemplate",
   insertToc: "lotion.insertToc",
   insertProcessor: "lotion.insertProcessor",
   refreshProcessors: "lotion.refreshProcessors",
@@ -148,7 +147,6 @@ export const Cmd = {
   cutToClipboard: "lotion.cutToClipboard",
   openDailyNote: "lotion.openDailyNote",
   gitCommit: "lotion.gitCommit",
-  expandSnippet: "lotion.expandSnippet",
   toggleLineLock: "lotion.toggleLineLock",
 } as const;
 
