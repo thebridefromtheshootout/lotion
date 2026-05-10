@@ -1,10 +1,10 @@
 import * as fs from "fs";
 import * as path from "path";
-import { createHash } from "crypto";
 import { Uri } from "../hostEditor/EditorTypes";
 import type { QuickPickItem } from "../hostEditor/EditorTypes";
 import { hostEditor } from "../hostEditor/HostingEditor";
 import { Regex } from "../core/regex";
+import { WorkspaceCache } from "../core/workspaceCache";
 
 interface LinkRecord {
   source_path: string;
@@ -18,30 +18,7 @@ interface LinkPickItem extends QuickPickItem {
   record: LinkRecord;
 }
 
-interface LinkCachePayload {
-  version: number;
-  workspaceRoot: string;
-  generatedAt: string;
-  records: LinkRecord[];
-}
-
 const LINK_CACHE_VERSION = 1;
-
-function getWorkspaceRoot(): string | undefined {
-  return hostEditor.getWorkspaceFolders()?.[0]?.uri.fsPath;
-}
-
-function getLinkCacheFilePath(workspaceRoot: string): string | undefined {
-  const storageRoot = hostEditor.getGlobalStoragePath();
-  if (!storageRoot) {
-    return undefined;
-  }
-
-  const dir = path.join(storageRoot, "cache", "links");
-  fs.mkdirSync(dir, { recursive: true });
-  const workspaceKey = createHash("sha1").update(workspaceRoot).digest("hex");
-  return path.join(dir, `${workspaceKey}.json`);
-}
 
 function isValidLinkRecord(value: unknown): value is LinkRecord {
   if (!value || typeof value !== "object") {
@@ -57,46 +34,22 @@ function isValidLinkRecord(value: unknown): value is LinkRecord {
   );
 }
 
-function readCachedLinks(workspaceRoot: string): LinkRecord[] | undefined {
-  const cacheFilePath = getLinkCacheFilePath(workspaceRoot);
-  if (!cacheFilePath || !fs.existsSync(cacheFilePath)) {
-    return undefined;
-  }
+const linkCache = new WorkspaceCache<LinkRecord>({
+  bucket: "links",
+  version: LINK_CACHE_VERSION,
+  validateRecord: isValidLinkRecord,
+});
 
-  try {
-    const raw = fs.readFileSync(cacheFilePath, "utf-8");
-    const payload = JSON.parse(raw) as Partial<LinkCachePayload>;
-    if (
-      payload.version !== LINK_CACHE_VERSION ||
-      payload.workspaceRoot !== workspaceRoot ||
-      !Array.isArray(payload.records)
-    ) {
-      // Stale-shape file — drop it so we don't repeatedly try to parse it.
-      try { fs.unlinkSync(cacheFilePath); } catch { /* ignore */ }
-      return undefined;
-    }
-    return payload.records.filter(isValidLinkRecord);
-  } catch {
-    // Unreadable / malformed JSON — drop the file so the next call regenerates
-    // from scratch instead of hitting the same parse failure.
-    try { fs.unlinkSync(cacheFilePath); } catch { /* ignore */ }
-    return undefined;
-  }
+function getWorkspaceRoot(): string | undefined {
+  return hostEditor.getWorkspaceFolders()?.[0]?.uri.fsPath;
+}
+
+function readCachedLinks(workspaceRoot: string): LinkRecord[] | undefined {
+  return linkCache.read(workspaceRoot);
 }
 
 function writeCachedLinks(workspaceRoot: string, records: LinkRecord[]): void {
-  const cacheFilePath = getLinkCacheFilePath(workspaceRoot);
-  if (!cacheFilePath) {
-    return;
-  }
-
-  const payload: LinkCachePayload = {
-    version: LINK_CACHE_VERSION,
-    workspaceRoot,
-    generatedAt: new Date().toISOString(),
-    records,
-  };
-  fs.writeFileSync(cacheFilePath, JSON.stringify(payload), "utf-8");
+  linkCache.write(workspaceRoot, records);
 }
 
 function collectContext(lineText: string, start: number, end: number): string {

@@ -23,3 +23,5 @@ export type { ParsedCommandArgs } from "./commandArgs";
 export { guid, shortId } from "./ids";
 export { Markers } from "./markers";
 export type { MarkerKey } from "./markers";
+export { WorkspaceCache } from "./workspaceCache";
+export type { WorkspaceCacheOptions } from "./workspaceCache";

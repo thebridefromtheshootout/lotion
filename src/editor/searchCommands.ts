@@ -1,9 +1,9 @@
 import * as fs from "fs";
 import * as path from "path";
-import { createHash } from "crypto";
 import type { QuickPickItem } from "../hostEditor/EditorTypes";
 import { hostEditor } from "../hostEditor/HostingEditor";
 import { Regex } from "../core/regex";
+import { WorkspaceCache } from "../core/workspaceCache";
 
 interface CommandRecord {
   source_path: string;
@@ -18,73 +18,25 @@ interface CommandPickItem extends QuickPickItem {
   record: CommandRecord;
 }
 
-interface CommandCachePayload {
-  version: number;
-  workspaceRoot: string;
-  generatedAt: string;
-  records: CommandRecord[];
-}
-
 const CMD_CACHE_VERSION = 2;
 const FENCE_OPEN_RE = /^\s*(```|~~~)\s*(\S*)/;
 const EXCLUDED_LANGUAGES = new Set(["lotion-db"]);
+
+const cmdCache = new WorkspaceCache<CommandRecord>({
+  bucket: "commands",
+  version: CMD_CACHE_VERSION,
+});
 
 function getWorkspaceRoot(): string | undefined {
   return hostEditor.getWorkspaceFolders()?.[0]?.uri.fsPath;
 }
 
-function getCacheFilePath(workspaceRoot: string): string | undefined {
-  const storageRoot = hostEditor.getGlobalStoragePath();
-  if (!storageRoot) {
-    return undefined;
-  }
-
-  const dir = path.join(storageRoot, "cache", "commands");
-  fs.mkdirSync(dir, { recursive: true });
-  const workspaceKey = createHash("sha1").update(workspaceRoot).digest("hex");
-  return path.join(dir, `${workspaceKey}.json`);
-}
-
 function readCachedCommands(workspaceRoot: string): CommandRecord[] | undefined {
-  const cacheFilePath = getCacheFilePath(workspaceRoot);
-  if (!cacheFilePath || !fs.existsSync(cacheFilePath)) {
-    return undefined;
-  }
-
-  try {
-    const raw = fs.readFileSync(cacheFilePath, "utf-8");
-    const payload = JSON.parse(raw) as Partial<CommandCachePayload>;
-    if (
-      payload.version !== CMD_CACHE_VERSION ||
-      payload.workspaceRoot !== workspaceRoot ||
-      !Array.isArray(payload.records)
-    ) {
-      // Stale-shape file — drop it so we don't repeatedly try to parse it.
-      try { fs.unlinkSync(cacheFilePath); } catch { /* ignore */ }
-      return undefined;
-    }
-    return payload.records;
-  } catch {
-    // Unreadable / malformed JSON — drop the file so the next call regenerates
-    // from scratch instead of hitting the same parse failure.
-    try { fs.unlinkSync(cacheFilePath); } catch { /* ignore */ }
-    return undefined;
-  }
+  return cmdCache.read(workspaceRoot);
 }
 
 function writeCachedCommands(workspaceRoot: string, records: CommandRecord[]): void {
-  const cacheFilePath = getCacheFilePath(workspaceRoot);
-  if (!cacheFilePath) {
-    return;
-  }
-
-  const payload: CommandCachePayload = {
-    version: CMD_CACHE_VERSION,
-    workspaceRoot,
-    generatedAt: new Date().toISOString(),
-    records,
-  };
-  fs.writeFileSync(cacheFilePath, JSON.stringify(payload), "utf-8");
+  cmdCache.write(workspaceRoot, records);
 }
 
 function collectContext(lineText: string, start: number, end: number): string {
