@@ -2,7 +2,7 @@
 import { hostEditor } from "../hostEditor/HostingEditor";
 import * as path from "path";
 import * as fs from "fs";
-import { execSync } from "child_process";
+import { execFileSync, execSync } from "child_process";
 import { Regex } from "../core/regex";
 import { isMissingCommandError } from "../core/execErrors";
 
@@ -53,7 +53,8 @@ const CLIPBOARD_HANDLERS: Record<Platform, ClipboardPlatformHandler> = {
       let winPath = filePath;
       if (IS_WSL) {
         try {
-          winPath = execSync(`wslpath -w "${filePath}"`, { encoding: "utf-8", stdio: "pipe" }).trim();
+          // execFileSync — args array, no shell, so wsl path can't be injected.
+          winPath = execFileSync("wslpath", ["-w", filePath], { encoding: "utf-8", stdio: "pipe" }).trim();
         } catch (err: any) {
           if (isMissingCommandError(err, "wslpath")) {
             throw new Error("Lotion: wslpath not found. wslpath is required for clipboard image paste in WSL.");
@@ -66,7 +67,10 @@ const CLIPBOARD_HANDLERS: Record<Platform, ClipboardPlatformHandler> = {
         "if ($null -eq $img) { exit 1 }",
         `$img.Save('${winPath.replace(Regex.singleQuote, "''")}', [System.Drawing.Imaging.ImageFormat]::Png)`,
       ].join("; ");
-      execSync(`powershell.exe -NoProfile -Command "${psScript}"`, {
+      // execFileSync to keep the argv path off the shell. PowerShell still
+      // sees psScript as a single -Command argument; the path is single-quoted
+      // inside (with PowerShell single-quote doubling) so it can't break out.
+      execFileSync("powershell.exe", ["-NoProfile", "-Command", psScript], {
         stdio: "pipe",
         timeout: 10000,
       });
@@ -101,11 +105,15 @@ const CLIPBOARD_HANDLERS: Record<Platform, ClipboardPlatformHandler> = {
       return Regex.clipboardLinuxImageTypes.test(targets);
     },
     saveImage: (filePath: string) => {
-      execSync(`xclip -selection clipboard -t image/png -o > "${filePath}"`, {
-        stdio: "pipe",
+      // Capture the PNG bytes from xclip's stdout and write via Node so the
+      // file path never reaches a shell. (Old code used `xclip ... > "${path}"`
+      // through /bin/sh, which let any shell metacharacter in the path inject.)
+      const buf = execFileSync("xclip", ["-selection", "clipboard", "-t", "image/png", "-o"], {
+        stdio: ["ignore", "pipe", "pipe"],
         timeout: 10000,
-        shell: "/bin/sh",
+        maxBuffer: 50 * 1024 * 1024,
       });
+      fs.writeFileSync(filePath, buf);
     },
   },
 };
