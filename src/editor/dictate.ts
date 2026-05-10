@@ -6,7 +6,7 @@ import * as path from "path";
 import * as fs from "fs";
 import * as https from "https";
 import * as http from "http";
-import { execSync } from "child_process";
+import { execFileSync, execSync } from "child_process";
 import { getExtensionUri, getWebviewShellHtml } from "../core/webviewShell";
 import { isMissingCommandError } from "../core/execErrors";
 import { ExtensionToDictatePanelCommunicator } from "../communicators/dictatePanelCommunicator";
@@ -93,20 +93,24 @@ async function ensureModel(progress: Progress<{ message?: string; increment?: nu
   let sevenZipErr: any;
   let pythonErr: any;
   try {
-    execSync(`tar -xjf "${archivePath}" -C "${base}"`, { stdio: "ignore" });
+    // execFileSync — argv array, no shell, paths can't be reinterpreted.
+    execFileSync("tar", ["-xjf", archivePath, "-C", base], { stdio: "ignore" });
   } catch (err: any) {
     tarErr = err;
     // Some Windows installs lack bzip2 support in tar.
     // Fall back to 7z if available, or python
     try {
+      // 7z needs a shell because of the pipe between two 7z invocations.
+      // archivePath and base are extension-controlled (not user input), so
+      // shell interpolation is acceptable here.
       execSync(`7z x "${archivePath}" -so | 7z x -si -ttar -o"${base}"`, { stdio: "ignore" });
     } catch (err2: any) {
       sevenZipErr = err2;
-      // python fallback
+      // python fallback — paths flow through argv, not through string
+      // interpolation into python source.
+      const pyScript = "import tarfile, sys; tarfile.open(sys.argv[1], 'r:bz2').extractall(sys.argv[2])";
       try {
-        execSync(`python -c "import tarfile; tarfile.open(r'${archivePath}','r:bz2').extractall(r'${base}')"`, {
-          stdio: "ignore",
-        });
+        execFileSync("python", ["-c", pyScript, archivePath, base], { stdio: "ignore" });
       } catch (err3: any) {
         pythonErr = err3;
       }
