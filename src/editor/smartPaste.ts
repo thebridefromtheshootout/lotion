@@ -24,9 +24,9 @@ function logSmartPaste(step: string, details?: Record<string, unknown>): void {
     return;
   }
   if (details) {
-    console.log(`${SMART_PASTE_LOG_PREFIX} ${step}`, details);
+    console.debug(`${SMART_PASTE_LOG_PREFIX} ${step}`, details);
   } else {
-    console.log(`${SMART_PASTE_LOG_PREFIX} ${step}`);
+    console.debug(`${SMART_PASTE_LOG_PREFIX} ${step}`);
   }
 }
 
