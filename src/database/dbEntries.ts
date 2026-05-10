@@ -101,12 +101,20 @@ export function isDbFile(filePath: string): boolean {
   return isDb;
 }
 
+// Per-document memo for cursorInDb: regex-test the doc text once per
+// version, reuse on later cursor moves until the text changes.
+const cursorInDbCache = new WeakMap<TextDocument, { version: number; result: boolean }>();
+
 /**
  * Predicate for slash commands — true when the current file is a DB index.
  * Matches the (document, position) => boolean signature used by SlashCommand.when.
  */
 export function cursorInDb(document: TextDocument, _position: Position): boolean {
-  return Regex.dbSchemaFenceStartMultiline.test(document.getText());
+  const cached = cursorInDbCache.get(document);
+  if (cached && cached.version === document.version) return cached.result;
+  const result = Regex.dbSchemaFenceStartMultiline.test(document.getText());
+  cursorInDbCache.set(document, { version: document.version, result });
+  return result;
 }
 
 /**
