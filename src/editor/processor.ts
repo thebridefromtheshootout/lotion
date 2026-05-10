@@ -614,6 +614,16 @@ function runCommand(
   stdinInput?: string,
   shellPath?: string,
 ): { output: string; exitCode: number } {
+  // Processor blocks execute arbitrary user-typed shell commands. Refuse to
+  // run anything when the workspace isn't trusted — the user opted out by
+  // not granting workspace trust, so a malicious or accidentally-cloned
+  // file can't auto-run code on /run-processor or refresh.
+  if (!hostEditor.isWorkspaceTrusted()) {
+    return {
+      output: "[skipped: workspace is not trusted — run 'Workspaces: Manage Workspace Trust' to enable]",
+      exitCode: 1,
+    };
+  }
   const shell = shellPath || (process.platform === "win32" ? "cmd.exe" : "/bin/sh");
   try {
     const output = execSync(command, {

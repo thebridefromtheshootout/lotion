@@ -710,6 +710,11 @@ class HostingEditor {
     await commands.executeCommand("revealFileInOS", Uri.file(fsPath));
   }
 
+  /** True when the user has marked this workspace as trusted in vscode. */
+  isWorkspaceTrusted(): boolean {
+    return workspace.isTrusted;
+  }
+
   /** Read text from the system clipboard. */
   async readClipboardText(): Promise<string> {
     return env.clipboard.readText();
