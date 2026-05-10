@@ -637,6 +637,12 @@ function rewriteExistingEntryFiles(
 
 // ── /new-field handler ─────────────────────────────────────────────
 
+/**
+ * `/new-field` — prompt for a new column (name, type, optional `select`
+ * options) and append it to the lotion-db schema fence in the current DB
+ * index.md. Existing entries don't get the new property until they're
+ * edited; the schema additionwon't synthesise default values.
+ */
 export async function handleNewFieldCommand(document: TextDocument, _position: Position): Promise<void> {
   const schema = parseSchemaOrShowError(document);
   if (!schema) {
@@ -697,6 +703,12 @@ export async function handleNewFieldCommand(document: TextDocument, _position: P
 
 // ── /delete-field handler ──────────────────────────────────────────
 
+/**
+ * `/delete-field` — pick a column from the lotion-db schema and remove it.
+ * Also strips that column from every child entry's property table so the
+ * entries don't keep the orphan field. Cannot remove the implicit title
+ * column.
+ */
 export async function handleDeleteFieldCommand(document: TextDocument, _position: Position): Promise<void> {
   const schema = parseSchemaOrShowError(document);
   if (!schema) {
@@ -743,6 +755,11 @@ export async function handleDeleteFieldCommand(document: TextDocument, _position
 
 // ── /rename-field handler ──────────────────────────────────────────
 
+/**
+ * `/rename-field` — pick a column and prompt for a new name. Updates the
+ * lotion-db schema and renames the matching key in every child entry's
+ * property table. Rejects names that collide with an existing column.
+ */
 export async function handleRenameFieldCommand(document: TextDocument, _position: Position): Promise<void> {
   const schema = parseSchemaOrShowError(document);
   if (!schema) {
@@ -808,6 +825,12 @@ export async function handleRenameFieldCommand(document: TextDocument, _position
 
 // ── /sync-field-order handler ──────────────────────────────────────
 
+/**
+ * `/sync-field-order` — rewrite each child entry's property table to use
+ * the column order declared in the lotion-db schema. Useful after a
+ * `/new-field` insertion in the middle of the schema, or when an entry's
+ * property table has drifted from its siblings.
+ */
 export async function handleSyncFieldOrderCommand(document: TextDocument, _position: Position): Promise<void> {
   const schema = parseSchemaOrShowError(document);
   if (!schema) {
