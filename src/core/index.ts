@@ -20,3 +20,4 @@ export type { CursorContext } from "./cursorContext";
 export { Filter, CmdFilter } from "./cmdFilter";
 export { parseCommandArgs } from "./commandArgs";
 export type { ParsedCommandArgs } from "./commandArgs";
+export { guid, shortId } from "./ids";

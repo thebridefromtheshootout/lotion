@@ -7,6 +7,7 @@ import { execSync } from "child_process";
 import { Cmd } from "../core/commands";
 import { Regex } from "../core/regex";
 import { createCodeLensProvider, codeLens } from "../core/codeLens";
+import { guid } from "../core/ids";
 import type { SlashCommand } from "../core/slashCommands";
 import { Filter } from "../core/cmdFilter";
 import { isMissingCommandError } from "../core/execErrors";
@@ -112,11 +113,7 @@ export function saveProcessors(docPath: string, processors: Processor[]): void {
 }
 
 export function generateGuid(): string {
-  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(Regex.guidTemplateSlots, (c) => {
-    const r = (Math.random() * 16) | 0;
-    const v = c === "x" ? r : (r & 0x3) | 0x8;
-    return v.toString(16);
-  });
+  return guid();
 }
 
 function getCommandToken(command: string): string {

@@ -4,6 +4,7 @@ import { hostEditor } from "../../hostEditor/HostingEditor";
 import * as fs from "fs";
 import { Comment } from "../../contracts/comment";
 import { Regex } from "../../core/regex";
+import { shortId } from "../../core/ids";
 import { loadComments, removeMarkerFromDocument, saveComments, saveNewComment } from "./commentModel";
 import { refreshCommentPanel } from "./commentPanel";
 import { fireCommentLensRefresh } from "./commentCodeLens";
@@ -87,7 +88,7 @@ async function getUsername(): Promise<string | undefined> {
 // ── Storage helpers (see commentModel.ts) ──────────────────────────
 
 export function generateId(): string {
-  return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+  return shortId();
 }
 
 // ── Add Comment command ────────────────────────────────────────────
