@@ -204,10 +204,6 @@ export const Regex = {
   htmlOrderedItemsGroupGlobal: /((?:<oli>.*<\/oli>\s*)+)/g,
   htmlOliTagGlobal: /<\/?oli>/g,
   htmlRelativeSrcAttrGlobal: /src="(?!https?:\/\/|data:)([^"]+)"/g,
-  htmlEscapeAmp: /&/g,
-  htmlEscapeLt: /</g,
-  htmlEscapeGt: />/g,
-  htmlEscapeQuote: /"/g,
 
   // Markdown transforms
   markdownTableBlockGlobal: /^(\|.+\|)\r?\n(\|[-| :]+\|)\r?\n((?:\|.+\|\r?\n?)+)/gm,

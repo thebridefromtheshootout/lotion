@@ -205,7 +205,7 @@ Mostly consistent. Spotted issues:
 
 | Severity | Finding | Citation |
 |---|---|---|
-| **Low** | `Regex.htmlEscapeAmp` etc. are 4 separate regexes when a single `htmlEscapeChars: /[&<>"]/g` plus a replacer would be cleaner — and the inline-regex copies in [`smartPaste.ts:197-202`](src/editor/smartPaste.ts#L197) would reuse it. | [`regex.ts:207-210`](src/core/regex.ts#L207) |
+| **Low** [Addressed] | `Regex.htmlEscapeAmp` etc. are 4 separate regexes when a single `htmlEscapeChars: /[&<>"]/g` plus a replacer would be cleaner — and the inline-regex copies in [`smartPaste.ts:197-202`](src/editor/smartPaste.ts#L197) would reuse it. | [`regex.ts:207-210`](src/core/regex.ts#L207) |  *core/html.ts now uses one `[&<>"]/g` regex + a 4-key replacer table; the 4 individual `Regex.htmlEscape*` entries in `core/regex.ts` are deleted (they were the only consumers).* |
 | **Low** | `Cmd.gitCommit` is registered through `slashHandler(handleGitCommitCommand)` even though git-commit doesn't take a `(doc, pos)` — it only does `viaSlash` accounting. | [`simpleCommands.ts:182`](src/core/simpleCommands.ts#L182) |
 | **Low** | The naming "smart-something" appears for `smartPaste`, `smartPairs`, `smartTypography` — fine, but `autoInlineCode` and `autoInlineCode` (vs `autoInline*Code*`) breaks the pattern. | [`formatting/autoInlineCode.ts`](src/formatting/autoInlineCode.ts) |
 | **Low** | `findOrphanPages` (in `navigation`) and `findUnusedImages` (disabled, in `media`) are sibling concepts; `findUnusedImages` was disabled but `findOrphanPages` lives. Pick one verb. | [`navigation/orphanPages.ts`](src/navigation/orphanPages.ts), [`media/unusedImages.ts`](src/media/unusedImages.ts) |
