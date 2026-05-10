@@ -524,12 +524,14 @@ function FilterTreeView({
       }}
     >
       {isLeaf(node) ?
-      <span className="filter-chip" draggable onDragStart={(e) => onDragStart(e, path)}>
+      <div>
+        <span className="filter-chip" draggable onDragStart={(e) => onDragStart(e, path)}>
         <FilterChipText leaf={node} titleFieldLabel={titleFieldLabel} />
         <span className="remove" onClick={() => onRemove(path)}>
           ×
         </span>
       </span>
+      </div>
       :
         <>
               <div className="filter-group-header">

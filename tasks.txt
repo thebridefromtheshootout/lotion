@@ -2,71 +2,17 @@ Planning board for next implementation pass.
 Non-complex items are split into phases, with target files and acceptance checks.
 Do not attempt items marked [Complex].
 ---
-1. Db view fixes
-    1.1 ✅ tags in db columns should have their text wrapping. their column should always be the width of the longest tag. tag widths should be therefore truncated at 30
-    1.2 ✅ allow resizing of columns in db views.
-    1.3 ✅ expose buttons atop each column to copy the values in that column joined by \n
-    1.4 ✅ drag and drop of filter tiles from root and into an or node doesn't work, check what's wrong, document the bug for me, and fix it.
-        Bug: in moveTreeNode, the source node was spliced from its parent BEFORE
-        toGroupPath was resolved. If the target sat at a higher index in the same
-        parent (or any path that traversed through a later sibling of the source),
-        the indices shifted and getNodeByPath(toGroupPath) returned undefined,
-        making the move silently fail.
-        Fix: extracted the helpers into webview/utils/filterTree.ts and added
-        adjustPathAfterRemoval(toPath, removedPath) which decrements indices that
-        are about to shift. Covered by 12 unit tests.
-    1.5 ✅ filter bar still uses text for a variety of types.
-        -> the value cell in the filter bar used to create filters should function exactly as a table cell does based on its type. so tags are edited using a list of checkbox items. true/false checkbox types are edited using checkboxes. etc.
-        -> dates should have the date webview open to the side.
-        Done: multi-select → checkbox list, checkbox → real checkbox toggle,
-        url → input type=url. has_any/has_all/in/!in on a select column also
-        get a checkbox list (multi-pick).
-        Deferred (per user): swapping the native date input for the date
-        webview — needs datePanel.ts to learn a non-document "filter target"
-        mode + a return path through the dbview communicator. Native
-        <input type="date"> still gives a calendar popup in the meantime.
-    1.6 ✅ the default view though loaded isn't set in the select for dbviews. the select needs to be set
-    1.7 ✅ dbview must expose a copy view button that copies a csv of the currently active view.
-2. ✅ remove breadcrumbs from status bar. vscode already provides breadcrumbs.
-3. ✅ new status bar toggle button: linelock
-    default off
-    when it is turned on, on pressing a newline, the vscode editor window should scroll up bythe same height as a newline to ensure the current cursor position height is unchanged across newline entries. same for up/down cursor nav. 
-    say the cursor was at the 9th visible line in the editor when the line lock was turned on.
-    say that original position was in document line 20.
-    user presses enter ->scroll editor window up by one line height.
-    user navigates up/down -> scroll editor window up/down by corresponding line height.
-    VSCode shouldexpose a good api for this, do not handroll the scroll offsets.
-4. linting doesn't work for list items if the text runs multiple lines. fix the lintingissue.
-5. ✅ codeblock allows entering h1/h2/h3 inside it. this is wrong. do an analysis of semantically invalid insertions that are allowed then plan on extending the cmdfilter infra to filter these invalid combinations out.
-
-   Analysis (semantically invalid insertion sites for block-level markdown):
-   • Fenced code block (``` / ~~~): contents render verbatim — any markdown
-     produces literal text instead of structure (the user's reported case).
-   • Inline code span (`...`): same issue, in-line.
-   • Graph fence (lotion-graph): DOT source — markdown not interpreted.
-   • Processor fence (lotion-proc): processor input — markdown not interpreted.
-   • Table cell: block-level markdown breaks the row/pipe layout.
-   These four contexts are unified by the new predicate.
-
-   Implementation:
-   • New CmdFilter methods:
-       cursorNotInCode()           — strict opposite of cursorInCode
-       cursorAllowsBlockMarkdown() — the union check above
-   • Applied cursorAllowsBlockMarkdown() to every block-style slash command:
-       blockInserts (h1, h2, h3, todo, divider, quote, math, mermaid,
-                     frontmatter), callout (toggle-h1/h2/h3, toggle, callout),
-       codeBlock, toc, footnote, table /table, graph /graph, image /image,
-       resource /resource, secretbox /secretbox, /section
-   • cursorNotInCode() applied to /inline-math (table-friendly, not
-     legal inside code).
-   • Lists / db-entry contexts unaffected — block markdown still nests
-     correctly there.
-   • 9 new unit tests in src/__tests__/cmdFilter.test.ts covering the
-     positive + negative cases for the new predicates.
-
-   Out of scope (kept their existing behavior):
-   • /emoji, /date, /today, /smart-paste — these emit plain text that's
-     valid inside code (a date string in a comment, an emoji literal, etc.).
-   • /copy (cursorInCode) — only meaningful inside code.
-   • /lock, /unlock (cursorInSecretbox), /render (cursorInGraph),
-     table-edit subcommands (cursorInTable) — already gated correctly.
+1. linting doesn't work for list items if the text runs multiple lines
+    Repro case:
+    - text text text
+    text continues from previous items
+      - subchild of multiline item -> my item marker is not colored as my parent's
+      - neither is my item marker.
+    - my item marker is colored right
+      - my item marker is also colored right.
+2. sorting of db columns should happen if the button containing the sort caret or a button signifying no-sort (may up-arrow and down-arrow) is clicked
+  - curently sorting happens whenever the column title is clicked.
+  - this results in sorting happening unintentionally and when the column is being resized.
+3. OMFG dragging of tiles still doesn't work for 
+  AND (OR ( t1, t2, AND ()))
+  and I attempt to drag t1 or t2 into the innermost AND  
