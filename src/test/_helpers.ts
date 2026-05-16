@@ -107,10 +107,19 @@ export function stubQuickPick<T>(value: T | undefined): { dispose(): void } {
   };
 }
 
-/** Replace `vscode.window.showInputBox`; restores on dispose. */
-export function stubInputBox(value: string | undefined): { dispose(): void } {
+/**
+ * Replace `vscode.window.showInputBox`; restores on dispose.
+ * Pass a single value to return for every call, or an array to consume one
+ * per call (for multi-prompt sequences). Once an array empties, subsequent
+ * calls return undefined (simulating user cancel).
+ */
+export function stubInputBox(value: string | undefined | (string | undefined)[]): {
+  dispose(): void;
+} {
+  const queue = Array.isArray(value) ? [...value] : null;
   const original = vscode.window.showInputBox;
-  (vscode.window as { showInputBox: unknown }).showInputBox = async () => value;
+  (vscode.window as { showInputBox: unknown }).showInputBox = async () =>
+    queue ? queue.shift() : value;
   return {
     dispose() {
       (vscode.window as { showInputBox: unknown }).showInputBox = original;
