@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { DatePanelToExtensionCommunicator } from "../communicators/DatePanelToExtensionCommunicator";
 import { DAY_NAMES, FORMAT_KEYS, MONTHS, formatDate, pad, tryParseDate } from "../utils/dateUtils";
 
@@ -24,15 +24,23 @@ export function DatePicker() {
       setTargetLine(msg.line);
       setTargetChar(msg.character);
       setTargetReplaceEnd(msg.replaceEnd);
-      // Pre-select existing date when updating
+      // Update flow: pre-select the existing date so the user can hit
+      // Enter immediately to re-insert (or arrow-key to adjust).
       if (msg.existingDate) {
         const parsed = tryParseDate(msg.existingDate);
         if (parsed) {
           setSelectedDate(parsed);
           setYear(parsed.getFullYear());
           setMonth(parsed.getMonth());
+          return;
         }
       }
+      // Creation flow: default selection to today so Enter inserts
+      // today's date with no extra clicks.
+      const t = new Date();
+      setSelectedDate(t);
+      setYear(t.getFullYear());
+      setMonth(t.getMonth());
     });
 
     communicator.registerOnInit((msg) => {
@@ -179,6 +187,11 @@ export function DatePicker() {
     return () => document.removeEventListener("keydown", handleKey);
   }, [selectedDate, pickDate, prevMonth, nextMonth, goToday, insertDate]);
 
+  const selectedCellRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    selectedCellRef.current?.focus({ preventScroll: false });
+  }, [selStr]);
+
   const preview = selectedDate ? formatDate(selectedDate, format) : "Select a date…";
 
   return (
@@ -215,10 +228,13 @@ export function DatePicker() {
           const cls = ["day-cell"];
           if (cell.isOther) cls.push("other-month");
           if (cell.dateStr === todayStr) cls.push("today");
-          if (cell.dateStr === selStr) cls.push("selected");
+          const isSelected = cell.dateStr === selStr;
+          if (isSelected) cls.push("selected");
           return (
             <div
               key={i}
+              ref={isSelected ? selectedCellRef : undefined}
+              tabIndex={isSelected ? 0 : -1}
               className={cls.join(" ")}
               onClick={() => pickDate(cell.date)}
               onDoubleClick={() => insertDate(cell.date)}
