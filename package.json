@@ -983,7 +983,7 @@
     "watch": "tsc -watch -p ./",
     "watch:webview": "node esbuild.webview.mjs --watch",
     "test": "jest --verbose",
-    "pretest:int": "npm run compile",
+    "pretest:int": "node -e \"require('fs').rmSync('out/test',{recursive:true,force:true})\" && npm run compile",
     "test:int": "vscode-test",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
