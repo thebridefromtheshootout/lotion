@@ -20,13 +20,11 @@ describe("blocks feature", () => {
     );
   });
 
-  it("swapBlockDown swaps the current paragraph with the next one", async () => {
-    // swapBlock collapses a single blank-line separator into a plain newline
-    // join — capturing current behaviour rather than the ideal.
+  it("swapBlockDown swaps the current paragraph with the next, preserving the blank-line separator", async () => {
     const editor = await openMarkdown("Top block.\n\nBottom block.");
     setCursor(editor, 0, 0);
     await run("lotion.swapBlockDown");
-    assert.strictEqual(getText(editor), "Bottom block.\nTop block.");
+    assert.strictEqual(getText(editor), "Bottom block.\n\nTop block.");
   });
 
   it("swapBlockUp is a no-op when already at the document top", async () => {

@@ -8,3 +8,5 @@ src
 diagrams
 .*
 lotion-tests
+out/test/**
+.vscode-test.mjs

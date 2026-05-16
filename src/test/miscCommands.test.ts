@@ -52,13 +52,15 @@ describe("miscellaneous command coverage", () => {
     }
   });
 
-  it("media + emoji + gif slash commands are registered", async () => {
+  it("media + graph + emoji + gif slash commands are registered", async () => {
     const cmds = await vscode.commands.getCommands(true);
     for (const id of [
       "lotion.insertImage",
       "lotion.insertResource",
       "lotion.insertGif",
       "lotion.insertEmoji",
+      "lotion.insertGraph",
+      "lotion.renderGraph",
     ]) {
       assert.ok(cmds.includes(id), `${id} should be registered`);
     }
