@@ -13,7 +13,7 @@ Do not attempt items marked [Complex].
 2. ✅ sorting of db columns should happen if the button containing the sort caret or a button signifying no-sort (may up-arrow and down-arrow) is clicked
   - curently sorting happens whenever the column title is clicked.
   - this results in sorting happening unintentionally and when the column is being resized.
-4. WSL clipboard image paste still flaky. Replace the powershell.exe/wslpath
+4. ✅ WSL clipboard image paste still flaky. Replace the powershell.exe/wslpath
    shell-out path in src/media/clipboard.ts with VS Code's native
    `vscode.languages.registerDocumentPasteEditProvider` (added in 1.84+).
 

@@ -58,7 +58,7 @@ import {
   invalidateDbFileCache,
 } from "./database";
 
-import { createImageDropProvider, createImageHoverProvider } from "./media";
+import { createImageDropProvider, createImagePasteProvider, createImageHoverProvider } from "./media";
 
 import {
   HeadingOutlineProvider,
@@ -240,6 +240,7 @@ export function activate(context: ExtensionContext) {
     createSlashCompletionProvider(),
     createLinkCompletionProvider(),
     createImageDropProvider(),
+    createImagePasteProvider(),
     // Decorations
     createEditorDecorations(),
     createHeadingColors(),

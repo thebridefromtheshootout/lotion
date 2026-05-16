@@ -35,6 +35,8 @@ import type {
   DecorationRenderOptions,
   DiagnosticCollection,
   DocumentDropEditProvider,
+  DocumentPasteEditProvider,
+  DocumentPasteProviderMetadata,
   DocumentSelector,
   FileDeleteEvent,
   FileRenameEvent,
@@ -689,6 +691,21 @@ class HostingEditor {
   /** Register a document drop edit provider (auto-subscribed). */
   registerDocumentDropEditProvider(selector: DocumentSelector, provider: DocumentDropEditProvider): Disposable {
     return this.subscribe(languages.registerDocumentDropEditProvider(selector, provider));
+  }
+
+  /** Register a document paste edit provider (auto-subscribed). Requires VS Code 1.97+. */
+  registerDocumentPasteEditProvider(
+    selector: DocumentSelector,
+    provider: DocumentPasteEditProvider,
+    metadata: DocumentPasteProviderMetadata,
+  ): Disposable {
+    const register = (languages as unknown as {
+      registerDocumentPasteEditProvider?: typeof languages.registerDocumentPasteEditProvider;
+    }).registerDocumentPasteEditProvider;
+    if (typeof register !== "function") {
+      return Disposable.from();
+    }
+    return this.subscribe(register.call(languages, selector, provider, metadata));
   }
 
   /** Create a diagnostic collection (auto-subscribed). */

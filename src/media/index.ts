@@ -3,6 +3,7 @@ export {
   generateGraphLenses,
  } from "./graph";
 export { createImageDropProvider } from "./imageDrop";
+export { createImagePasteProvider, isImagePasteProviderActive } from "./imagePaste";
 export { createImageHoverProvider } from "./imageHover";
 
 // ── Slash commands ─────────────────────────────────────────────────

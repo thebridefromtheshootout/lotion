@@ -5,6 +5,7 @@ import { getCwd } from "../core/cwd";
 import { Regex } from "../core/regex";
 import { escHtml } from "../core/html";
 import { probeClipboardImage, imageFromClipboard } from "../media/clipboard";
+import { isImagePasteProviderActive } from "../media/imagePaste";
 import { cursorInCodeContext } from "./codeContext";
 
 import { buildAnchorTag, deriveImageAlt, isImageUrl } from "./smartPasteAnchor";
@@ -118,6 +119,16 @@ export async function handleSmartPaste() {
   }
 
   // ── Image paste: clipboard image → save & insert ───────────────
+  // When the native paste-edit provider is active (VS Code 1.97+), the
+  // image branch is handled there — give the built-in paste a chance to
+  // dispatch it, skipping the powershell.exe / wslpath / xclip shell-out
+  // entirely. The shell-out path below is preserved as a fallback for
+  // older VS Code versions.
+  if (isImagePasteProviderActive()) {
+    logSmartPaste("image-paste-provider-active -> default-paste");
+    await hostEditor.executeCommand("editor.action.clipboardPasteAction");
+    return;
+  }
   const cwd = getCwd();
   const clipProbe = probeClipboardImage();
   logSmartPaste("image-path-check", { hasCwd: !!cwd, hasClipboardImage: clipProbe.hasImage });
