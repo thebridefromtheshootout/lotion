@@ -3,4 +3,6 @@ out/
 *.vsix
 lotion-tests
 .ssh/*
+.vscode-test/
+.vscode-test-workspace/
 !latest-vsix/*.vsix

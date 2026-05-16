@@ -40,4 +40,9 @@ VS Code extension that brings Notion-like editing to plain Markdown files. The a
 
 ## Tests
 
-`src/__tests__/` — vitest. Run with `npm test`.
+Two suites, run independently:
+
+- `src/__tests__/` — Jest unit tests for pure helpers (csvParser, blockIndex, lockBlockCrypto, etc.). `vscode` is mocked via `src/__tests__/__mocks__/vscode.ts`. Run with `npm test`.
+- `src/test/` — integration tests via `@vscode/test-cli`, launching a real VS Code
+  (`@vscode/test-electron`). Configured in `.vscode-test.mjs`; tests compile to
+  `out/test/`. Run with `npm run test:int`. Use mocha BDD (`describe`/`it`).

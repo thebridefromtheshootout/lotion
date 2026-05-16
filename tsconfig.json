@@ -12,5 +12,6 @@
     "skipLibCheck": true,
     "jsx": "react-jsx"
   },
-  "exclude": ["node_modules", "out", "src/__tests__", "src/webview"]
+  "exclude": ["node_modules", "out", "src/__tests__", "src/webview"],
+  "include": ["src/**/*.ts"]
 }
