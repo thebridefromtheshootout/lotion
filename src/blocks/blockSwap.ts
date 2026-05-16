@@ -49,15 +49,17 @@ async function swapBlock(direction: "up" | "down"): Promise<void> {
       const aboveText = hostEditor.getDocumentText(
         new Range(aboveStart, 0, aboveEnd, doc.lineAt(aboveEnd).text.length),
       );
-      // separator between blocks (blank lines between them)
+      // separator between blocks (blank lines between them). A single
+      // blank-line separator reads as an empty string, so test for its
+      // *presence* by line range — not by truthiness of the captured text.
       const sepStart = aboveEnd + 1;
       const sepEnd = blockStart - 1;
-      let separator = "";
-      if (sepStart <= sepEnd) {
-        separator = hostEditor.getDocumentText(new Range(sepStart, 0, sepEnd, doc.lineAt(sepEnd).text.length));
-      }
+      const hasSeparator = sepStart <= sepEnd;
+      const separator = hasSeparator
+        ? hostEditor.getDocumentText(new Range(sepStart, 0, sepEnd, doc.lineAt(sepEnd).text.length))
+        : "";
       const fullRange = new Range(aboveStart, 0, blockEnd, doc.lineAt(blockEnd).text.length);
-      const sep = separator ? "\n" + separator + "\n" : "\n";
+      const sep = hasSeparator ? "\n" + separator + "\n" : "\n";
       await hostEditor.replaceRange(fullRange, blockText + sep + aboveText);
     }
 
@@ -91,12 +93,12 @@ async function swapBlock(direction: "up" | "down"): Promise<void> {
       );
       const sepStart = blockEnd + 1;
       const sepEnd = belowStart - 1;
-      let separator = "";
-      if (sepStart <= sepEnd) {
-        separator = hostEditor.getDocumentText(new Range(sepStart, 0, sepEnd, doc.lineAt(sepEnd).text.length));
-      }
+      const hasSeparator = sepStart <= sepEnd;
+      const separator = hasSeparator
+        ? hostEditor.getDocumentText(new Range(sepStart, 0, sepEnd, doc.lineAt(sepEnd).text.length))
+        : "";
       const fullRange = new Range(blockStart, 0, belowEnd, doc.lineAt(belowEnd).text.length);
-      const sep = separator ? "\n" + separator + "\n" : "\n";
+      const sep = hasSeparator ? "\n" + separator + "\n" : "\n";
       await hostEditor.replaceRange(fullRange, belowText + sep + blockText);
     }
 
