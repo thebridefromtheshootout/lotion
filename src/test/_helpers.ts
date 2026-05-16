@@ -91,3 +91,29 @@ export function writeFixtureFile(absPath: string, content: string): void {
   fs.mkdirSync(path.dirname(absPath), { recursive: true });
   fs.writeFileSync(absPath, content, "utf-8");
 }
+
+/**
+ * Replace `vscode.window.showQuickPick` for the duration of the returned
+ * disposable. The stub returns `value` for every call; cleanup restores the
+ * original. Useful for testing slash commands that prompt for a choice.
+ */
+export function stubQuickPick<T>(value: T | undefined): { dispose(): void } {
+  const original = vscode.window.showQuickPick;
+  (vscode.window as { showQuickPick: unknown }).showQuickPick = async () => value;
+  return {
+    dispose() {
+      (vscode.window as { showQuickPick: unknown }).showQuickPick = original;
+    },
+  };
+}
+
+/** Replace `vscode.window.showInputBox`; restores on dispose. */
+export function stubInputBox(value: string | undefined): { dispose(): void } {
+  const original = vscode.window.showInputBox;
+  (vscode.window as { showInputBox: unknown }).showInputBox = async () => value;
+  return {
+    dispose() {
+      (vscode.window as { showInputBox: unknown }).showInputBox = original;
+    },
+  };
+}
