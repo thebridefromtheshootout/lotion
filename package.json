@@ -69,12 +69,6 @@
         "category": "Lotion"
       },
       {
-        "command": "lotion.dictate",
-        "title": "Lotion: Dictate (Speech to Text)",
-        "icon": "$(record)",
-        "category": "Lotion"
-      },
-      {
         "command": "lotion.createPage",
         "title": "Lotion: Create Child Page",
         "icon": "$(new-file)",
@@ -773,7 +767,6 @@
         "mac": "cmd+shift+d",
         "when": "editorTextFocus && editorLangId == markdown"
       },
-
       {
         "command": "lotion.toggleCheckbox",
         "key": "alt+d",
@@ -863,7 +856,11 @@
         },
         "lotion.ligatureStyle": {
           "type": "string",
-          "enum": ["off", "unicode", "emoji"],
+          "enum": [
+            "off",
+            "unicode",
+            "emoji"
+          ],
           "default": "unicode",
           "description": "Replace common arrow ligatures like ->, <-, and <-> with unicode or emoji arrows."
         },
@@ -884,7 +881,10 @@
         },
         "lotion.gifProvider": {
           "type": "string",
-          "enum": ["giphy", "klipy"],
+          "enum": [
+            "giphy",
+            "klipy"
+          ],
           "default": "",
           "description": "GIF search provider: 'giphy' or 'klipy'."
         },
@@ -939,7 +939,10 @@
           "default": [],
           "items": {
             "type": "object",
-            "required": ["match", "prefix"],
+            "required": [
+              "match",
+              "prefix"
+            ],
             "properties": {
               "match": {
                 "type": "string",
@@ -962,7 +965,7 @@
           "type": "number",
           "default": 30,
           "minimum": 10,
-          "description": "Maximum character length for auto-generated link labels in smart paste. Longer titles are truncated with \u2026."
+          "description": "Maximum character length for auto-generated link labels in smart paste. Longer titles are truncated with …."
         },
         "lotion.commentUsername": {
           "type": "string",
@@ -973,7 +976,7 @@
     }
   },
   "scripts": {
-    "package":"npx vsce package",
+    "package": "npx vsce package",
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./ && node esbuild.webview.mjs",
     "compile:webview": "node esbuild.webview.mjs",
@@ -1003,7 +1006,6 @@
     "leaflet": "^1.9.4",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
-    "sherpa-onnx-node": "^1.12.25",
     "unicode-emoji-json": "^0.8.0"
   }
 }

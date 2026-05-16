@@ -36,7 +36,6 @@ export const Cmd = {
   refreshProcessors: "lotion.refreshProcessors",
   updateProcessor: "lotion.updateProcessor",
   updateDate: "lotion.updateDate",
-  dictate: "lotion.dictate",
 
   // ── Table ──────────────────────────────────────────────────────────
   insertTable: "lotion.insertTable",

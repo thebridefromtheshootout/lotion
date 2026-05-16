@@ -31,7 +31,7 @@ export function getNonce(): string {
 
 export interface ShellOptions {
   webview: Webview;
-  /** Name of the app entry point (e.g. "dictateApp"). Used to resolve out/webview/<name>.js and .css */
+  /** Name of the app entry point (e.g. "dbApp"). Used to resolve out/webview/<name>.js and .css */
   appName: string;
   title: string;
   /** Extra CSP directives to append (e.g. "media-src blob:"). */

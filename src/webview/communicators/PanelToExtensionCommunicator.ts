@@ -2,7 +2,7 @@
 //
 // Mirror image of `src/communicators/extensionToPanelCommunicator.ts` on the
 // extension-host side. Each named webview (Db panel, Comment panel, Date
-// panel, Dictate panel, Gif panel) has a pair of communicators:
+// panel, Gif panel) has a pair of communicators:
 //
 //   src/webview/communicators/<Name>ToExtensionCommunicator.ts        (this side)
 //   src/communicators/<lowercased>Communicator.ts                     (host side)

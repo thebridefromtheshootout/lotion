@@ -36,7 +36,7 @@ VS Code extension that brings Notion-like editing to plain Markdown files. The a
 ## Build / package
 
 - `npm run compile` — runs `tsc` then `esbuild.webview.mjs`.
-- `npx vsce package` — produces the `.vsix`. `.vscodeignore` is tuned to keep only `sherpa-onnx-node`, `unicode-emoji-json`, and `@viz-js/viz` from `node_modules` (rest is bundled or unused at runtime).
+- `npx vsce package` — produces the `.vsix`. `.vscodeignore` is tuned to keep only `unicode-emoji-json` and `@viz-js/viz` from `node_modules` (rest is bundled or unused at runtime).
 
 ## Tests
 

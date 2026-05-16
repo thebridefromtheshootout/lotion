@@ -25,7 +25,6 @@ export {
   generateProcessorLenses,
   cursorInProcessor,
 } from "./processor";
-export { handleDictateCommand } from "./dictate";
 export { createEditorDecorations } from "./editorDecorations";
 export { searchWorkspaceCommands } from "./searchCommands";
 
