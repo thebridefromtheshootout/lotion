@@ -1,4 +1,6 @@
 import * as vscode from "vscode";
+import * as fs from "fs";
+import * as path from "path";
 
 // Shared helpers for integration tests. Keep this file small and
 // stable — tests should read fluently against it.
@@ -58,4 +60,34 @@ export async function activate(): Promise<void> {
   if (!ext.isActive) {
     await ext.activate();
   }
+}
+
+/** Absolute path to the test workspace folder (set in .vscode-test.mjs). */
+export function workspaceRoot(): string {
+  const folder = vscode.workspace.workspaceFolders?.[0];
+  if (!folder) {
+    throw new Error("No workspace folder open — check .vscode-test.mjs config");
+  }
+  return folder.uri.fsPath;
+}
+
+/**
+ * Make a fresh, unique subdirectory under the test workspace and return its
+ * absolute path. Caller is responsible for cleanup via removeFixture().
+ */
+export function createFixture(prefix: string): string {
+  const dir = path.join(workspaceRoot(), `${prefix}-${process.pid}-${Date.now()}`);
+  fs.mkdirSync(dir, { recursive: true });
+  return dir;
+}
+
+/** Recursively remove a fixture directory. Safe to call on a missing path. */
+export function removeFixture(dir: string): void {
+  fs.rmSync(dir, { recursive: true, force: true });
+}
+
+/** Write a file inside a fixture dir, creating any missing parents. */
+export function writeFixtureFile(absPath: string, content: string): void {
+  fs.mkdirSync(path.dirname(absPath), { recursive: true });
+  fs.writeFileSync(absPath, content, "utf-8");
 }
