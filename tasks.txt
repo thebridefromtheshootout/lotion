@@ -2,7 +2,7 @@ Planning board for next implementation pass.
 Non-complex items are split into phases, with target files and acceptance checks.
 Do not attempt items marked [Complex].
 ---
-1. linting doesn't work for list items if the text runs multiple lines
+1. ✅ linting doesn't work for list items if the text runs multiple lines
     Repro case:
     - text text text
     text continues from previous items
@@ -13,9 +13,6 @@ Do not attempt items marked [Complex].
 2. sorting of db columns should happen if the button containing the sort caret or a button signifying no-sort (may up-arrow and down-arrow) is clicked
   - curently sorting happens whenever the column title is clicked.
   - this results in sorting happening unintentionally and when the column is being resized.
-3. OMFG dragging of tiles still doesn't work for
-  AND (OR ( t1, t2, AND ()))
-  and I attempt to drag t1 or t2 into the innermost AND
 4. WSL clipboard image paste still flaky. Replace the powershell.exe/wslpath
    shell-out path in src/media/clipboard.ts with VS Code's native
    `vscode.languages.registerDocumentPasteEditProvider` (added in 1.84+).

@@ -4,6 +4,7 @@ export { handleListContinue } from "./listContinue";
 export { indentListItem, outdentListItem } from "./listIndent";
 export { createListRenumber } from "./listRenumber";
 export { createListSwapMarker } from "./listSwapMarker";
+export { createListMarkerColors } from "./listMarkerColors";
 export {
   handleRenumberList,
   handleOlToUl,

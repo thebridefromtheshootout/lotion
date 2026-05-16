@@ -45,7 +45,7 @@ import {
   createLinkValidator,
 } from "./links";
 
-import { createListRenumber, createListSwapMarker } from "./lists";
+import { createListRenumber, createListSwapMarker, createListMarkerColors } from "./lists";
 
 import { createRecentPagesTracker } from "./navigation";
 
@@ -243,6 +243,7 @@ export function activate(context: ExtensionContext) {
     // Decorations
     createEditorDecorations(),
     createHeadingColors(),
+    createListMarkerColors(),
     createStrikethroughDecorations(),
     // Auto-fixers & validators
     createListRenumber(),
