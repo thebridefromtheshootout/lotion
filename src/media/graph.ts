@@ -17,9 +17,9 @@ import { buildBlock, findGraphBlock } from "./graphBlock";
 
 export { cursorInGraph } from "./graphBlock";
 
-// ── Slash commands (currently not registered in MEDIA_SLASH_COMMANDS) ──
+// ── Slash commands ─────────────────────────────────────────────────
 
-const GRAPH_SLASH_COMMAND: SlashCommand = {
+export const GRAPH_SLASH_COMMAND: SlashCommand = {
   label: "/graph",
   insertText: "",
   detail: "📈 Insert a Graphviz diagram",
@@ -31,7 +31,7 @@ const GRAPH_SLASH_COMMAND: SlashCommand = {
   cleanLine: true,
 };
 
-const RENDER_GRAPH_SLASH_COMMAND: SlashCommand = {
+export const RENDER_GRAPH_SLASH_COMMAND: SlashCommand = {
   label: "/render",
   insertText: "",
   detail: "▶ Re-render graph from DOT source",
@@ -41,11 +41,6 @@ const RENDER_GRAPH_SLASH_COMMAND: SlashCommand = {
   cmdFilter: Filter().cursorInGraph(),
   handler: handleRenderGraphCommand,
 };
-
-// Suppress unused-const warnings — the constants are kept for when /graph
-// is added to MEDIA_SLASH_COMMANDS in the future.
-void GRAPH_SLASH_COMMAND;
-void RENDER_GRAPH_SLASH_COMMAND;
 
 // ── Default DOT template ───────────────────────────────────────────
 
