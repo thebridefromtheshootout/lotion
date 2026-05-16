@@ -81,9 +81,27 @@ export function TableView({
     return <div className="empty-state">No entries match the active filters.</div>;
   }
 
-  const arrow = (col: string) => {
-    if (sortCol !== col) return null;
-    return <span className="sort-arrow">{sortDir === "asc" ? "▲" : "▼"}</span>;
+  const SortButton = ({ col }: { col: string }) => {
+    const active = sortCol === col;
+    const glyph = !active ? "⇅" : sortDir === "asc" ? "▲" : "▼";
+    const title = !active
+      ? "Sort ascending"
+      : sortDir === "asc"
+      ? "Sort descending"
+      : "Clear sort";
+    return (
+      <button
+        className={`col-sort-btn${active ? " active" : ""}`}
+        title={title}
+        aria-label={title}
+        onClick={(ev) => {
+          ev.stopPropagation();
+          onToggleSort(col);
+        }}
+      >
+        {glyph}
+      </button>
+    );
   };
 
   // Stable identity for commitEdit so React.memo'd rows don't re-render
@@ -121,10 +139,9 @@ export function TableView({
             <th
               className="resizable-col"
               style={widthStyle("__title")}
-              onClick={() => onToggleSort("__title")}
             >
               <span className="col-header-label">{titleFieldLabel}</span>
-              {arrow("__title")}
+              <SortButton col="__title" />
               <button
                 className="col-copy-btn"
                 title={`Copy values from ${titleFieldLabel} (newline-joined)`}
@@ -139,7 +156,6 @@ export function TableView({
                 className="col-resize-handle"
                 title="Drag to resize"
                 onMouseDown={(ev) => beginResize("__title", ev)}
-                onClick={(ev) => ev.stopPropagation()}
               />
             </th>
             {schema.map((c) => {
@@ -149,10 +165,9 @@ export function TableView({
                   key={c.name}
                   className={`resizable-col${isTag ? " tag-cell" : ""}`}
                   style={widthStyle(c.name)}
-                  onClick={() => onToggleSort(c.name)}
                 >
                   <span className="col-header-label">{c.name}</span>
-                  {arrow(c.name)}
+                  <SortButton col={c.name} />
                   <button
                     className="col-copy-btn"
                     title={`Copy values from ${c.name} (newline-joined)`}
@@ -167,7 +182,6 @@ export function TableView({
                     className="col-resize-handle"
                     title="Drag to resize"
                     onMouseDown={(ev) => beginResize(c.name, ev)}
-                    onClick={(ev) => ev.stopPropagation()}
                   />
                 </th>
               );

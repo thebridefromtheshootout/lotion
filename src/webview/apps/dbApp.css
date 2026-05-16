@@ -494,15 +494,29 @@ th {
   position: sticky;
   top: 0;
   background: var(--surface-2);
-  cursor: pointer;
   user-select: none;
 }
 th:hover {
   color: var(--fg);
 }
-th .sort-arrow {
+th .col-sort-btn {
   margin-left: 6px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
   font-size: 11px;
+  padding: 2px 4px;
+  color: inherit;
+  opacity: 0.35;
+  transition: opacity 0.12s ease;
+}
+th:hover .col-sort-btn,
+th .col-sort-btn.active,
+th .col-sort-btn:focus-visible {
+  opacity: 1;
+}
+th .col-sort-btn:hover {
+  opacity: 1;
 }
 th .col-copy-btn {
   margin-left: 6px;

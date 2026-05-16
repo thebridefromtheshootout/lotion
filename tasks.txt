@@ -10,7 +10,7 @@ Do not attempt items marked [Complex].
       - neither is my item marker.
     - my item marker is colored right
       - my item marker is also colored right.
-2. sorting of db columns should happen if the button containing the sort caret or a button signifying no-sort (may up-arrow and down-arrow) is clicked
+2. ✅ sorting of db columns should happen if the button containing the sort caret or a button signifying no-sort (may up-arrow and down-arrow) is clicked
   - curently sorting happens whenever the column title is clicked.
   - this results in sorting happening unintentionally and when the column is being resized.
 4. WSL clipboard image paste still flaky. Replace the powershell.exe/wslpath
