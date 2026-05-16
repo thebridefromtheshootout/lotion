@@ -81,3 +81,4 @@ Do not attempt items marked [Complex].
    doesn't call clipboardPasteAction when an image format is on the clipboard
    (let the provider handle it). Drop provider has the same shape and works
    because drop and paste are separate trigger paths.
+   5. I have a feeling the codebase has a lot of silent failures. do an inspection of all silent failures and type|undefined signatures. we can probably tighten those up.
