@@ -1,163 +1,224 @@
 # Lotion
 
-**Notion-like editing for Markdown** — slash commands, databases, backlinks, and more.
+**Notion-like editing for Markdown** — slash commands, databases, backlinks, smart paste.
 
-Lotion transforms VS Code into a powerful Markdown writing environment inspired by Notion. Everything stays in plain Markdown files — no proprietary formats, no lock-in.
-
----
-
-## Features
-
-### Slash Commands
-
-Type `/` at the start of any line to browse all available commands:
-
-| Category    | Commands                                                                                        |
-| ----------- | ----------------------------------------------------------------------------------------------- |
-| Content     | `/h1` `/h2` `/h3` `/page` `/todo` `/divider` `/quote` `/toggle` `/callout` `/toc` `/footnote` `/template` `/frontmatter` `/emoji` `/link` |
-| Code & Math | `/code` `/math` `/inline-math`                                                                  |
-| Dates       | `/today` `/date`                                                                                |
-| Media       | `/image` `/gif` `/graph` `/export`                                                              |
-| Database    | `/database` `/view-database` `/new-entry` `/new-view` `/new-field` `/delete-field`              |
-| Tables      | `/rows-below` `/rows-above` `/cols-right` `/cols-left` `/delete-row` `/delete-col` `/sort` `/transpose` |
-| Lists       | `/renumber` `/to-bullets` `/to-numbered`                                                        |
-| Blocks      | `/move` `/secretbox` `/lock` `/unlock` `/processor` `/refresh` `/render`                        |
-| Productivity| `/commit` `/comments` `/turninto`                                                               |
-
-### Databases
-
-Create structured databases stored as plain Markdown. Each database is a folder with a schema in `index.md` and entries as individual `.md` files. Open the interactive webview with `/view-database` for **table**, **kanban**, and **calendar** layouts with filtering and sorting.
-
-### Backlinks & Wiki-Links
-
-Link between pages with `[[wiki-links]]`. The **Backlinks** panel in the sidebar shows which pages link to the current one, and a CodeLens indicator above each page title shows the backlink count.
-
-### Smart Paste
-
-- Paste a URL while text is selected → wraps it as `[selected text](url)`
-- Paste a URL on its own → inserts `[title](url)` (fetches the page title automatically)
-- Paste an image from clipboard → saves it and inserts `![](path)`
-
-### Focus Mode
-
-Press `Alt+Z` to dim all blocks except the one under the cursor. Adjust the dimming opacity with the `lotion.focusModeOpacity` setting.
-
-### Comments
-
-Add review-style comments to any text selection. Comments are stored in YAML front matter and displayed as CodeLens indicators above commented lines. Open the comment panel with `/comments`.
-
-### Secret Boxes
-
-Encrypt sensitive content in-place with a password. The encrypted ciphertext is stored directly in the Markdown file. Lotion prevents saving files with unlocked secret boxes to avoid leaking plaintext.
-
-### Daily Notes
-
-Create or open today's note with **Lotion: Open Daily Note** from the command palette. Notes are stored in a configurable folder.
-
-### PDF & HTML Export
-
-Export any Markdown page to a styled PDF or HTML file with `/export`.
-
-### Graphs
-
-Insert Graphviz DOT diagrams with `/graph` and render them to SVG or PNG with `/render`.
-
-### Additional Features
-
-- **Pomodoro Timer** — 25-minute focus timer with status bar countdown
-- **Clipboard History** — browse your last 30 copy/cut operations
-- **Bookmarks** — bookmark pages and browse them from the sidebar
-- **Page Icons** — set an emoji icon for any page (visible in explorer and breadcrumb)
-- **Structure Linter** — diagnostics for issues like skipped heading levels
-- **Smart Typography** — auto-replace straight quotes/dashes/ellipses with typographic equivalents
-- **Smart Pairs** — auto-close Markdown formatting markers
-- **Snippet Expander** — expand abbreviations into Markdown templates
-- **Dictation** — speech-to-text input
+Lotion turns VS Code into a structured-writing environment, but every file
+stays plain Markdown on disk — git-friendly, portable, no proprietary
+format.
 
 ---
 
-## Keyboard Shortcuts
+## Slash commands
 
-### Formatting
+Type `/` on any line to browse. Categories below — see
+`src/core/slashCommands.ts` for the canonical list.
 
-| Shortcut            | Mac                 | Action                             |
-| ------------------- | ------------------- | ---------------------------------- |
-| `Ctrl+B`            | `Cmd+B`             | Toggle **bold**                    |
-| `Ctrl+I`            | `Cmd+I`             | Toggle *italic*                    |
-| `Alt+S`             | `Alt+S`             | Toggle ~~strikethrough~~           |
-| `` Alt+` ``         | `` Alt+` ``         | Toggle `inline code`               |
-| `Alt+H`             | `Alt+H`             | Toggle ==highlight==               |
-| `Ctrl+Shift+W`      | `Cmd+Shift+W`       | Wrap selection with custom markers |
-| `Alt+Shift+Left`    | `Alt+Shift+Left`    | Promote heading (`##` → `#`)       |
-| `Alt+Shift+Right`   | `Alt+Shift+Right`   | Demote heading (`#` → `##`)        |
+| Category | Commands |
+| --- | --- |
+| Headings & layout | `/h1` `/h2` `/h3` `/page` `/divider` `/quote` `/toggle` `/th1` `/th2` `/th3` `/section` `/callout` `/toc` `/footnote` `/frontmatter` |
+| Lists | `/todo` `/renumber` `/clean-list` `/to-bullets` `/to-numbered` |
+| Code & math | `/code` `/inline-math` `/math` |
+| Dates | `/today` `/date` |
+| Media | `/image` `/resource` `/gif` `/emoji` `/graph` `/render` `/mermaid` |
+| Tables | `/table` `/rows-below` `/rows-above` `/cols-right` `/cols-left` `/delete-row` `/delete-col` `/copy-column` `/cut-column` `/paste-column` `/sort` `/transpose` `/align` |
+| Databases | `/database` `/view-database` `/new-entry` `/new-view` `/new-field` `/delete-field` `/rename-field` `/sync-field-order` `/csv-to-db` `/table-to-db` |
+| Blocks | `/secretbox` `/lock` `/unlock` `/processor` `/update-processor` `/refresh` `/turninto` |
+| Page tools | `/move-page` `/rename-page` `/link` `/openlink` `/copy` `/comments` `/commit` |
 
-### Lists
+A few of these (`/database`, `/view-database`, `/move-page`) work only in
+the right context — e.g. inside a database index, or on an `index.md`
+page. Use the slash-command filter to discover what's available where
+you are.
 
-| Shortcut        | Mac            | Action                                         |
-| --------------- | -------------- | ---------------------------------------------- |
-| `Enter`         | `Enter`        | Continue list (bullet, number, or checkbox)    |
-| `Tab`           | `Tab`          | Indent list item                               |
-| `Shift+Tab`     | `Shift+Tab`    | Outdent list item                              |
-| `Ctrl+Shift+X`  | `Cmd+Shift+X`  | Toggle checkbox `[ ]` ↔ `[x]`                 |
-| `Ctrl+Shift+L`  | `Cmd+Shift+L`  | Cycle list type (bullet → numbered → checkbox) |
+## Databases
 
-### Navigation
+A database is a folder with:
 
-| Shortcut        | Mac            | Action                   |
-| --------------- | -------------- | ------------------------ |
-| `Alt+Down`      | `Alt+Down`     | Jump to next heading     |
-| `Alt+Up`        | `Alt+Up`       | Jump to previous heading |
-| `Ctrl+Shift+H`  | `Cmd+Shift+H`  | Jump to heading (picker) |
-| `Alt+P`         | `Alt+P`        | Quick-switch page        |
-| `Alt+R`         | `Alt+R`        | Recent pages             |
+- `index.md` carrying a ```` ```lotion-db ```` schema fence (columns +
+  saved views),
+- one `<slug>/index.md` per entry, with properties in a markdown
+  property table.
 
-### Blocks
+`/view-database` opens an interactive webview with **table**,
+**kanban**, **calendar**, **graph**, and **map** layouts. Sort by
+clicking a column's dedicated sort button (⇅ / ▲ / ▼); filter via the
+filter bar. New entries from the webview create the entry file and
+link it back into the index automatically.
 
-| Shortcut          | Mac               | Action               |
-| ----------------- | ----------------- | -------------------- |
-| `Ctrl+Shift+B`    | `Cmd+Shift+B`     | Select current block |
-| `Ctrl+Shift+D`    | `Cmd+Shift+D`     | Duplicate block      |
-| `Alt+Shift+Up`    | `Alt+Shift+Up`    | Swap block up        |
-| `Alt+Shift+Down`  | `Alt+Shift+Down`  | Swap block down      |
+## Links
+
+- **Wiki links** — type `[[` for a workspace-wide page picker; accept
+  to insert a regular markdown link.
+- **Backlinks** — the *Backlinks* sidebar lists every page that links
+  to the current one, refreshed live.
+- **Link validator** — broken links are flagged as diagnostics.
+- **Link conversion** — `lotion.linksToReference` and
+  `lotion.linksToInline` round-trip between inline `[text](url)` and
+  reference `[text][1]` … `[1]: url` styles.
+- **Link factory rules** — configure regex → URL templates in
+  `lotion.linkFactoryRules` to auto-wrap typed patterns (e.g. issue
+  numbers → JIRA URLs).
+
+## Smart paste
+
+`Ctrl+V` in markdown is rerouted through smart paste:
+
+- Plain URL on the clipboard, with text selected → wraps as
+  `<a href="…">selected text</a>` (no network call needed).
+- Plain URL on the clipboard, no selection → fetches the page title,
+  inserts `<a href="…">Title</a>`.
+- Image URL → `<img src="…" alt="…">`.
+- Tab- or comma-separated text → markdown table.
+- Image on the clipboard → saved to `.rsrc/` and inserted as `<img>`.
+  Uses VS Code's native `registerDocumentPasteEditProvider` on 1.97+
+  (no powershell/wslpath/xclip dance).
+- In a code context, falls back to plain paste.
+
+## Comments
+
+`Lotion: Add Comment` (or `/comments` for the panel) attaches a review
+comment to the selected text. Storage is `.rsrc/comments.json` next
+to the doc; an HTML marker (`<!--lotion-comment:ID-->`) anchors the
+comment to its line. CodeLens above the comment shows author and a
+resolve / delete action.
+
+## Secret boxes
+
+`/secretbox` inserts a `<details>` block marked with
+`<!--lotion-secretbox-->`. `/lock` encrypts the body with a password
+(PBKDF2 + AES-GCM); `/unlock` decrypts. A save guard prevents writing
+an unlocked secret box to disk so plaintext never gets committed.
+
+## Daily notes
+
+`Lotion: Open Daily Note` opens (creating if needed) today's note at
+`<lotion.dailyNotePath>/YYYY-MM-DD.md`. Date format is configurable.
+
+## Graphs
+
+`/graph` inserts a Graphviz DOT block rendered to SVG. `/render`
+re-renders the SVG from the current DOT source. SVGs are written to
+the page's `.rsrc/`.
+
+## Typography & code helpers
+
+- **Smart typography** — auto-replace straight quotes/dashes/ellipses
+  with typographic equivalents (toggle via `lotion.smartTypography`).
+- **Ligatures** — replace `->`, `<-`, `<->` with unicode/emoji arrows
+  (`lotion.ligatureStyle`).
+- **Auto inline code** — wrap identifier-cased words in backticks when
+  configured (`lotion.autoInlineCodeCases`).
+- **Auto-renumber lists** — fix ordered-list numbering on save
+  (`lotion.autoRenumberLists`).
+- **Trailing newline** — enforce exactly one EOF newline on save
+  (`lotion.trailingNewline`).
+
+## Structure linter
+
+Diagnostics for skipped heading levels, multiple H1s, duplicate
+heading text (ambiguous anchors), empty links, very long lines, and
+unclosed code fences.
+
+## Decorations
+
+- Heading colours by level (H1–H6).
+- List marker colours by indent depth — bypasses VS Code's grammar
+  losing track of lazy continuation lines.
+- Callout background tint + gutter accent for `> [!NOTE]` style blocks.
+- `==highlight==` background tint.
+- Code-fence whole-line tint.
+- Strike-through on completed `- [x]` tasks.
+
+## Other
+
+- **Bookmarks** — `Lotion: Bookmark Page` adds the active page to the
+  *Bookmarks* sidebar.
+- **Page icons** — `lotion.setPageIcon` stores an emoji in frontmatter
+  (shown in the breadcrumb and outline).
+- **Quick switcher** — `Alt+P` for fuzzy page open.
+- **Recent pages** — `Alt+R` for an MRU list.
+- **Git commit** — `/commit` stages and commits the workspace, with
+  an optional push (`lotion.git.neverPush` to skip).
+- **Fire into** — `lotion.fireInto` pastes clipboard into a chosen
+  page without opening it.
 
 ---
 
-## Explorer Views
+## Keyboard shortcuts
 
-| View                 | Description                            |
-| -------------------- | -------------------------------------- |
-| **Document Outline** | Heading hierarchy for the current file |
-| **Backlinks**        | Pages that link to the current page    |
-| **Bookmarks**        | Your bookmarked pages                  |
+| Shortcut | Mac | Action |
+| --- | --- | --- |
+| `Ctrl+V` | `Cmd+V` | Smart paste |
+| `Ctrl+B` | `Cmd+B` | Toggle **bold** (on selection) |
+| `Ctrl+I` | `Cmd+I` | Toggle *italic* (on selection) |
+| `Alt+S` | `Alt+S` | Toggle ~~strikethrough~~ |
+| `` Alt+` `` | `` Alt+` `` | Toggle `inline code` |
+| `Alt+H` | `Alt+H` | Toggle ==highlight== |
+| `Alt+Shift+Left` | `Alt+Shift+Left` | Promote heading (`##` → `#`) |
+| `Alt+Shift+Right` | `Alt+Shift+Right` | Demote heading |
+| `Enter` | `Enter` | Continue list / blockquote / checkbox |
+| `Tab` | `Tab` | Indent list item |
+| `Shift+Tab` | `Shift+Tab` | Outdent list item |
+| `Alt+D` | `Alt+D` | Toggle checkbox `[ ]` ↔ `[x]` |
+| `Alt+J` | `Alt+J` | Jump to next heading |
+| `Alt+K` | `Alt+K` | Jump to previous heading |
+| `Ctrl+Shift+H` | `Cmd+Shift+H` | Jump to heading (picker) |
+| `Alt+P` | `Alt+P` | Quick-switch page |
+| `Alt+R` | `Alt+R` | Recent pages |
+| `Alt+L` | `Alt+L` | Search workspace links |
+| `Ctrl+Alt+C` | `Ctrl+Alt+C` | Search workspace commands |
+| `Ctrl+Shift+B` | `Cmd+Shift+B` | Select current block |
+| `Ctrl+Shift+D` | `Cmd+Shift+D` | Duplicate block |
+| `Alt+Shift+Up` | `Alt+Shift+Up` | Swap block up |
+| `Alt+Shift+Down` | `Alt+Shift+Down` | Swap block down |
+| `Alt+Left/Right` | `Alt+Left/Right` | Move cell ←/→ inside a table |
+| `Alt+Up/Down` | `Alt+Up/Down` | Move row ↑/↓ inside a table |
+| `Alt+Home/End` | `Alt+Home/End` | Jump to start/end of table row |
+| `Alt+PgUp/PgDn` | `Alt+PgUp/PgDn` | Jump to start/end of table column |
+| `Ctrl+Alt+F` | `Ctrl+Alt+F` | Fire clipboard into another page |
 
-## Status Bar
+---
 
-| Indicator        | Description                             |
-| ---------------- | --------------------------------------- |
-| Word count       | Word count and estimated reading time   |
-| Reading progress | Scroll progress percentage              |
-| Task progress    | Checkbox completion ratio (e.g. 3/7)    |
-| Breadcrumb       | Current page path in the workspace      |
-| Pomodoro         | Timer countdown (when active)           |
+## Sidebar views
+
+| View | Description |
+| --- | --- |
+| **Document Outline** | Heading tree for the current file |
+| **Backlinks** | Pages that link to the current one |
+| **Bookmarks** | Bookmarked pages |
+
+## Status bar
+
+| Indicator | Description |
+| --- | --- |
+| Word count | Live document/selection word count + reading time |
+| Reading progress | Scroll progress percentage |
+| Line lock | Click-toggle to keep the cursor at a fixed screen line |
 
 ---
 
 ## Settings
 
-| Setting                      | Default        | Description                                           |
-| ---------------------------- | -------------- | ----------------------------------------------------- |
-| `lotion.dailyNotePath`       | `"journal"`    | Folder for daily notes (relative to workspace root)   |
-| `lotion.imageDir`            | `".rsrc"`      | Folder name for images alongside each page            |
-| `lotion.readingSpeed`        | `230`          | Words per minute for reading-time estimate            |
-| `lotion.focusModeOpacity`    | `0.35`         | Opacity of unfocused blocks in focus mode (0–1)       |
-| `lotion.smartTypography`     | `false`        | Auto-replace straight quotes/dashes with typographic equivalents |
-| `lotion.autoRenumberLists`   | `true`         | Fix ordered-list numbering on save                    |
-| `lotion.trailingNewline`     | `true`         | Ensure files end with exactly one newline on save     |
-| `lotion.dateFormat`          | `"YYYY-MM-DD"` | Default format for daily notes and date insertion     |
-| `lotion.giphyApiKey`         | `""`           | Giphy API key for `/gif` search                       |
-| `lotion.git.neverPush`       | `false`        | Skip push after `/commit`                             |
-| `lotion.git.remoteUrl`       | `""`           | Git remote URL to add when none is configured         |
-| `lotion.commentUsername`     | `""`           | Your name shown on comments                           |
+| Setting | Default | Description |
+| --- | --- | --- |
+| `lotion.dailyNotePath` | `"journal"` | Folder for daily notes (relative to workspace root) |
+| `lotion.imageDir` | `".rsrc"` | Folder for images alongside each page |
+| `lotion.readingSpeed` | `230` | Words per minute for reading-time estimate |
+| `lotion.dateFormat` | `"YYYY-MM-DD"` | Default format for daily notes and date insertion |
+| `lotion.smartTypography` | `false` | Auto-replace straight quotes/dashes/ellipses |
+| `lotion.ligatureStyle` | `"unicode"` | Replace `->`, `<-`, `<->` with unicode/emoji arrows |
+| `lotion.autoRenumberLists` | `true` | Renumber ordered lists on save |
+| `lotion.trailingNewline` | `true` | Ensure one trailing newline on save |
+| `lotion.autoInlineCodeCases` | `{}` | Auto-wrap PascalCase / camelCase / snake_case in backticks |
+| `lotion.linkFactoryRules` | `[]` | Regex → URL rules for auto-linking typed patterns |
+| `lotion.smartPasteLinkLabelMaxLength` | `30` | Truncate auto-link labels longer than this |
+| `lotion.smartPaste.debug` | `false` | Log smart-paste decisions to the dev console |
+| `lotion.gifProvider` | `""` | `giphy` or `klipy` |
+| `lotion.giphyApiKey` | `""` | Giphy API key for `/gif` search |
+| `lotion.klipyApiKey` | `""` | Klipy API key for `/gif` search |
+| `lotion.git.neverPush` | `false` | Skip push after `/commit` |
+| `lotion.git.remoteUrl` | `""` | Git remote URL to add when none configured |
+| `lotion.commentUsername` | `""` | Your name on comments (set on first use) |
 
 ---
 
@@ -166,7 +227,17 @@ Insert Graphviz DOT diagrams with `/graph` and render them to SVG or PNG with `/
 - VS Code 1.80 or later
 - Markdown files (`.md`)
 
----
+## Development
+
+```
+npm install
+npm run compile          # tsc + esbuild for webviews
+npm test                 # Jest unit tests for pure helpers
+npm run test:int         # @vscode/test-cli integration tests in real VS Code
+npx vsce package         # build .vsix
+```
+
+See [ARCHITECTURE.md](ARCHITECTURE.md) for the module map.
 
 ## License
 
