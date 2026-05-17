@@ -58,4 +58,34 @@ describe("smart paste feature", () => {
     assert.ok(cmds.includes("lotion.smartPaste"));
     assert.ok(cmds.includes("lotion.insertImage"));
   });
+
+  it("tab-separated clipboard text becomes a markdown table on smart paste", async () => {
+    const editor = await openMarkdown("");
+    setCursor(editor, 0, 0);
+    await vscode.env.clipboard.writeText("h1\th2\na\tb\nc\td");
+    await run("lotion.smartPaste");
+    const lines = getText(editor).split("\n");
+    assert.ok(/^\| h1\s+\| h2\s+\|$/.test(lines[0]), `header row, got: ${lines[0]}`);
+    assert.ok(/^\| -+ \| -+ \|$/.test(lines[1]), `separator row, got: ${lines[1]}`);
+    assert.ok(/^\| a\s+\| b\s+\|$/.test(lines[2]));
+    assert.ok(/^\| c\s+\| d\s+\|$/.test(lines[3]));
+  });
+
+  it("CSV clipboard with 2+ columns becomes a markdown table on smart paste", async () => {
+    const editor = await openMarkdown("");
+    setCursor(editor, 0, 0);
+    await vscode.env.clipboard.writeText("h1,h2,h3\n1,2,3\n4,5,6");
+    await run("lotion.smartPaste");
+    const lines = getText(editor).split("\n");
+    assert.ok(/^\| h1\s+\| h2\s+\| h3\s+\|$/.test(lines[0]));
+    assert.strictEqual(lines.length, 4);
+  });
+
+  it("plain prose on the clipboard (no tabs/commas) falls through to default paste", async () => {
+    const editor = await openMarkdown("");
+    setCursor(editor, 0, 0);
+    await vscode.env.clipboard.writeText("Just a sentence with no structure.");
+    await run("lotion.smartPaste");
+    assert.strictEqual(getText(editor), "Just a sentence with no structure.");
+  });
 });
