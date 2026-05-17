@@ -18,6 +18,11 @@ interface CompiledRule {
   suffix: string;
 }
 
+// Warn at most once per malformed pattern per session so the user notices
+// their `lotion.linkFactoryRules` config is broken without a notification
+// storm on every keystroke.
+const warnedBadPatterns = new Set<string>();
+
 function compileRules(rules: LinkFactoryRule[]): CompiledRule[] {
   const out: CompiledRule[] = [];
   for (const rule of rules) {
@@ -28,8 +33,13 @@ function compileRules(rules: LinkFactoryRule[]): CompiledRule[] {
         prefix: rule.prefix,
         suffix: rule.suffix ?? "",
       });
-    } catch {
-      // Skip invalid regex
+    } catch (err: any) {
+      if (!warnedBadPatterns.has(rule.match)) {
+        warnedBadPatterns.add(rule.match);
+        hostEditor.showError(
+          `Lotion: invalid linkFactoryRules pattern /${rule.match}/ — ${err?.message ?? "syntax error"}`,
+        );
+      }
     }
   }
   return out;
@@ -51,9 +61,7 @@ export function createLinkFactory(): Disposable {
     if (e.document.languageId !== "markdown") return;
     if (!hostEditor.isActiveEditorDocumentEqualTo(e.document)) return;
 
-    const rules = hostEditor
-      .getConfiguration("lotion")
-      .get<LinkFactoryRule[]>("linkFactoryRules", []);
+    const rules = hostEditor.getConfiguration("lotion").get<LinkFactoryRule[]>("linkFactoryRules", []);
     if (rules.length === 0) return;
 
     const compiled = compileRules(rules);
@@ -84,10 +92,7 @@ export function createLinkFactory(): Disposable {
         if (/<[^>]*$/.test(precedingText)) continue;
 
         const url = `${rule.prefix}${matched}${rule.suffix}`;
-        const replaceRange = new Range(
-          new Position(pos.line, matchStart),
-          new Position(pos.line, pos.character),
-        );
+        const replaceRange = new Range(new Position(pos.line, matchStart), new Position(pos.line, pos.character));
 
         processing = true;
 

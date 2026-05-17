@@ -1,3 +1,7 @@
 out/
 node_modules/
 *.vsix
+# Long-form notes docs with numeric underscores (e.g. 600_000) that prettier
+# misreads as emphasis delimiters when reformatting the surrounding tables.
+CODE_QUALITY.md
+DUPLICATION_REPORT.md

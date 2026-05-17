@@ -90,7 +90,7 @@ async function pickGif(provider: GifProvider, apiKey: string): Promise<GifItem |
     if (previewPanel && communicator) {
       return { panel: previewPanel, comm: communicator };
     }
-    
+
     previewPanel = hostEditor.createWebviewPanel(
       "lotionGifPreview",
       "GIF Preview",
@@ -133,11 +133,13 @@ async function pickGif(provider: GifProvider, apiKey: string): Promise<GifItem |
     }
 
     qp.busy = true;
+    qp.placeholder = "Search for a GIF…";
     debounceTimer = setTimeout(async () => {
       try {
         qp.items = await searchGifs(provider, query, apiKey);
-      } catch {
+      } catch (err: any) {
         qp.items = [];
+        qp.placeholder = `GIF search failed — ${err?.message ?? "unknown error"}`;
       }
       qp.busy = false;
     }, 400);

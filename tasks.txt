@@ -81,7 +81,15 @@ Do not attempt items marked [Complex].
    doesn't call clipboardPasteAction when an image format is on the clipboard
    (let the provider handle it). Drop provider has the same shape and works
    because drop and paste are separate trigger paths.
-   5. I have a feeling the codebase has a lot of silent failures. do an inspection of all silent failures and type|undefined signatures. we can probably tighten those up.
+   5. ✅ I have a feeling the codebase has a lot of silent failures. do an inspection of all silent failures and type|undefined signatures. we can probably tighten those up.
+      - Audit found section 4 of CODE_QUALITY.md already covered most silent
+        failures; two new ones tightened: linkFactory invalid-regex now
+        surfaces a (deduped) error; gifCommand search failure now reports
+        via qp.placeholder instead of empty results.
+      - 51 catch blocks total — the rest are either user-facing errors,
+        documented fallbacks (cache reload, dead file cleanup), or
+        intentional silent paths in network UX (title-fetch returning
+        undefined). Not worth churning.
 
 6. ⏸ CI workflow on GitHub Actions: deferred — owner doesn't use GH Actions.
    - If revisited: npm ci, npm run compile, npm test (Jest), npm run test:int
