@@ -119,7 +119,7 @@ Do not attempt items marked [Complex].
      module — undefined slots silently get spread into SLASH_COMMANDS or
      CODELENS_GENERATORS.
 
-10. Prune the redundant activationEvents in package.json.
+10. ✅ Prune the redundant activationEvents in package.json.
     - VS Code 1.74+ generates these automatically from the contributions
       (the IDE flags lines 18-21 as removable). Drop "onView:lotion.backlinks",
       "onView:lotion.outline", "onView:lotion.bookmarks". Keep

@@ -15,10 +15,7 @@
     "Other"
   ],
   "activationEvents": [
-    "onLanguage:markdown",
-    "onView:lotion.backlinks",
-    "onView:lotion.outline",
-    "onView:lotion.bookmarks"
+    "onLanguage:markdown"
   ],
   "icon": "icon.Default",
   "main": "./out/extension.js",
