@@ -120,4 +120,45 @@ describe("lists feature", () => {
       assert.strictEqual(getText(editor), "- [ ] a\n- [ ] b\n- [ ] c");
     });
   });
+
+  describe("blockquote continuation", () => {
+    it("listContinue on a non-empty blockquote line adds another `> ` line", async () => {
+      const editor = await openMarkdown("> a quote");
+      setCursor(editor, 0, 9);
+      await run("lotion.listContinue");
+      assert.strictEqual(getText(editor), "> a quote\n> ");
+    });
+
+    it("listContinue on an empty blockquote line exits the blockquote", async () => {
+      const editor = await openMarkdown("> ");
+      setCursor(editor, 0, 2);
+      await run("lotion.listContinue");
+      assert.strictEqual(getText(editor), "");
+    });
+  });
+
+  describe("cleanList", () => {
+    it("removes empty list items and re-numbers an ordered list", async () => {
+      const editor = await openMarkdown("1. a\n2. \n3. b\n\n4. c");
+      setCursor(editor, 0, 0);
+      await run("lotion.cleanList");
+      assert.strictEqual(getText(editor), "1. a\n2. b\n3. c");
+    });
+
+    it("removes blank lines between bullet items but keeps the markers", async () => {
+      const editor = await openMarkdown("- one\n\n- two\n\n- three");
+      setCursor(editor, 0, 0);
+      await run("lotion.cleanList");
+      assert.strictEqual(getText(editor), "- one\n- two\n- three");
+    });
+  });
+
+  describe("ulToOl from mid-list", () => {
+    it("collects siblings above and below the cursor", async () => {
+      const editor = await openMarkdown("- a\n- b\n- c");
+      setCursor(editor, 1, 0); // middle item
+      await run("lotion.ulToOl");
+      assert.strictEqual(getText(editor), "1. a\n2. b\n3. c");
+    });
+  });
 });
