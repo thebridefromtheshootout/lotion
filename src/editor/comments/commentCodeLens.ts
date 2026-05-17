@@ -1,5 +1,6 @@
 import { type TextDocument, CodeLens, Disposable } from "../../hostEditor/EditorTypes";
-import { codeLens, Cmd, createStatefulCodeLensProvider } from "../../core";
+import { codeLens, createStatefulCodeLensProvider } from "../../core/codeLens";
+import { Cmd } from "../../core/commands";
 import { loadComments } from "./commentModel";
 import { findCommentLine } from "./commentCommands";
 
