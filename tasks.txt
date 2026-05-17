@@ -109,7 +109,7 @@ Do not attempt items marked [Complex].
    - Same idea applies to the keyboard-shortcuts table (regenerate from
      package.json contributes.keybindings).
 
-9. Audit circular imports.
+9. ✅ Audit circular imports.
    - 943ecab fixed one cycle (editor/comments/commentPanel ↔ core/index)
      by importing directly from core/commands. There may be others.
    - Concrete check: any file under editor/, blocks/, links/, media/,
