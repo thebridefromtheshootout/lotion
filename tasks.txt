@@ -82,3 +82,59 @@ Do not attempt items marked [Complex].
    (let the provider handle it). Drop provider has the same shape and works
    because drop and paste are separate trigger paths.
    5. I have a feeling the codebase has a lot of silent failures. do an inspection of all silent failures and type|undefined signatures. we can probably tighten those up.
+
+6. CI workflow on GitHub Actions:
+   - npm ci, npm run compile, npm test (Jest), npm run test:int (vscode-test
+     under xvfb-run for Linux), prettier --check.
+   - Run on push + PR for master.
+   - Cache ~/.vscode-test/ between runs so the Code binary download is paid
+     once. ~30 lines of YAML.
+
+7. Decide pdfExport + carousel: wire or delete (same dead-end class as the
+   dictate prune in 517139b).
+   - src/media/pdfExport.ts + pdfExportTemplate.ts + pdfExportMarkdownToHtml.ts
+     all build and are imported by media/index.ts but the slash command is
+     commented out. EXPORT_SLASH_COMMAND is exported but never added to
+     MEDIA_SLASH_COMMANDS.
+   - src/media/carousel.ts has the same shape — disabled in the slash list.
+   - Either ship them (register the slash commands, register palette entries,
+     add tests) or delete the source + remove from contributes.commands.
+
+8. Generate the README slash-command table from src/core/slashCommands.ts.
+   - Walk SLASH_COMMANDS at build time and write the markdown table into
+     README.md between sentinel comments (mirror the /toc auto-update
+     pattern from src/editor/toc.ts).
+   - Add an npm script (e.g. `docs:check`) that regenerates and `git diff`s
+     to detect drift; wire into the CI workflow from #6.
+   - Same idea applies to the keyboard-shortcuts table (regenerate from
+     package.json contributes.keybindings).
+
+9. Audit circular imports.
+   - 943ecab fixed one cycle (editor/comments/commentPanel ↔ core/index)
+     by importing directly from core/commands. There may be others.
+   - Concrete check: any file under editor/, blocks/, links/, media/,
+     navigation/, productivity/, lists/, formatting/, views/, database/
+     that imports from "../../core" (the barrel) instead of "../../core/<sub>".
+     The cycle bites whenever a test or any pre-activation code loads the
+     module — undefined slots silently get spread into SLASH_COMMANDS or
+     CODELENS_GENERATORS.
+
+10. Prune the redundant activationEvents in package.json.
+    - VS Code 1.74+ generates these automatically from the contributions
+      (the IDE flags lines 18-21 as removable). Drop "onView:lotion.backlinks",
+      "onView:lotion.outline", "onView:lotion.bookmarks". Keep
+      "onLanguage:markdown" since the extension is activation-gated to that.
+
+11. Add a pre-commit format hook (husky or simple-git-hooks).
+    - Run `prettier --check` on staged .ts/.tsx/.css/.md files. Currently
+      formatting drift is only caught when someone manually runs
+      `npm run format:check`.
+
+12. [Complex] Extract the DB engine as its own extension (or sub-package).
+    - src/database/ + src/webview/components/database/ + the dbApp +
+      schema/entry types is the largest single feature surface. Five view
+      types, schema editing, filter trees, sort, CSV/MD importers.
+    - Could be a standalone "Lotion Databases" extension that Lotion proper
+      depends on, or stay in-tree behind a clearer module boundary.
+    - Scope decision: only worth doing if you want to ship it independently
+      or onboard a contributor onto just that subsystem.
