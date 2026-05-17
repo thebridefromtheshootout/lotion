@@ -6,6 +6,10 @@ Lotion turns VS Code into a structured-writing environment, but every file
 stays plain Markdown on disk — git-friendly, portable, no proprietary
 format.
 
+| Slash commands | Databases |
+| --- | --- |
+| ![Slash command completion + insert](media/demo/lotion-slash.gif) | ![Database webview + filter tree](media/demo/lotion-database.gif) |
+
 ---
 
 ## Slash commands
