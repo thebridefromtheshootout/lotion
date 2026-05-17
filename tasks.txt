@@ -100,7 +100,7 @@ Do not attempt items marked [Complex].
    - Either ship them (register the slash commands, register palette entries,
      add tests) or delete the source + remove from contributes.commands.
 
-8. Generate the README slash-command table from src/core/slashCommands.ts.
+8. ✅ Generate the README slash-command table from src/core/slashCommands.ts.
    - Walk SLASH_COMMANDS at build time and write the markdown table into
      README.md between sentinel comments (mirror the /toc auto-update
      pattern from src/editor/toc.ts).

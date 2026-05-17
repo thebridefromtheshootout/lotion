@@ -975,8 +975,10 @@
   "scripts": {
     "package": "npx vsce package",
     "vscode:prepublish": "npm run compile",
-    "compile": "tsc -p ./ && node esbuild.webview.mjs",
+    "compile": "tsc -p ./ && node esbuild.webview.mjs && npm run docs:slash-table",
     "compile:webview": "node esbuild.webview.mjs",
+    "docs:slash-table": "node scripts/generateReadmeSlashTable.mjs",
+    "docs:check": "node scripts/generateReadmeSlashTable.mjs && git diff --quiet -- README.md",
     "watch": "tsc -watch -p ./",
     "watch:webview": "node esbuild.webview.mjs --watch",
     "test": "jest --verbose",

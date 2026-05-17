@@ -6,28 +6,95 @@ Lotion turns VS Code into a structured-writing environment, but every file
 stays plain Markdown on disk — git-friendly, portable, no proprietary
 format.
 
-| Slash commands | Databases |
-| --- | --- |
+| Slash commands                                                    | Databases                                                         |
+| ----------------------------------------------------------------- | ----------------------------------------------------------------- |
 | ![Slash command completion + insert](media/demo/lotion-slash.gif) | ![Database webview + filter tree](media/demo/lotion-database.gif) |
 
 ---
 
 ## Slash commands
 
-Type `/` on any line to browse. Categories below — see
-`src/core/slashCommands.ts` for the canonical list.
+Type `/` on any line to browse. The table below is auto-generated from
+the source (`npm run docs:slash-table`) — see `src/core/slashCommands.ts`
+for the canonical list.
 
-| Category | Commands |
-| --- | --- |
-| Headings & layout | `/h1` `/h2` `/h3` `/page` `/divider` `/quote` `/toggle` `/th1` `/th2` `/th3` `/section` `/callout` `/toc` `/footnote` `/frontmatter` |
-| Lists | `/todo` `/renumber` `/clean-list` `/to-bullets` `/to-numbered` |
-| Code & math | `/code` `/inline-math` `/math` |
-| Dates | `/today` `/date` |
-| Media | `/image` `/resource` `/gif` `/emoji` `/graph` `/render` `/mermaid` |
-| Tables | `/table` `/rows-below` `/rows-above` `/cols-right` `/cols-left` `/delete-row` `/delete-col` `/copy-column` `/cut-column` `/paste-column` `/sort` `/transpose` `/align` |
-| Databases | `/database` `/view-database` `/new-entry` `/new-view` `/new-field` `/delete-field` `/rename-field` `/sync-field-order` `/csv-to-db` `/table-to-db` |
-| Blocks | `/secretbox` `/lock` `/unlock` `/processor` `/update-processor` `/refresh` `/turninto` |
-| Page tools | `/move-page` `/rename-page` `/link` `/openlink` `/copy` `/comments` `/commit` |
+<!-- BEGIN AUTO-SLASH-TABLE -->
+
+| Command             | Description                                         |
+| ------------------- | --------------------------------------------------- |
+| `/align`            | ↔️ Re-align table columns                           |
+| `/callout`          | 📢 Callout block (NOTE, TIP, WARNING...)            |
+| `/carousel`         | 🎠 Insert an image carousel from .rsrc              |
+| `/clean-list`       | 🧹 Remove empty lines/items in current list         |
+| `/code`             | 🔣 Fenced code block                                |
+| `/cols-left`        | ⬅️ Add columns to the left                          |
+| `/cols-right`       | ➡️ Add columns to the right                         |
+| `/comments`         | 💬 Show/manage comments on this page                |
+| `/commit`           | 📦 Git: stage all, commit & push                    |
+| `/copy`             | 📋 Copy code (inline span or block)                 |
+| `/copy-column`      | 📋 Copy current column                              |
+| `/csv-to-db`        | 🧾 Create a new DB from CSV file                    |
+| `/cut-column`       | ✂️ Cut current column                               |
+| `/database`         | 🗄️ Create a database (typed table)                  |
+| `/date`             | 🗓️ Insert a specific date                           |
+| `/delete-col`       | 🗑️ Delete current column                            |
+| `/delete-field`     | 🗑️ Remove a field from the schema                   |
+| `/delete-row`       | 🗑️ Delete current row                               |
+| `/divider`          | ➖ Horizontal divider — ---                         |
+| `/emoji`            | 😀 Insert an emoji                                  |
+| `/export`           | 📄 Export page to PDF / HTML                        |
+| `/footnote`         | 📝 Insert a numbered footnote                       |
+| `/frontmatter`      | 📋 YAML front matter block                          |
+| `/gif`              | 🎬 Search for a GIF                                 |
+| `/graph`            | 📈 Insert a Graphviz diagram                        |
+| `/h1`               | 𝗛 Heading 1 — #                                     |
+| `/h2`               | 𝗛 Heading 2 — ##                                    |
+| `/h3`               | 𝗛 Heading 3 — ###                                   |
+| `/image`            | 🖼️ Insert an image                                  |
+| `/inline-math`      | 🧮 Inline math — $ ... $                            |
+| `/link`             | 🔗 Insert link to a page                            |
+| `/lock`             | 🔒 Encrypt a secret box with a password             |
+| `/math`             | 🧮 LaTeX math block — $$ ... $$                     |
+| `/mermaid`          | 🧭 Mermaid diagram block                            |
+| `/move-page`        | 📦 Move current page folder                         |
+| `/new-entry`        | ➕ Add a new database entry                         |
+| `/new-field`        | ➕ Add a new field to the schema                    |
+| `/new-view`         | 👁️ Create a saved view with sort & filter           |
+| `/openlink`         | 📂 Open the nearest page link                       |
+| `/page`             | 📄 Create a child page                              |
+| `/paste-column`     | 📥 Paste column from clipboard                      |
+| `/processor`        | 🔧 Insert a processor block (shell command)         |
+| `/quote`            | 💬 Blockquote — >                                   |
+| `/refresh`          | 🔄 Re-run all processor blocks in this file         |
+| `/rename-field`     | ✏️ Rename a schema field across entries             |
+| `/rename-page`      | ✏️ Rename current page folder and update links      |
+| `/render`           | ▶ Re-render graph from DOT source                   |
+| `/renumber`         | 🔢 Renumber the entire ordered list                 |
+| `/resource`         | 📎 Attach a file from disk into .rsrc               |
+| `/rows-above`       | ⬆️ Add rows above                                   |
+| `/rows-below`       | ⬇️ Add rows below                                   |
+| `/secretbox`        | 🔐 Secret box — lockable <details> block            |
+| `/section`          | 📑 Divider + section heading scaffold               |
+| `/sort`             | 🔤 Sort table by column                             |
+| `/sync-field-order` | 🔁 Sync entry field order to schema                 |
+| `/table`            | 📊 Insert a table                                   |
+| `/table-to-db`      | 📊 Create a new DB from markdown table under cursor |
+| `/th1`              | ▶ Toggle heading 1 (collapsible)                    |
+| `/th2`              | ▶ Toggle heading 2 (collapsible)                    |
+| `/th3`              | ▶ Toggle heading 3 (collapsible)                    |
+| `/to-bullets`       | • Convert numbered list to bullet list              |
+| `/to-numbered`      | 🔢 Convert bullet list to numbered list             |
+| `/toc`              | 📑 Table of contents from headings                  |
+| `/today`            | 📅 Insert today's date                              |
+| `/todo`             | ☑️ To-do checkbox — - [ ]                           |
+| `/toggle`           | ▶ Collapsible toggle block                          |
+| `/transpose`        | 🔄 Transpose table rows/cols                        |
+| `/turninto`         | 🔄 Turn heading/link into something else            |
+| `/unlock`           | 🔓 Decrypt a locked secret box                      |
+| `/update-processor` | ✏️ Change a processor's shell command               |
+| `/view-database`    | 📊 Open database webview                            |
+
+<!-- END AUTO-SLASH-TABLE -->
 
 A few of these (`/database`, `/view-database`, `/move-page`) work only in
 the right context — e.g. inside a database index, or on an `index.md`
@@ -38,7 +105,7 @@ you are.
 
 A database is a folder with:
 
-- `index.md` carrying a ```` ```lotion-db ```` schema fence (columns +
+- `index.md` carrying a ` ```lotion-db ` schema fence (columns +
   saved views),
 - one `<slug>/index.md` per entry, with properties in a markdown
   property table.
@@ -53,7 +120,7 @@ link it back into the index automatically.
 
 - **Wiki links** — type `[[` for a workspace-wide page picker; accept
   to insert a regular markdown link.
-- **Backlinks** — the *Backlinks* sidebar lists every page that links
+- **Backlinks** — the _Backlinks_ sidebar lists every page that links
   to the current one, refreshed live.
 - **Link validator** — broken links are flagged as diagnostics.
 - **Link conversion** — `lotion.linksToReference` and
@@ -136,7 +203,7 @@ unclosed code fences.
 ## Other
 
 - **Bookmarks** — `Lotion: Bookmark Page` adds the active page to the
-  *Bookmarks* sidebar.
+  _Bookmarks_ sidebar.
 - **Page icons** — `lotion.setPageIcon` stores an emoji in frontmatter
   (shown in the breadcrumb and outline).
 - **Quick switcher** — `Alt+P` for fuzzy page open.
@@ -150,79 +217,79 @@ unclosed code fences.
 
 ## Keyboard shortcuts
 
-| Shortcut | Mac | Action |
-| --- | --- | --- |
-| `Ctrl+V` | `Cmd+V` | Smart paste |
-| `Ctrl+B` | `Cmd+B` | Toggle **bold** (on selection) |
-| `Ctrl+I` | `Cmd+I` | Toggle *italic* (on selection) |
-| `Alt+S` | `Alt+S` | Toggle ~~strikethrough~~ |
-| `` Alt+` `` | `` Alt+` `` | Toggle `inline code` |
-| `Alt+H` | `Alt+H` | Toggle ==highlight== |
-| `Alt+Shift+Left` | `Alt+Shift+Left` | Promote heading (`##` → `#`) |
-| `Alt+Shift+Right` | `Alt+Shift+Right` | Demote heading |
-| `Enter` | `Enter` | Continue list / blockquote / checkbox |
-| `Tab` | `Tab` | Indent list item |
-| `Shift+Tab` | `Shift+Tab` | Outdent list item |
-| `Alt+D` | `Alt+D` | Toggle checkbox `[ ]` ↔ `[x]` |
-| `Alt+J` | `Alt+J` | Jump to next heading |
-| `Alt+K` | `Alt+K` | Jump to previous heading |
-| `Ctrl+Shift+H` | `Cmd+Shift+H` | Jump to heading (picker) |
-| `Alt+P` | `Alt+P` | Quick-switch page |
-| `Alt+R` | `Alt+R` | Recent pages |
-| `Alt+L` | `Alt+L` | Search workspace links |
-| `Ctrl+Alt+C` | `Ctrl+Alt+C` | Search workspace commands |
-| `Ctrl+Shift+B` | `Cmd+Shift+B` | Select current block |
-| `Ctrl+Shift+D` | `Cmd+Shift+D` | Duplicate block |
-| `Alt+Shift+Up` | `Alt+Shift+Up` | Swap block up |
-| `Alt+Shift+Down` | `Alt+Shift+Down` | Swap block down |
-| `Alt+Left/Right` | `Alt+Left/Right` | Move cell ←/→ inside a table |
-| `Alt+Up/Down` | `Alt+Up/Down` | Move row ↑/↓ inside a table |
-| `Alt+Home/End` | `Alt+Home/End` | Jump to start/end of table row |
-| `Alt+PgUp/PgDn` | `Alt+PgUp/PgDn` | Jump to start/end of table column |
-| `Ctrl+Alt+F` | `Ctrl+Alt+F` | Fire clipboard into another page |
+| Shortcut          | Mac               | Action                                |
+| ----------------- | ----------------- | ------------------------------------- |
+| `Ctrl+V`          | `Cmd+V`           | Smart paste                           |
+| `Ctrl+B`          | `Cmd+B`           | Toggle **bold** (on selection)        |
+| `Ctrl+I`          | `Cmd+I`           | Toggle _italic_ (on selection)        |
+| `Alt+S`           | `Alt+S`           | Toggle ~~strikethrough~~              |
+| `` Alt+` ``       | `` Alt+` ``       | Toggle `inline code`                  |
+| `Alt+H`           | `Alt+H`           | Toggle ==highlight==                  |
+| `Alt+Shift+Left`  | `Alt+Shift+Left`  | Promote heading (`##` → `#`)          |
+| `Alt+Shift+Right` | `Alt+Shift+Right` | Demote heading                        |
+| `Enter`           | `Enter`           | Continue list / blockquote / checkbox |
+| `Tab`             | `Tab`             | Indent list item                      |
+| `Shift+Tab`       | `Shift+Tab`       | Outdent list item                     |
+| `Alt+D`           | `Alt+D`           | Toggle checkbox `[ ]` ↔ `[x]`         |
+| `Alt+J`           | `Alt+J`           | Jump to next heading                  |
+| `Alt+K`           | `Alt+K`           | Jump to previous heading              |
+| `Ctrl+Shift+H`    | `Cmd+Shift+H`     | Jump to heading (picker)              |
+| `Alt+P`           | `Alt+P`           | Quick-switch page                     |
+| `Alt+R`           | `Alt+R`           | Recent pages                          |
+| `Alt+L`           | `Alt+L`           | Search workspace links                |
+| `Ctrl+Alt+C`      | `Ctrl+Alt+C`      | Search workspace commands             |
+| `Ctrl+Shift+B`    | `Cmd+Shift+B`     | Select current block                  |
+| `Ctrl+Shift+D`    | `Cmd+Shift+D`     | Duplicate block                       |
+| `Alt+Shift+Up`    | `Alt+Shift+Up`    | Swap block up                         |
+| `Alt+Shift+Down`  | `Alt+Shift+Down`  | Swap block down                       |
+| `Alt+Left/Right`  | `Alt+Left/Right`  | Move cell ←/→ inside a table          |
+| `Alt+Up/Down`     | `Alt+Up/Down`     | Move row ↑/↓ inside a table           |
+| `Alt+Home/End`    | `Alt+Home/End`    | Jump to start/end of table row        |
+| `Alt+PgUp/PgDn`   | `Alt+PgUp/PgDn`   | Jump to start/end of table column     |
+| `Ctrl+Alt+F`      | `Ctrl+Alt+F`      | Fire clipboard into another page      |
 
 ---
 
 ## Sidebar views
 
-| View | Description |
-| --- | --- |
-| **Document Outline** | Heading tree for the current file |
-| **Backlinks** | Pages that link to the current one |
-| **Bookmarks** | Bookmarked pages |
+| View                 | Description                        |
+| -------------------- | ---------------------------------- |
+| **Document Outline** | Heading tree for the current file  |
+| **Backlinks**        | Pages that link to the current one |
+| **Bookmarks**        | Bookmarked pages                   |
 
 ## Status bar
 
-| Indicator | Description |
-| --- | --- |
-| Word count | Live document/selection word count + reading time |
-| Reading progress | Scroll progress percentage |
-| Line lock | Click-toggle to keep the cursor at a fixed screen line |
+| Indicator        | Description                                            |
+| ---------------- | ------------------------------------------------------ |
+| Word count       | Live document/selection word count + reading time      |
+| Reading progress | Scroll progress percentage                             |
+| Line lock        | Click-toggle to keep the cursor at a fixed screen line |
 
 ---
 
 ## Settings
 
-| Setting | Default | Description |
-| --- | --- | --- |
-| `lotion.dailyNotePath` | `"journal"` | Folder for daily notes (relative to workspace root) |
-| `lotion.imageDir` | `".rsrc"` | Folder for images alongside each page |
-| `lotion.readingSpeed` | `230` | Words per minute for reading-time estimate |
-| `lotion.dateFormat` | `"YYYY-MM-DD"` | Default format for daily notes and date insertion |
-| `lotion.smartTypography` | `false` | Auto-replace straight quotes/dashes/ellipses |
-| `lotion.ligatureStyle` | `"unicode"` | Replace `->`, `<-`, `<->` with unicode/emoji arrows |
-| `lotion.autoRenumberLists` | `true` | Renumber ordered lists on save |
-| `lotion.trailingNewline` | `true` | Ensure one trailing newline on save |
-| `lotion.autoInlineCodeCases` | `{}` | Auto-wrap PascalCase / camelCase / snake_case in backticks |
-| `lotion.linkFactoryRules` | `[]` | Regex → URL rules for auto-linking typed patterns |
-| `lotion.smartPasteLinkLabelMaxLength` | `30` | Truncate auto-link labels longer than this |
-| `lotion.smartPaste.debug` | `false` | Log smart-paste decisions to the dev console |
-| `lotion.gifProvider` | `""` | `giphy` or `klipy` |
-| `lotion.giphyApiKey` | `""` | Giphy API key for `/gif` search |
-| `lotion.klipyApiKey` | `""` | Klipy API key for `/gif` search |
-| `lotion.git.neverPush` | `false` | Skip push after `/commit` |
-| `lotion.git.remoteUrl` | `""` | Git remote URL to add when none configured |
-| `lotion.commentUsername` | `""` | Your name on comments (set on first use) |
+| Setting                               | Default        | Description                                                |
+| ------------------------------------- | -------------- | ---------------------------------------------------------- |
+| `lotion.dailyNotePath`                | `"journal"`    | Folder for daily notes (relative to workspace root)        |
+| `lotion.imageDir`                     | `".rsrc"`      | Folder for images alongside each page                      |
+| `lotion.readingSpeed`                 | `230`          | Words per minute for reading-time estimate                 |
+| `lotion.dateFormat`                   | `"YYYY-MM-DD"` | Default format for daily notes and date insertion          |
+| `lotion.smartTypography`              | `false`        | Auto-replace straight quotes/dashes/ellipses               |
+| `lotion.ligatureStyle`                | `"unicode"`    | Replace `->`, `<-`, `<->` with unicode/emoji arrows        |
+| `lotion.autoRenumberLists`            | `true`         | Renumber ordered lists on save                             |
+| `lotion.trailingNewline`              | `true`         | Ensure one trailing newline on save                        |
+| `lotion.autoInlineCodeCases`          | `{}`           | Auto-wrap PascalCase / camelCase / snake_case in backticks |
+| `lotion.linkFactoryRules`             | `[]`           | Regex → URL rules for auto-linking typed patterns          |
+| `lotion.smartPasteLinkLabelMaxLength` | `30`           | Truncate auto-link labels longer than this                 |
+| `lotion.smartPaste.debug`             | `false`        | Log smart-paste decisions to the dev console               |
+| `lotion.gifProvider`                  | `""`           | `giphy` or `klipy`                                         |
+| `lotion.giphyApiKey`                  | `""`           | Giphy API key for `/gif` search                            |
+| `lotion.klipyApiKey`                  | `""`           | Klipy API key for `/gif` search                            |
+| `lotion.git.neverPush`                | `false`        | Skip push after `/commit`                                  |
+| `lotion.git.remoteUrl`                | `""`           | Git remote URL to add when none configured                 |
+| `lotion.commentUsername`              | `""`           | Your name on comments (set on first use)                   |
 
 ---
 
