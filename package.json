@@ -984,7 +984,7 @@
     "watch:webview": "node esbuild.webview.mjs --watch",
     "test": "jest --verbose",
     "pretest:int": "node -e \"require('fs').rmSync('out/test',{recursive:true,force:true})\" && npm run compile",
-    "test:int": "vscode-test",
+    "test:int": "sh -c 'if command -v xvfb-run >/dev/null 2>&1; then xvfb-run -a vscode-test \"$@\"; else vscode-test \"$@\"; fi' --",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },
