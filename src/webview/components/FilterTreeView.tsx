@@ -1,5 +1,6 @@
 import React from "react";
 import { DbFilterClause, DbFilterGroup, DbViewFilter, isFilterLeaf } from "../types";
+import { Draggable } from "./Draggable";
 
 // ── Recursive filter tree rendering ─────────────────────────────────
 
@@ -29,19 +30,31 @@ export function FilterTreeView({
   onDragStart,
 }: FilterTreeViewProps): React.JSX.Element | null {
   const isRoot = path.length === 0;
+  // Hooks must run unconditionally even though they're only consumed
+  // by the group branch — chips ignore them.
   const [dragOver, setDragOver] = React.useState(false);
   const dragCounter = React.useRef(0);
 
+  if (isFilterLeaf(node)) {
+    // A chip is a drag *source* only — never a drop target, and never
+    // styled with the group's dashed border / padding.
+    return (
+      <Draggable enabled={!isRoot} onDragStart={(e) => onDragStart(e, path)}>
+        <span className="filter-chip">
+          <FilterChipText leaf={node} titleFieldLabel={titleFieldLabel} />
+          <span className="remove" onClick={() => onRemove(path)}>
+            ×
+          </span>
+        </span>
+      </Draggable>
+    );
+  }
+
   return (
-    <div
+    <Draggable
+      enabled={!isRoot}
+      onDragStart={(e) => onDragStart(e, path)}
       className={`filter-group${isRoot ? " filter-root-group" : ""}${!isRoot ? " filter-group-draggable" : ""}${dragOver ? " filter-group-dragover" : ""}`}
-      draggable={!isRoot}
-      onDragStart={(e) => {
-        if (!isRoot) {
-          e.stopPropagation();
-          onDragStart(e, path);
-        }
-      }}
       onDragOver={(e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -65,31 +78,20 @@ export function FilterTreeView({
         onDropToGroup(e, path);
       }}
     >
-      {isFilterLeaf(node) ? (
-        <div>
-          <span className="filter-chip" draggable onDragStart={(e) => onDragStart(e, path)}>
-            <FilterChipText leaf={node} titleFieldLabel={titleFieldLabel} />
-            <span className="remove" onClick={() => onRemove(path)}>
-              ×
-            </span>
-          </span>
-        </div>
-      ) : (
-        <FilterGroupBody
-          group={node}
-          path={path}
-          isRoot={isRoot}
-          titleFieldLabel={titleFieldLabel}
-          onRemove={onRemove}
-          onToggleLogic={onToggleLogic}
-          onToggleNot={onToggleNot}
-          onAddCondition={onAddCondition}
-          onAddGroup={onAddGroup}
-          onDropToGroup={onDropToGroup}
-          onDragStart={onDragStart}
-        />
-      )}
-    </div>
+      <FilterGroupBody
+        group={node}
+        path={path}
+        isRoot={isRoot}
+        titleFieldLabel={titleFieldLabel}
+        onRemove={onRemove}
+        onToggleLogic={onToggleLogic}
+        onToggleNot={onToggleNot}
+        onAddCondition={onAddCondition}
+        onAddGroup={onAddGroup}
+        onDropToGroup={onDropToGroup}
+        onDragStart={onDragStart}
+      />
+    </Draggable>
   );
 }
 
