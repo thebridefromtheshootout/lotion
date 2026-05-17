@@ -24,7 +24,6 @@ for the canonical list.
 | ------------------- | --------------------------------------------------- |
 | `/align`            | ↔️ Re-align table columns                           |
 | `/callout`          | 📢 Callout block (NOTE, TIP, WARNING...)            |
-| `/carousel`         | 🎠 Insert an image carousel from .rsrc              |
 | `/clean-list`       | 🧹 Remove empty lines/items in current list         |
 | `/code`             | 🔣 Fenced code block                                |
 | `/cols-left`        | ⬅️ Add columns to the left                          |
@@ -42,7 +41,6 @@ for the canonical list.
 | `/delete-row`       | 🗑️ Delete current row                               |
 | `/divider`          | ➖ Horizontal divider — ---                         |
 | `/emoji`            | 😀 Insert an emoji                                  |
-| `/export`           | 📄 Export page to PDF / HTML                        |
 | `/footnote`         | 📝 Insert a numbered footnote                       |
 | `/frontmatter`      | 📋 YAML front matter block                          |
 | `/gif`              | 🎬 Search for a GIF                                 |

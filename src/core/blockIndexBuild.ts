@@ -208,13 +208,8 @@ function scanDetails(lines: string[], startLine: number, lineCount: number): Det
     kind = "secretbox";
   } else {
     for (let j = bodyStartLine; j <= bodyEndLine && j < lineCount; j++) {
-      const t = lines[j];
-      if (Regex.dotFenceOpenLine.test(t)) {
+      if (Regex.dotFenceOpenLine.test(lines[j])) {
         kind = "graph";
-        break;
-      }
-      if (/lotion-carousel/i.test(t)) {
-        kind = "carousel";
         break;
       }
     }

@@ -90,8 +90,8 @@ Do not attempt items marked [Complex].
    - Cache ~/.vscode-test/ between runs so the Code binary download is paid
      once. ~30 lines of YAML.
 
-7. Decide pdfExport + carousel: wire or delete (same dead-end class as the
-   dictate prune in 517139b).
+7. ✅ Decide pdfExport + carousel: wire or delete (same dead-end class as the
+   dictate prune in 517139b). → deleted.
    - src/media/pdfExport.ts + pdfExportTemplate.ts + pdfExportMarkdownToHtml.ts
      all build and are imported by media/index.ts but the slash command is
      commented out. EXPORT_SLASH_COMMAND is exported but never added to

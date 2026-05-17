@@ -11,7 +11,7 @@ export interface CodeFence {
   lang?: string;
 }
 
-export type DetailsKind = "secretbox" | "graph" | "carousel" | "plain";
+export type DetailsKind = "secretbox" | "graph" | "plain";
 
 export interface DetailsBlock {
   startLine: number;

@@ -1,7 +1,5 @@
 // ── Media module barrel ─────────────────────────────────────────────
-export {
-  generateGraphLenses,
- } from "./graph";
+export { generateGraphLenses } from "./graph";
 export { createImageDropProvider } from "./imageDrop";
 export { createImagePasteProvider, isImagePasteProviderActive } from "./imagePaste";
 export { createImageHoverProvider } from "./imageHover";
@@ -12,8 +10,6 @@ import { IMAGE_SLASH_COMMAND } from "./image";
 import { RESOURCE_SLASH_COMMAND } from "./resource";
 import { GIF_SLASH_COMMAND } from "./gif";
 import { GRAPH_SLASH_COMMAND, RENDER_GRAPH_SLASH_COMMAND } from "./graph";
-// import { EXPORT_SLASH_COMMAND } from "./pdfExport"; // disabled
-// import { CAROUSEL_SLASH_COMMAND } from "./carousel";  // disabled
 
 export const MEDIA_SLASH_COMMANDS: SlashCommand[] = [
   IMAGE_SLASH_COMMAND,
@@ -21,5 +17,4 @@ export const MEDIA_SLASH_COMMANDS: SlashCommand[] = [
   GIF_SLASH_COMMAND,
   GRAPH_SLASH_COMMAND,
   RENDER_GRAPH_SLASH_COMMAND,
-  // EXPORT_SLASH_COMMAND, // disabled
 ];
