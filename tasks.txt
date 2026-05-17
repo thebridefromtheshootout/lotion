@@ -125,7 +125,7 @@ Do not attempt items marked [Complex].
       "onView:lotion.outline", "onView:lotion.bookmarks". Keep
       "onLanguage:markdown" since the extension is activation-gated to that.
 
-11. Add a pre-commit format hook (husky or simple-git-hooks).
+11. ✅ Add a pre-commit format hook (husky or simple-git-hooks).
     - Run `prettier --check` on staged .ts/.tsx/.css/.md files. Currently
       formatting drift is only caught when someone manually runs
       `npm run format:check`.
