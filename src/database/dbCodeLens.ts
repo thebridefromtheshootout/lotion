@@ -34,6 +34,15 @@ function getParentDbIndex(filePath: string): string | undefined {
   return undefined;
 }
 
+/** The DB's slug is the folder name that contains its index.md. */
+function dbSlug(dbIndexPath: string): string {
+  return path.basename(path.dirname(dbIndexPath));
+}
+
+function viewDbLabel(dbIndexPath: string): string {
+  return `📊 View database (${dbSlug(dbIndexPath)})`;
+}
+
 export function generateDbLenses(document: TextDocument): CodeLens[] {
   const filePath = document.uri.fsPath;
   const cwd = path.dirname(filePath);
@@ -42,7 +51,7 @@ export function generateDbLenses(document: TextDocument): CodeLens[] {
   // If this file itself is a database, show a "View database" lens at the top
   if (isDbFile(filePath)) {
     lenses.push(
-      codeLens(0, "📊 View database", Cmd.openDbWebview, [filePath], {
+      codeLens(0, viewDbLabel(filePath), Cmd.openDbWebview, [filePath], {
         endChar: document.lineAt(0).text.length,
       }),
     );
@@ -52,7 +61,7 @@ export function generateDbLenses(document: TextDocument): CodeLens[] {
   const parentDb = getParentDbIndex(filePath);
   if (parentDb) {
     lenses.push(
-      codeLens(0, "📊 View database", Cmd.openDbWebview, [parentDb], {
+      codeLens(0, viewDbLabel(parentDb), Cmd.openDbWebview, [parentDb], {
         endChar: document.lineAt(0).text.length,
       }),
     );
@@ -71,7 +80,7 @@ export function generateDbLenses(document: TextDocument): CodeLens[] {
 
     if (isDbFile(absPath)) {
       lenses.push(
-        codeLens(i, "📊 View database", Cmd.openDbWebview, [absPath], {
+        codeLens(i, viewDbLabel(absPath), Cmd.openDbWebview, [absPath], {
           endChar: line.text.length,
         }),
       );
