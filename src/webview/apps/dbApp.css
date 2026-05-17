@@ -2,36 +2,45 @@
   --bg: var(--vscode-editor-background);
   --fg: var(--vscode-editor-foreground);
   --muted: var(--vscode-descriptionForeground);
-  --border: color-mix(in srgb, var(--vscode-widget-border, #2c2c2c) 60%, transparent);
+  --border: color-mix(in srgb, var(--vscode-widget-border, currentColor) 25%, transparent);
   --hover: color-mix(in srgb, var(--vscode-list-hoverBackground) 80%, transparent);
-  --surface: color-mix(in srgb, var(--bg) 85%, #1a1a1a 15%);
-  --surface-2: color-mix(in srgb, var(--bg) 70%, #111 30%);
+  --surface: color-mix(in srgb, var(--bg) 92%, var(--fg) 8%);
+  --surface-2: color-mix(in srgb, var(--bg) 84%, var(--fg) 16%);
   --accent: var(--vscode-textLink-foreground);
   --accent-soft: color-mix(in srgb, var(--accent) 20%, transparent);
   --badge-bg: var(--vscode-badge-background);
   --badge-fg: var(--vscode-badge-foreground);
   --input-bg: var(--vscode-input-background);
-  --input-border: var(--vscode-input-border, #3a3a3a);
-  --shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+  --input-border: var(--vscode-input-border, color-mix(in srgb, var(--fg) 20%, transparent));
+  --shadow: 0 8px 24px color-mix(in srgb, var(--vscode-widget-shadow, #000) 35%, transparent);
+  --shadow-sm: 0 2px 6px color-mix(in srgb, var(--vscode-widget-shadow, #000) 22%, transparent);
+  --focus-ring: var(--vscode-focusBorder, var(--accent));
+  --motion-fast: 120ms cubic-bezier(0.2, 0, 0.2, 1);
+  --motion-base: 180ms cubic-bezier(0.2, 0, 0.2, 1);
   --radius: 10px;
+  --radius-sm: 6px;
 }
 
 body {
-  font-family: "Space Grotesk", "Segoe UI", sans-serif;
+  font-family: var(--vscode-font-family, "Segoe UI", system-ui, sans-serif);
   font-size: 13px;
+  line-height: 1.45;
   color: var(--fg);
   background:
-    radial-gradient(circle at 20% 20%, color-mix(in srgb, var(--accent) 12%, transparent) 0, transparent 35%),
-    radial-gradient(circle at 80% 0%, color-mix(in srgb, var(--accent) 10%, transparent) 0, transparent 30%), var(--bg);
+    radial-gradient(ellipse 60% 40% at 18% 0%, color-mix(in srgb, var(--accent) 7%, transparent) 0%, transparent 65%),
+    radial-gradient(ellipse 50% 30% at 95% 8%, color-mix(in srgb, var(--accent) 5%, transparent) 0%, transparent 60%),
+    var(--bg);
   padding: 24px;
   margin: 0;
+  -webkit-font-smoothing: antialiased;
 }
 
 h2 {
   margin: 0 0 18px 0;
-  font-weight: 700;
-  font-size: 22px;
-  letter-spacing: 0.2px;
+  font-weight: 650;
+  font-size: 20px;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
 }
 
 /* ── Toolbar ─────────────────────────────── */
@@ -74,6 +83,12 @@ h2 {
 .filter-bar button:active {
   background: var(--accent-soft);
 }
+.toolbar button:focus-visible,
+.filter-bar button:focus-visible {
+  outline: 1px solid var(--focus-ring);
+  outline-offset: 1px;
+  border-color: var(--focus-ring);
+}
 .toolbar select {
   height: 32px;
   border-radius: 8px;
@@ -82,7 +97,17 @@ h2 {
   color: var(--fg);
   padding: 0 10px;
   font-size: 12px;
+  font-family: inherit;
   cursor: pointer;
+  transition: border-color var(--motion-fast);
+}
+.toolbar select:hover {
+  border-color: color-mix(in srgb, var(--accent) 50%, var(--border));
+}
+.toolbar select:focus-visible {
+  outline: 1px solid var(--focus-ring);
+  outline-offset: 1px;
+  border-color: var(--focus-ring);
 }
 
 /* ── Filter bar ──────────────────────────── */
@@ -125,10 +150,24 @@ h2 {
   font-size: 12px;
   height: 32px;
   box-sizing: border-box;
-  font-family: "Space Grotesk", "Segoe UI", sans-serif;
+  font-family: inherit;
+  transition: border-color var(--motion-fast), box-shadow var(--motion-fast);
+}
+.filter-bar select:hover,
+.filter-bar input:hover {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--input-border));
+}
+.filter-bar select:focus-visible,
+.filter-bar input:focus-visible {
+  outline: none;
+  border-color: var(--focus-ring);
+  box-shadow: 0 0 0 1px var(--focus-ring);
 }
 .filter-bar input {
   width: 180px;
+}
+.filter-bar input::placeholder {
+  color: color-mix(in srgb, var(--muted) 80%, transparent);
 }
 
 /* Type-aware filter value cells */
@@ -212,22 +251,44 @@ h2 {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: color-mix(in srgb, var(--accent) 18%, var(--surface));
+  background: color-mix(in srgb, var(--accent) 16%, var(--surface));
   color: var(--fg);
   padding: 4px 10px;
   border-radius: 999px;
   font-size: 11px;
-  border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
-  box-shadow: 0 4px 10px color-mix(in srgb, var(--accent) 14%, transparent);
+  font-weight: 500;
+  border: 1px solid color-mix(in srgb, var(--accent) 32%, transparent);
+  box-shadow: 0 2px 6px color-mix(in srgb, var(--accent) 14%, transparent);
   cursor: grab;
+  transition:
+    transform var(--motion-fast),
+    box-shadow var(--motion-fast),
+    border-color var(--motion-fast);
+}
+.filter-chip:hover {
+  transform: translateY(-1px);
+  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+  box-shadow: 0 6px 14px color-mix(in srgb, var(--accent) 22%, transparent);
+}
+.filter-chip:active {
+  cursor: grabbing;
+  transform: translateY(0);
 }
 .filter-chip .remove {
   cursor: pointer;
   font-weight: bold;
-  opacity: 0.7;
+  opacity: 0.6;
+  width: 14px;
+  height: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: opacity var(--motion-fast), background var(--motion-fast);
 }
 .filter-chip .remove:hover {
   opacity: 1;
+  background: color-mix(in srgb, var(--accent) 25%, transparent);
 }
 
 /* ── Filter tree collapsible ─────────────── */
@@ -369,6 +430,11 @@ h2 {
 .icon-btn:hover {
   background: var(--hover);
   border-color: var(--accent);
+}
+.icon-btn:focus-visible {
+  outline: 1px solid var(--focus-ring);
+  outline-offset: 1px;
+  border-color: var(--focus-ring);
 }
 .filter-children {
   display: flex;
@@ -535,46 +601,64 @@ th .col-copy-btn:focus-visible {
 th .col-copy-btn:hover {
   opacity: 1;
 }
+tbody tr {
+  transition: background var(--motion-fast);
+}
 tbody tr:nth-child(2n) td {
   background: color-mix(in srgb, var(--surface) 85%, transparent);
 }
 tr:hover td {
-  background: var(--hover);
+  background: color-mix(in srgb, var(--accent) 5%, var(--surface));
 }
 .title-cell a {
   color: var(--accent);
   text-decoration: none;
-  font-weight: 650;
+  font-weight: 600;
+  transition: text-decoration-color var(--motion-fast);
 }
 .title-cell a:hover {
   text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 3px;
+}
+.title-cell a:focus-visible {
+  outline: 1px solid var(--focus-ring);
+  outline-offset: 2px;
+  border-radius: 2px;
 }
 .badge {
   display: inline-block;
   padding: 2px 9px;
   border-radius: 999px;
   font-size: 11px;
-  background: color-mix(in srgb, var(--accent) 20%, var(--input-bg));
+  font-weight: 500;
+  background: color-mix(in srgb, var(--accent) 14%, var(--input-bg));
   color: var(--fg);
-  border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 28%, transparent);
 }
 .log-btn {
   background: var(--surface-2);
   border: 1px solid var(--border);
   color: var(--fg);
   padding: 4px 10px;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   font-size: 11px;
+  font-weight: 500;
   cursor: pointer;
   white-space: nowrap;
   transition:
-    background 0.12s ease,
-    border-color 0.12s ease;
+    background var(--motion-fast),
+    border-color var(--motion-fast),
+    color var(--motion-fast);
 }
 .log-btn:hover {
   background: var(--accent);
-  color: #0d0d0d;
+  color: var(--vscode-editor-background, #0d0d0d);
   border-color: var(--accent);
+}
+.log-btn:focus-visible {
+  outline: 1px solid var(--focus-ring);
+  outline-offset: 1px;
 }
 .check {
   font-size: 15px;
@@ -607,12 +691,23 @@ tr:hover td {
   padding: 2px 0;
 }
 .empty-state {
-  padding: 36px;
+  padding: 48px 24px;
   text-align: center;
   color: var(--muted);
   background: var(--surface);
   border: 1px dashed var(--border);
   border-radius: var(--radius);
+  font-size: 13px;
+  line-height: 1.6;
+}
+.empty-state::before {
+  content: "∅";
+  display: block;
+  font-size: 32px;
+  font-weight: 200;
+  opacity: 0.35;
+  margin-bottom: 10px;
+  letter-spacing: 0;
 }
 
 /* ── Layout toggle ───────────────────────── */
@@ -705,13 +800,19 @@ tr:hover td {
   padding: 12px 14px;
   cursor: pointer;
   transition:
-    box-shadow 0.15s,
-    transform 0.12s;
-  box-shadow: 0 10px 18px rgba(0, 0, 0, 0.22);
+    box-shadow var(--motion-base),
+    transform var(--motion-base),
+    border-color var(--motion-base);
+  box-shadow: var(--shadow-sm);
 }
 .kanban-card:hover {
-  box-shadow: 0 14px 26px rgba(0, 0, 0, 0.28);
+  box-shadow: var(--shadow);
   transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--accent) 40%, var(--border));
+}
+.kanban-card:focus-visible {
+  outline: 1px solid var(--focus-ring);
+  outline-offset: 2px;
 }
 .kanban-card.dragging {
   opacity: 0.55;
@@ -989,4 +1090,57 @@ tr:hover td {
   padding: 2rem;
   text-align: center;
   color: var(--muted);
+}
+
+/* ── Scrollbars ──────────────────────────── */
+.table-wrap::-webkit-scrollbar,
+.kanban-board::-webkit-scrollbar,
+.kanban-lane::-webkit-scrollbar,
+.ms-edit::-webkit-scrollbar,
+.filter-bar .filter-multi-select::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+.table-wrap::-webkit-scrollbar-thumb,
+.kanban-board::-webkit-scrollbar-thumb,
+.kanban-lane::-webkit-scrollbar-thumb,
+.ms-edit::-webkit-scrollbar-thumb,
+.filter-bar .filter-multi-select::-webkit-scrollbar-thumb {
+  background: var(--vscode-scrollbarSlider-background, color-mix(in srgb, var(--fg) 18%, transparent));
+  border-radius: 6px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+.table-wrap::-webkit-scrollbar-thumb:hover,
+.kanban-board::-webkit-scrollbar-thumb:hover,
+.kanban-lane::-webkit-scrollbar-thumb:hover,
+.ms-edit::-webkit-scrollbar-thumb:hover,
+.filter-bar .filter-multi-select::-webkit-scrollbar-thumb:hover {
+  background: var(--vscode-scrollbarSlider-hoverBackground, color-mix(in srgb, var(--fg) 32%, transparent));
+  background-clip: padding-box;
+}
+.table-wrap::-webkit-scrollbar-track,
+.kanban-board::-webkit-scrollbar-track,
+.kanban-lane::-webkit-scrollbar-track,
+.ms-edit::-webkit-scrollbar-track,
+.filter-bar .filter-multi-select::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* ── Reduced motion ──────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .kanban-card:hover,
+  .filter-chip:hover {
+    transform: none;
+  }
+  .filter-chip.staged {
+    animation: none;
+  }
 }

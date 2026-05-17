@@ -138,3 +138,4 @@ Do not attempt items marked [Complex].
       depends on, or stay in-tree behind a clearer module boundary.
     - Scope decision: only worth doing if you want to ship it independently
       or onboard a contributor onto just that subsystem.
+13. webviews are a mix of ascii, unicode, emojis. We need a consistent icon system.
