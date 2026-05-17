@@ -43,4 +43,36 @@ describe("formatting feature", () => {
     await run("lotion.promoteHeading");
     assert.strictEqual(getText(editor), "## Sub\n# Top");
   });
+
+  it("toggleStrikethrough wraps the selection with ~~", async () => {
+    const editor = await openMarkdown("scratch this idea");
+    setSelection(editor, 0, 0, 0, 7);
+    await run("lotion.toggleStrikethrough");
+    assert.strictEqual(getText(editor), "~~scratch~~ this idea");
+  });
+
+  it("toggleHighlight wraps the selection with ==", async () => {
+    const editor = await openMarkdown("note me later");
+    setSelection(editor, 0, 5, 0, 7);
+    await run("lotion.toggleHighlight");
+    assert.strictEqual(getText(editor), "note ==me== later");
+  });
+
+  it("toggleBold is a round-trip — wrap then unwrap restores the selection", async () => {
+    const editor = await openMarkdown("hello");
+    setSelection(editor, 0, 0, 0, 5);
+    await run("lotion.toggleBold");
+    assert.strictEqual(getText(editor), "**hello**");
+    // Selection now spans the wrapped text including markers.
+    setSelection(editor, 0, 0, 0, 9);
+    await run("lotion.toggleBold");
+    assert.strictEqual(getText(editor), "hello");
+  });
+
+  it("toggleBold on an empty selection is a no-op", async () => {
+    const editor = await openMarkdown("hello");
+    setCursor(editor, 0, 5);
+    await run("lotion.toggleBold");
+    assert.strictEqual(getText(editor), "hello");
+  });
 });
