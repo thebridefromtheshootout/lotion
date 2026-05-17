@@ -83,9 +83,9 @@ Do not attempt items marked [Complex].
    because drop and paste are separate trigger paths.
    5. I have a feeling the codebase has a lot of silent failures. do an inspection of all silent failures and type|undefined signatures. we can probably tighten those up.
 
-6. CI workflow on GitHub Actions:
-   - npm ci, npm run compile, npm test (Jest), npm run test:int (vscode-test
-     under xvfb-run for Linux), prettier --check.
+6. ⏸ CI workflow on GitHub Actions: deferred — owner doesn't use GH Actions.
+   - If revisited: npm ci, npm run compile, npm test (Jest), npm run test:int
+     (vscode-test under xvfb-run for Linux), prettier --check.
    - Run on push + PR for master.
    - Cache ~/.vscode-test/ between runs so the Code binary download is paid
      once. ~30 lines of YAML.
