@@ -97,7 +97,10 @@ const NUMERIC_OPS: DbFilterOperator[] = [
 
 const DATE_OPS: DbFilterOperator[] = ["==", "!=", ">", ">=", "<", "<=", "between", "isempty", "isnotempty"];
 
-const CHECKBOX_OPS: DbFilterOperator[] = ["==", "!="];
+// Checkbox columns only expose "==" — "is true" and "is false" are
+// expressed by toggling the value, not by flipping operators. Dropping
+// "!=" removes a redundant cognitive choice (`!= true` ≡ `== false`).
+const CHECKBOX_OPS: DbFilterOperator[] = ["=="];
 
 const SELECT_OPS: DbFilterOperator[] = ["==", "!=", "in", "!in", "isempty", "isnotempty"];
 

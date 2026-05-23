@@ -286,7 +286,8 @@ export function FilterBar({ schema, titleFieldLabel, filterTree, setFilterTree }
           >
             {availableOps.map((op) => (
               <option key={op} value={op}>
-                {OPERATOR_LABELS[op]}
+                {/* Boolean columns read more naturally as "is" than as "equals". */}
+                {currentColumnType === "checkbox" && op === "==" ? "is" : OPERATOR_LABELS[op]}
               </option>
             ))}
           </select>
