@@ -249,7 +249,16 @@ export function FilterBar({ schema, titleFieldLabel, filterTree, setFilterTree }
       <div className="filter-bar">
         <div className="filter-bar-inputs">
           <select ref={colRef} id="filterCol" value={selectedCol} onChange={(e) => handleColumnChange(e.target.value)}>
-            <option value="__title">{titleFieldLabel}</option>
+            <option value="__title">
+              {titleFieldLabel}
+              {/*
+               * __title filters by the page's H1 heading, not by any property
+               * column. If the user-defined schema has a column literally named
+               * the same as titleFieldLabel, the dropdown would have two
+               * indistinguishable options. Suffix " (title)" to disambiguate.
+               */}
+              {schema.some((c) => c.name === titleFieldLabel) ? " (title)" : ""}
+            </option>
             <ColumnNameOptions columns={schema} />
           </select>
           <select
