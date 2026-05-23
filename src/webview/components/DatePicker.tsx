@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { DatePanelToExtensionCommunicator } from "../communicators/DatePanelToExtensionCommunicator";
 import { DAY_NAMES, FORMAT_KEYS, MONTHS, formatDate, pad, tryParseDate } from "../utils/dateUtils";
+import { Icon } from "./Icon";
 
 const communicator = new DatePanelToExtensionCommunicator();
 
@@ -196,7 +197,7 @@ export function DatePicker() {
 
   return (
     <>
-      <h2>📅 Pick a Date</h2>
+      <h2>Pick a Date</h2>
 
       <div className="format-bar">
         <label>Format:</label>
@@ -210,11 +211,15 @@ export function DatePicker() {
       </div>
 
       <div className="nav">
-        <button onClick={prevMonth}>◀</button>
+        <button onClick={prevMonth} aria-label="Previous month" title="Previous month">
+          <Icon name="chevron-left" />
+        </button>
         <span className="month-label">
           {MONTHS[month]} {year}
         </span>
-        <button onClick={nextMonth}>▶</button>
+        <button onClick={nextMonth} aria-label="Next month" title="Next month">
+          <Icon name="chevron-right" />
+        </button>
         <button onClick={goToday}>Today</button>
       </div>
 

@@ -137,13 +137,14 @@ Do not attempt items marked [Complex].
     - Run `prettier --check` on staged .ts/.tsx/.css/.md files. Currently
       formatting drift is only caught when someone manually runs
       `npm run format:check`.
-
-12. [Complex] Extract the DB engine as its own extension (or sub-package).
-    - src/database/ + src/webview/components/database/ + the dbApp +
-      schema/entry types is the largest single feature surface. Five view
-      types, schema editing, filter trees, sort, CSV/MD importers.
-    - Could be a standalone "Lotion Databases" extension that Lotion proper
-      depends on, or stay in-tree behind a clearer module boundary.
-    - Scope decision: only worth doing if you want to ship it independently
-      or onboard a contributor onto just that subsystem.
-13. webviews are a mix of ascii, unicode, emojis. We need a consistent icon system.
+13. ✅ webviews are a mix of ascii, unicode, emojis. We need a consistent icon system.
+    - Adopted @vscode/codicons (same font the rest of VS Code uses;
+      matches contributes.commands which already references $(name)).
+    - <Icon name="…"> wrapper in src/webview/components/Icon.tsx.
+    - bootstrapRoot.tsx imports codicon.css globally so every app picks
+      it up; esbuild loader: ".ttf": "file" emits the font next to the
+      per-app .css bundle.
+    - Sweep: Toolbar, DatePicker, CalendarView, CommentPanel, FilterBar,
+      FilterTreeView, TableView, FormatCell, DatabaseViewRoot — all
+      emoji/picto replaced with codicons; .empty-state ::before uses the
+      codicon font directly.

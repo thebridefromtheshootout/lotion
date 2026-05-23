@@ -109,7 +109,9 @@ h2 {
   font-size: 12px;
   font-family: inherit;
   cursor: pointer;
-  transition: border-color var(--motion-fast), box-shadow var(--motion-fast);
+  transition:
+    border-color var(--motion-fast),
+    box-shadow var(--motion-fast);
 }
 .format-bar select:hover {
   border-color: color-mix(in srgb, var(--accent) 45%, var(--input-border));
@@ -243,6 +245,18 @@ h2 {
 .insert-btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
+}
+
+/* ── Codicon sizing ──────────────────────── */
+.codicon {
+  font-size: 14px;
+  line-height: 1;
+}
+.nav button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
 }
 
 /* ── Reduced motion ──────────────────────── */

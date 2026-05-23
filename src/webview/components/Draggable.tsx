@@ -9,8 +9,7 @@ import React from "react";
 // pass `onDragOver` / `onDrop` etc. via `rest` when the same element
 // also accepts drops.
 
-export interface DraggableProps
-  extends Omit<React.HTMLAttributes<HTMLDivElement>, "draggable" | "onDragStart"> {
+export interface DraggableProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "draggable" | "onDragStart"> {
   /** When false, the element renders as a non-draggable container. */
   enabled: boolean;
   /** Fires on dragstart; event already has stopPropagation called. */

@@ -1,11 +1,19 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
-import { forceSimulation, forceLink, forceManyBody, forceCenter, forceCollide, SimulationNodeDatum, SimulationLinkDatum } from "d3-force";
+import {
+  forceSimulation,
+  forceLink,
+  forceManyBody,
+  forceCenter,
+  forceCollide,
+  SimulationNodeDatum,
+  SimulationLinkDatum,
+} from "d3-force";
 import { GraphViewProps, GraphLink } from "../../types/GraphTypes";
 
 // ── Node / link types for d3 ──────────────────────────────────────
 
 interface GraphNode extends SimulationNodeDatum {
-  id: string;        // relativePath
+  id: string; // relativePath
   title: string;
 }
 
@@ -16,7 +24,7 @@ interface GraphEdge extends SimulationLinkDatum<GraphNode> {
 
 // ── Constants ─────────────────────────────────────────────────────
 
-const NODE_RX = 8;         // rounded rect corner radius
+const NODE_RX = 8; // rounded rect corner radius
 const NODE_H = 32;
 const NODE_PAD_X = 14;
 const FONT_SIZE = 12;
@@ -46,7 +54,12 @@ export function GraphView({ entries, links, communicator }: GraphViewProps) {
     const simNodes = Array.from(nodeMap.values());
 
     const sim = forceSimulation<GraphNode>(simNodes)
-      .force("link", forceLink<GraphNode, GraphEdge>(validEdges).id((d) => d.id).distance(140))
+      .force(
+        "link",
+        forceLink<GraphNode, GraphEdge>(validEdges)
+          .id((d) => d.id)
+          .distance(140),
+      )
       .force("charge", forceManyBody().strength(-300))
       .force("center", forceCenter(0, 0))
       .force("collide", forceCollide<GraphNode>(60));
@@ -59,7 +72,9 @@ export function GraphView({ entries, links, communicator }: GraphViewProps) {
     // Warm up quickly
     sim.alpha(1).restart();
 
-    return () => { sim.stop(); };
+    return () => {
+      sim.stop();
+    };
   }, [entries, links]);
 
   // ── Node width helper (approximate) ─────────────────────────────
@@ -74,11 +89,14 @@ export function GraphView({ entries, links, communicator }: GraphViewProps) {
     setTransform((t) => ({ ...t, scale: Math.max(0.2, Math.min(3, t.scale * factor)) }));
   }, []);
 
-  const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    if (e.button !== 0) return;
-    isPanning.current = true;
-    panStart.current = { x: e.clientX - transform.x, y: e.clientY - transform.y };
-  }, [transform]);
+  const handleMouseDown = useCallback(
+    (e: React.MouseEvent) => {
+      if (e.button !== 0) return;
+      isPanning.current = true;
+      panStart.current = { x: e.clientX - transform.x, y: e.clientY - transform.y };
+    },
+    [transform],
+  );
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
     if (!isPanning.current) return;
@@ -110,10 +128,7 @@ export function GraphView({ entries, links, communicator }: GraphViewProps) {
           markerHeight={ARROW_SIZE}
           orient="auto"
         >
-          <path
-            d={`M0,0 L${ARROW_SIZE * 2},${ARROW_SIZE} L0,${ARROW_SIZE * 2} Z`}
-            fill="var(--muted)"
-          />
+          <path d={`M0,0 L${ARROW_SIZE * 2},${ARROW_SIZE} L0,${ARROW_SIZE * 2} Z`} fill="var(--muted)" />
         </marker>
       </defs>
 
@@ -124,15 +139,7 @@ export function GraphView({ entries, links, communicator }: GraphViewProps) {
           const t = edge.target as GraphNode;
           if (!s.x || !s.y || !t.x || !t.y) return null;
           return (
-            <line
-              key={`e-${i}`}
-              x1={s.x}
-              y1={s.y}
-              x2={t.x}
-              y2={t.y}
-              className="graph-edge"
-              markerEnd="url(#arrow)"
-            />
+            <line key={`e-${i}`} x1={s.x} y1={s.y} x2={t.x} y2={t.y} className="graph-edge" markerEnd="url(#arrow)" />
           );
         })}
 
@@ -148,13 +155,7 @@ export function GraphView({ entries, links, communicator }: GraphViewProps) {
               onClick={() => communicator.sendOpenEntry(node.id)}
               style={{ cursor: "pointer" }}
             >
-              <rect
-                width={w}
-                height={NODE_H}
-                rx={NODE_RX}
-                ry={NODE_RX}
-                className="graph-node-rect"
-              />
+              <rect width={w} height={NODE_H} rx={NODE_RX} ry={NODE_RX} className="graph-node-rect" />
               <text
                 x={w / 2}
                 y={NODE_H / 2}

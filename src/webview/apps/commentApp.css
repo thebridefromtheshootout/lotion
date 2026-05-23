@@ -94,10 +94,30 @@ h2 {
   font-size: 11px;
   font-family: var(--vscode-font-family);
 }
+.comment-actions button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
 .comment-actions button:hover {
   filter: brightness(1.2);
 }
 .comment-actions button.danger:hover {
   background: var(--danger);
   color: #fff;
+}
+
+/* ── Codicon sizing ──────────────────────── */
+.codicon {
+  font-size: 14px;
+  line-height: 1;
+}
+.comment-actions .codicon,
+.comment-line .codicon {
+  font-size: 12px;
+}
+h2 .codicon {
+  font-size: 16px;
+  margin-right: 4px;
+  vertical-align: text-bottom;
 }

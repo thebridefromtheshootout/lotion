@@ -4,6 +4,7 @@ import type { DbPanelToExtensionCommunicator } from "../../../communicators/DbPa
 import { InlineEditor } from "./InlineEditor";
 import { ColumnValueCell } from "../ColumnValueCell";
 import { ColumnWidths, clampWidth, loadColumnWidths, saveColumnWidths } from "../../../utils/colWidths";
+import { Icon } from "../../Icon";
 
 interface DragState {
   colName: string;
@@ -83,12 +84,8 @@ export function TableView({
 
   const SortButton = ({ col }: { col: string }) => {
     const active = sortCol === col;
-    const glyph = !active ? "⇅" : sortDir === "asc" ? "▲" : "▼";
-    const title = !active
-      ? "Sort ascending"
-      : sortDir === "asc"
-      ? "Sort descending"
-      : "Clear sort";
+    const iconName = !active ? "arrow-swap" : sortDir === "asc" ? "triangle-up" : "triangle-down";
+    const title = !active ? "Sort ascending" : sortDir === "asc" ? "Sort descending" : "Clear sort";
     return (
       <button
         className={`col-sort-btn${active ? " active" : ""}`}
@@ -99,7 +96,7 @@ export function TableView({
           onToggleSort(col);
         }}
       >
-        {glyph}
+        <Icon name={iconName} />
       </button>
     );
   };
@@ -117,9 +114,7 @@ export function TableView({
 
   function copyColumn(colName: string) {
     const values =
-      colName === "__title"
-        ? entries.map((e) => e.title ?? "")
-        : entries.map((e) => e.properties[colName] ?? "");
+      colName === "__title" ? entries.map((e) => e.title ?? "") : entries.map((e) => e.properties[colName] ?? "");
     const label = colName === "__title" ? `${titleFieldLabel} column` : `${colName} column`;
     communicator.sendCopyToClipboard(values.join("\n"), label);
   }
@@ -136,10 +131,7 @@ export function TableView({
         </colgroup>
         <thead>
           <tr>
-            <th
-              className="resizable-col"
-              style={widthStyle("__title")}
-            >
+            <th className="resizable-col" style={widthStyle("__title")}>
               <span className="col-header-label">{titleFieldLabel}</span>
               <SortButton col="__title" />
               <button
@@ -150,7 +142,7 @@ export function TableView({
                   copyColumn("__title");
                 }}
               >
-                📋
+                <Icon name="copy" />
               </button>
               <span
                 className="col-resize-handle"
@@ -161,11 +153,7 @@ export function TableView({
             {schema.map((c) => {
               const isTag = c.type === "select" || c.type === "multi-select";
               return (
-                <th
-                  key={c.name}
-                  className={`resizable-col${isTag ? " tag-cell" : ""}`}
-                  style={widthStyle(c.name)}
-                >
+                <th key={c.name} className={`resizable-col${isTag ? " tag-cell" : ""}`} style={widthStyle(c.name)}>
                   <span className="col-header-label">{c.name}</span>
                   <SortButton col={c.name} />
                   <button
@@ -176,7 +164,7 @@ export function TableView({
                       copyColumn(c.name);
                     }}
                   >
-                    📋
+                    <Icon name="copy" />
                   </button>
                   <span
                     className="col-resize-handle"
@@ -267,7 +255,7 @@ const EntryRow = React.memo(function EntryRow({
           title="Log current values and clear fields"
           onClick={() => communicator.sendLogEntry(entry.relativePath)}
         >
-          📝 Log
+          <Icon name="output" /> Log
         </button>
       </td>
     </tr>

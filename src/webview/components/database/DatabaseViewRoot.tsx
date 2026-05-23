@@ -11,6 +11,7 @@ import { CalendarView } from "./calendarview/CalendarView";
 import { GraphView } from "./GraphView";
 import { MapView } from "./MapView";
 import type { DbViewFilter } from "../../../contracts/databaseTypes";
+import { Icon } from "../Icon";
 
 const communicator = new DbPanelToExtensionCommunicator();
 
@@ -131,11 +132,7 @@ export function DatabaseViewRoot() {
   // ── Optimistic local update: patch a single entry's property ──
   const handleLocalEntryUpdate = useCallback((relPath: string, colName: string, newVal: string) => {
     setAllEntries((prev) =>
-      prev.map((e) =>
-        e.relativePath === relPath
-          ? { ...e, properties: { ...e.properties, [colName]: newVal } }
-          : e,
-      ),
+      prev.map((e) => (e.relativePath === relPath ? { ...e, properties: { ...e.properties, [colName]: newVal } } : e)),
     );
   }, []);
 
@@ -177,7 +174,9 @@ export function DatabaseViewRoot() {
 
   return (
     <>
-      <h2>📊 {dbName}</h2>
+      <h2>
+        <Icon name="database" /> {dbName}
+      </h2>
       <Toolbar
         layout={layout}
         setLayout={setLayout}
@@ -196,7 +195,7 @@ export function DatabaseViewRoot() {
         setFilterTree={setFilterTree}
       />
       {noEntries ? (
-        <div className="empty-state">No entries yet. Click "＋ New Entry" to add one.</div>
+        <div className="empty-state">No entries yet. Click "New Entry" to add one.</div>
       ) : noResults ? (
         <div className="empty-state">No entries match the active filters.</div>
       ) : layout === "kanban" ? (
@@ -219,17 +218,9 @@ export function DatabaseViewRoot() {
           communicator={communicator}
         />
       ) : layout === "graph" ? (
-        <GraphView
-          entries={entries}
-          links={links}
-          communicator={communicator}
-        />
+        <GraphView entries={entries} links={links} communicator={communicator} />
       ) : layout === "map" ? (
-        <MapView
-          entries={entries}
-          schema={schema}
-          communicator={communicator}
-        />
+        <MapView entries={entries} schema={schema} communicator={communicator} />
       ) : (
         <TableView
           entries={entries}

@@ -26,8 +26,8 @@ export interface IWeekProfile {
   assignments: Assignment[];
 }
 export interface IMonthProfile {
-numWeeks: number;
-cells: CellData[];
+  numWeeks: number;
+  cells: CellData[];
 }
 
 export interface CellData {

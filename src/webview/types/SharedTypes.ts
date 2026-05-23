@@ -18,13 +18,7 @@ export type {
 export { isFilterLeaf } from "../../contracts/databaseTypes";
 
 // Legacy aliases used throughout the webview layer
-import type {
-  DbEntry,
-  DbView,
-  DbViewFilter,
-  DbFilterClause,
-  DbFilterOperator,
-} from "../../contracts/databaseTypes";
+import type { DbEntry, DbView, DbViewFilter, DbFilterClause, DbFilterOperator } from "../../contracts/databaseTypes";
 
 /** @deprecated Use `DbEntry` */
 export type DbEntryData = DbEntry;

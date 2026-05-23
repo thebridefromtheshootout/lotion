@@ -1,6 +1,7 @@
 import React from "react";
 import { DbFilterClause, DbFilterGroup, DbViewFilter, isFilterLeaf } from "../types";
 import { Draggable } from "./Draggable";
+import { Icon } from "./Icon";
 
 // ── Recursive filter tree rendering ─────────────────────────────────
 
@@ -42,8 +43,8 @@ export function FilterTreeView({
       <Draggable enabled={!isRoot} onDragStart={(e) => onDragStart(e, path)}>
         <span className="filter-chip">
           <FilterChipText leaf={node} titleFieldLabel={titleFieldLabel} />
-          <span className="remove" onClick={() => onRemove(path)}>
-            ×
+          <span className="remove" onClick={() => onRemove(path)} aria-label="Remove filter">
+            <Icon name="close" />
           </span>
         </span>
       </Draggable>
@@ -117,7 +118,11 @@ function FilterGroupBody({
     <>
       <div className="filter-group-header">
         <div className="filter-group-badges">
-          {!isRoot && <span className="drag-handle" title="Drag group">⠿</span>}
+          {!isRoot && (
+            <span className="drag-handle" title="Drag group">
+              <Icon name="grabber" />
+            </span>
+          )}
           <span
             className={`filter-logic${isRoot ? " is-root" : ""}`}
             onClick={() => !isRoot && onToggleLogic(path)}
@@ -133,18 +138,22 @@ function FilterGroupBody({
         </div>
         <div className="filter-group-actions">
           {!isRoot && (
-            <button className="icon-btn" onClick={() => onRemove(path)} title="Remove group">
-              ×
+            <button className="icon-btn" onClick={() => onRemove(path)} title="Remove group" aria-label="Remove group">
+              <Icon name="close" />
             </button>
           )}
-          <button className="icon-btn" onClick={() => onAddCondition(path)} title="Create filter tile using current field/op/value">
-            ＋ Filter here
+          <button
+            className="icon-btn"
+            onClick={() => onAddCondition(path)}
+            title="Create filter tile using current field/op/value"
+          >
+            <Icon name="add" /> Filter here
           </button>
           <button className="icon-btn" onClick={() => onAddGroup(path, "AND")} title="Add AND sub-group">
-            ＋ AND
+            <Icon name="add" /> AND
           </button>
           <button className="icon-btn" onClick={() => onAddGroup(path, "OR")} title="Add OR sub-group">
-            ＋ OR
+            <Icon name="add" /> OR
           </button>
           <button className="icon-btn" onClick={() => onToggleNot(path)} title="Toggle NOT">
             NOT

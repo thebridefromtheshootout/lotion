@@ -17,11 +17,7 @@ export function escapeCsvCell(raw: string): string {
  * the title field (so links/heading text round-trip), followed by every
  * schema column in order.
  */
-export function entriesToCsv(
-  entries: DbEntryData[],
-  schema: DbColumn[],
-  titleFieldLabel: string,
-): string {
+export function entriesToCsv(entries: DbEntryData[], schema: DbColumn[], titleFieldLabel: string): string {
   const headerCells = [titleFieldLabel, ...schema.map((c) => c.name)].map(escapeCsvCell);
   const lines: string[] = [headerCells.join(",")];
 

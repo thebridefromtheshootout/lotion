@@ -171,19 +171,11 @@ export function RenderWeek(
             title={we.ev.title}
           >
             {showResizeHandles && !we.contLeft && (
-              <span
-                className="cal-resize-handle cal-resize-left"
-                draggable
-                onDragStart={startResize("start")}
-              />
+              <span className="cal-resize-handle cal-resize-left" draggable onDragStart={startResize("start")} />
             )}
             {we.ev.title}
             {showResizeHandles && !we.contRight && (
-              <span
-                className="cal-resize-handle cal-resize-right"
-                draggable
-                onDragStart={startResize("end")}
-              />
+              <span className="cal-resize-handle cal-resize-right" draggable onDragStart={startResize("end")} />
             )}
           </a>
         );

@@ -1,14 +1,9 @@
 import React from "react";
 import { FormatCellProps } from "../../../types/";
 import { Regex } from "../../../../core/regex";
+import { Icon } from "../../Icon";
 
-export function FormatCell({
-  value,
-  type,
-  baseUri,
-  maxWidth,
-  maxHeight,
-}: FormatCellProps): React.JSX.Element {
+export function FormatCell({ value, type, baseUri, maxWidth, maxHeight }: FormatCellProps): React.JSX.Element {
   if (!value) return <></>;
   switch (type) {
     case "image": {
@@ -33,7 +28,11 @@ export function FormatCell({
         </>
       );
     case "checkbox":
-      return <span className="check">{value === "true" ? "☑" : "☐"}</span>;
+      return (
+        <span className="check">
+          <Icon name={value === "true" ? "check" : "circle-large-outline"} />
+        </span>
+      );
     case "url":
       return (
         <a href={value} style={{ color: "var(--accent)" }}>
@@ -41,7 +40,11 @@ export function FormatCell({
         </a>
       );
     case "coordinates":
-      return <span className="coordinates" title="Geographic coordinates">📍 {value}</span>;
+      return (
+        <span className="coordinates" title="Geographic coordinates">
+          <Icon name="location" /> {value}
+        </span>
+      );
     default:
       return <span dangerouslySetInnerHTML={{ __html: value }} />;
   }

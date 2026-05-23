@@ -108,7 +108,7 @@ function mapEventsToWeeks(events: CalEvent[], weekStart: string, weekEnd: string
   for (const ev of events) {
     const evS = dfmt(ev.start);
     const evE = dfmt(ev.end);
-    
+
     // Check intersection
     // Logic: event start <= week end AND event end >= week start
     if (evE >= weekStart && evS <= weekEnd) {
@@ -139,7 +139,7 @@ function mapEventsToWeeks(events: CalEvent[], weekStart: string, weekEnd: string
       }
 
       const spanVal = endColVal - startColVal + 1;
-      
+
       weekEvents.push({
         ev,
         startCol: startColVal,

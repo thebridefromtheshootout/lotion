@@ -13,7 +13,7 @@ const opts = {
   jsx: "automatic",
   minify: !watch,
   sourcemap: watch,
-  loader: { ".tsx": "tsx", ".ts": "ts", ".css": "css", ".png": "dataurl" },
+  loader: { ".tsx": "tsx", ".ts": "ts", ".css": "css", ".png": "dataurl", ".ttf": "file" },
 };
 
 if (watch) {

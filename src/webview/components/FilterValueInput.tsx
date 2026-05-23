@@ -49,16 +49,7 @@ interface FilterValueInputProps {
 
 export function FilterValueInput({ kind, options, value, onChange, onSubmit }: FilterValueInputProps) {
   if (kind === "none") {
-    return (
-      <input
-        id="filterVal"
-        type="text"
-        placeholder="(no value)"
-        value=""
-        disabled
-        readOnly
-      />
-    );
+    return <input id="filterVal" type="text" placeholder="(no value)" value="" disabled readOnly />;
   }
   if (kind === "boolean") {
     // True/false columns get an actual checkbox + a label so the picked
@@ -66,11 +57,7 @@ export function FilterValueInput({ kind, options, value, onChange, onSubmit }: F
     const checked = value === "true";
     return (
       <label id="filterVal" className="filter-checkbox-value" title="Filter value">
-        <input
-          type="checkbox"
-          checked={checked}
-          onChange={(e) => onChange(e.target.checked ? "true" : "false")}
-        />
+        <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked ? "true" : "false")} />
         <span>{checked ? "true" : "false"}</span>
       </label>
     );
@@ -107,11 +94,7 @@ export function FilterValueInput({ kind, options, value, onChange, onSubmit }: F
         ) : (
           (options ?? []).map((o) => (
             <label key={o} className="filter-multi-select-option">
-              <input
-                type="checkbox"
-                checked={selected.has(o)}
-                onChange={(e) => toggle(o, e.target.checked)}
-              />
+              <input type="checkbox" checked={selected.has(o)} onChange={(e) => toggle(o, e.target.checked)} />
               <span>{o}</span>
             </label>
           ))

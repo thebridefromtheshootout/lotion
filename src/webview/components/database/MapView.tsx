@@ -106,7 +106,9 @@ export function MapView({ entries, schema, communicator }: MapViewProps) {
     return (
       <div className="map-view-empty">
         <p>No coordinates column found in the schema.</p>
-        <p>Add a column of type <strong>coordinates</strong> to enable the map view.</p>
+        <p>
+          Add a column of type <strong>coordinates</strong> to enable the map view.
+        </p>
       </div>
     );
   }

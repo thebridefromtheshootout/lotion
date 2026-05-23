@@ -1,12 +1,8 @@
 import React, { useState } from "react";
-import { 
-  CalendarViewProps, 
-  CalEvent, 
-  IWeekProfile, 
-  IMonthProfile
-} from "../../../types/CalendarTypes";
+import { CalendarViewProps, CalEvent, IWeekProfile, IMonthProfile } from "../../../types/CalendarTypes";
 import { RenderWeek } from "./RenderWeek";
 import { DAY_NAMES, dfmt, getMonthProfile, getWeekProfile, MONTH_NAMES, parseDate } from "../../../utils/calendarUtils";
+import { Icon } from "../../Icon";
 import { DbColumn } from "../../../types";
 import { ColumnNameOptions } from "../../ColumnNameOptions";
 import { ViewControlSelect } from "../ViewControlSelect";
@@ -74,14 +70,11 @@ export function CalendarView({
     });
   });
 
-
-
   // ── Build calendar grid ──
   const { numWeeks, cells }: IMonthProfile = getMonthProfile(calYear, calMonth);
 
   // ── Render weeks ──
   const weeks: React.JSX.Element[] = [];
-
 
   for (let w = 0; w < numWeeks; w++) {
     const weekProfile: IWeekProfile = getWeekProfile(cells, w, events);
@@ -102,51 +95,68 @@ export function CalendarView({
     </>
   );
 }
-function CalendarNavigation(calPrev: () => void, calMonth: number, calYear: number, calNext: () => void, calToday: () => void) {
-  return <>
-    <button onClick={calPrev} className="cal-nav-btn">
-      ◀
-    </button>
-    <span className="cal-nav-label">
-      {MONTH_NAMES[calMonth]} {calYear}
-    </span>
-    <button onClick={calNext} className="cal-nav-btn">
-      ▶
-    </button>
-    <button onClick={calToday} className="cal-today-btn">
-      Today
-    </button>
-  </>;
+function CalendarNavigation(
+  calPrev: () => void,
+  calMonth: number,
+  calYear: number,
+  calNext: () => void,
+  calToday: () => void,
+) {
+  return (
+    <>
+      <button onClick={calPrev} className="cal-nav-btn" aria-label="Previous month" title="Previous month">
+        <Icon name="chevron-left" />
+      </button>
+      <span className="cal-nav-label">
+        {MONTH_NAMES[calMonth]} {calYear}
+      </span>
+      <button onClick={calNext} className="cal-nav-btn" aria-label="Next month" title="Next month">
+        <Icon name="chevron-right" />
+      </button>
+      <button onClick={calToday} className="cal-today-btn">
+        Today
+      </button>
+    </>
+  );
 }
 
 function DayNameHeadings() {
-  return <div className="cal-header">
-    {DAY_NAMES.map((d) => (
-      <div key={d} className="cal-header-cell">
-        {d}
-      </div>
-    ))}
-  </div>;
+  return (
+    <div className="cal-header">
+      {DAY_NAMES.map((d) => (
+        <div key={d} className="cal-header-cell">
+          {d}
+        </div>
+      ))}
+    </div>
+  );
 }
 
-function DateColumnSelection(dateColumn: string, onCalendarDateColChange: (col: string) => void, dateCols: DbColumn[], endCol: string, onCalendarEndDateColChange: (col: string | undefined) => void) {
-  return <>
-    <ViewControlSelect label="Date column:" value={dateColumn} onChange={onCalendarDateColChange}>
-      <ColumnNameOptions columns={dateCols} />
-    </ViewControlSelect>
+function DateColumnSelection(
+  dateColumn: string,
+  onCalendarDateColChange: (col: string) => void,
+  dateCols: DbColumn[],
+  endCol: string,
+  onCalendarEndDateColChange: (col: string | undefined) => void,
+) {
+  return (
+    <>
+      <ViewControlSelect label="Date column:" value={dateColumn} onChange={onCalendarDateColChange}>
+        <ColumnNameOptions columns={dateCols} />
+      </ViewControlSelect>
 
-    {dateCols.length > 1 && (
-      <>
-        <ViewControlSelect
-          label="End date:"
-          value={endCol}
-          onChange={(value) => onCalendarEndDateColChange(value || undefined)}
-        >
-          <option value="">— none —</option>
-          <ColumnNameOptions columns={dateCols} />
-        </ViewControlSelect>
-      </>
-    )}
-  </>;
+      {dateCols.length > 1 && (
+        <>
+          <ViewControlSelect
+            label="End date:"
+            value={endCol}
+            onChange={(value) => onCalendarEndDateColChange(value || undefined)}
+          >
+            <option value="">— none —</option>
+            <ColumnNameOptions columns={dateCols} />
+          </ViewControlSelect>
+        </>
+      )}
+    </>
+  );
 }
-

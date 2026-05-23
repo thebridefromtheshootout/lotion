@@ -6,6 +6,7 @@ import type { DbFilterOperator } from "../../contracts/databaseTypes";
 import { ColumnNameOptions } from "./ColumnNameOptions";
 import { FilterValueInput, inputKindFor } from "./FilterValueInput";
 import { FilterTreeView, FilterChipText } from "./FilterTreeView";
+import { Icon } from "./Icon";
 
 interface FilterBarProps {
   schema: DbColumn[];
@@ -203,12 +204,7 @@ export function FilterBar({ schema, titleFieldLabel, filterTree, setFilterTree }
     <>
       <div className="filter-bar">
         <div className="filter-bar-inputs">
-          <select
-            ref={colRef}
-            id="filterCol"
-            value={selectedCol}
-            onChange={(e) => setSelectedCol(e.target.value)}
-          >
+          <select ref={colRef} id="filterCol" value={selectedCol} onChange={(e) => setSelectedCol(e.target.value)}>
             <option value="__title">{titleFieldLabel}</option>
             <ColumnNameOptions columns={schema} />
           </select>
@@ -236,15 +232,10 @@ export function FilterBar({ schema, titleFieldLabel, filterTree, setFilterTree }
         {stagedTiles.length > 0 && (
           <div className="filter-staging">
             {stagedTiles.map((tile, i) => (
-              <span
-                key={i}
-                className="filter-chip staged"
-                draggable
-                onDragStart={(e) => onDragStartStaged(e, i)}
-              >
+              <span key={i} className="filter-chip staged" draggable onDragStart={(e) => onDragStartStaged(e, i)}>
                 <FilterChipText leaf={tile} titleFieldLabel={titleFieldLabel} />
-                <span className="remove" onClick={() => removeStagedTile(i)}>
-                  ×
+                <span className="remove" onClick={() => removeStagedTile(i)} aria-label="Remove staged filter">
+                  <Icon name="close" />
                 </span>
               </span>
             ))}

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { CommentPanelToExtensionCommunicator } from "../communicators/CommentPanelToExtensionCommunicator";
 import { Comment } from "../../contracts/comment";
+import { Icon } from "./Icon";
 const communicator = new CommentPanelToExtensionCommunicator();
 
 // ── Component ────────────────────────────────────────────────────────
@@ -31,7 +32,9 @@ export function CommentPanel() {
 
   return (
     <>
-      <h2>💬 Comments — {fileName}</h2>
+      <h2>
+        <Icon name="comment-discussion" /> Comments — {fileName}
+      </h2>
 
       {comments.length === 0 ? (
         <div className="empty">
@@ -44,7 +47,8 @@ export function CommentPanel() {
           const date = new Date(c.createdAt);
           const ts =
             date.toLocaleDateString() + " " + date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-          const lineLabel = c.line >= 0 ? `Line ${c.line + 1}` : "⚠ orphan";
+          const isOrphan = c.line < 0;
+          const lineLabel = isOrphan ? "orphan" : `Line ${c.line + 1}`;
           const anchor = c.anchorText.length > 80 ? c.anchorText.slice(0, 80) + "…" : c.anchorText;
 
           return (
@@ -52,16 +56,26 @@ export function CommentPanel() {
               <div className="comment-meta">
                 {c.author && <span className="comment-author">{c.author}</span>}
                 <span className="comment-line" onClick={() => goToComment(c.id)}>
-                  {lineLabel}
+                  {isOrphan && <Icon name="warning" />} {lineLabel}
                 </span>
                 <span className="comment-time">{ts}</span>
               </div>
               <div className="comment-anchor">"{anchor}"</div>
               <div className="comment-body">{c.body}</div>
               <div className="comment-actions">
-                <button onClick={() => resolve(c.id)}>{c.resolved ? "↩ Unresolve" : "✅ Resolve"}</button>
+                <button onClick={() => resolve(c.id)}>
+                  {c.resolved ? (
+                    <>
+                      <Icon name="discard" /> Unresolve
+                    </>
+                  ) : (
+                    <>
+                      <Icon name="check" /> Resolve
+                    </>
+                  )}
+                </button>
                 <button className="danger" onClick={() => del(c.id)}>
-                  🗑 Delete
+                  <Icon name="trash" /> Delete
                 </button>
               </div>
             </div>
