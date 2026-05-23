@@ -238,6 +238,71 @@ h2 .codicon {
   font-size: 14px;
   user-select: none;
 }
+.filter-bar .filter-chip-list {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  min-height: 32px;
+  max-width: 360px;
+  padding: 4px 6px;
+  border: 1px solid var(--input-border);
+  border-radius: 8px;
+  background: var(--input-bg);
+}
+.filter-bar .filter-chip-list:focus-within {
+  border-color: var(--focus-ring);
+  box-shadow: 0 0 0 1px var(--focus-ring);
+}
+.filter-bar .filter-chip-list-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 4px 2px 8px;
+  background: color-mix(in srgb, var(--accent) 16%, var(--surface));
+  border: 1px solid color-mix(in srgb, var(--accent) 28%, transparent);
+  border-radius: 999px;
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--fg);
+}
+.filter-bar .filter-chip-list-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  cursor: pointer;
+  opacity: 0.6;
+  color: inherit;
+}
+.filter-bar .filter-chip-list-remove:hover {
+  opacity: 1;
+  background: color-mix(in srgb, var(--accent) 25%, transparent);
+}
+.filter-bar .filter-chip-list-input {
+  flex: 1;
+  min-width: 100px;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 12px;
+  font-family: inherit;
+  color: var(--fg);
+  padding: 2px 4px;
+  height: 22px;
+  box-shadow: none;
+}
+.filter-bar .filter-chip-list-input:hover,
+.filter-bar .filter-chip-list-input:focus-visible {
+  border: none;
+  box-shadow: none;
+}
 .filter-bar .filter-checkbox-value {
   display: inline-flex;
   align-items: center;

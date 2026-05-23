@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import type { DbColumn, DbFilterOperator } from "../../contracts/databaseTypes";
+import { Icon } from "./Icon";
 
 // ── Type-aware value input ─────────────────────────────────────────
 
@@ -55,6 +56,97 @@ function joinBetween(low: string, high: string): string {
   return [low, high].map((s) => s.trim()).join(", ");
 }
 
+/** Split / join the comma-separated payload used for `in` / `!in` lists. */
+function splitList(value: string): string[] {
+  return value
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+function joinList(items: string[]): string {
+  return items
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .join(", ");
+}
+
+// `in` / `!in` on free-form columns (text, number, url) want a chip-builder
+// instead of raw comma-separated text — users shouldn't need to know the
+// underlying separator. Storage stays comma-separated for runtime compat.
+function ChipListInput({
+  inputType,
+  value,
+  onChange,
+  onSubmit,
+}: {
+  inputType: "text" | "number" | "url";
+  value: string;
+  onChange: (v: string) => void;
+  onSubmit: () => void;
+}) {
+  const items = splitList(value);
+  const [draft, setDraft] = useState("");
+
+  function addDraft() {
+    const trimmed = draft.trim();
+    if (!trimmed) return;
+    if (items.includes(trimmed)) {
+      setDraft("");
+      return;
+    }
+    onChange(joinList([...items, trimmed]));
+    setDraft("");
+  }
+  function removeAt(i: number) {
+    onChange(joinList(items.filter((_, idx) => idx !== i)));
+  }
+
+  return (
+    <span id="filterVal" className="filter-chip-list" role="group" aria-label="Value list">
+      {items.map((item, i) => (
+        <span key={i} className="filter-chip-list-item">
+          {item}
+          <button
+            type="button"
+            className="filter-chip-list-remove"
+            aria-label={`Remove ${item}`}
+            onClick={() => removeAt(i)}
+          >
+            <Icon name="close" />
+          </button>
+        </span>
+      ))}
+      <input
+        type={inputType}
+        className="filter-chip-list-input"
+        placeholder={items.length === 0 ? "value, Enter to add" : "add another…"}
+        value={draft}
+        onChange={(e) => setDraft(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            if (draft.trim()) {
+              addDraft();
+            } else {
+              onSubmit();
+            }
+          } else if (e.key === "Backspace" && !draft && items.length > 0) {
+            // Pop the last chip when backspacing into an empty input.
+            removeAt(items.length - 1);
+          } else if (e.key === "," || e.key === "Tab") {
+            // Comma or Tab also commits a chip — matches the common chip
+            // input idiom (Gmail recipients, GitHub topic tags, etc.).
+            if (draft.trim()) {
+              e.preventDefault();
+              addDraft();
+            }
+          }
+        }}
+      />
+    </span>
+  );
+}
+
 export function FilterValueInput({ kind, op, options, value, onChange, onSubmit }: FilterValueInputProps) {
   // `between` always needs two values of the column's natural type; the
   // single-input branches below don't know how to render a pair, so we
@@ -88,6 +180,12 @@ export function FilterValueInput({ kind, op, options, value, onChange, onSubmit 
         />
       </span>
     );
+  }
+  // `in` / `!in` on free-form columns: chip builder. Select / multi-select
+  // columns already get the checkbox-list branch below; this targets the
+  // text/number/url shapes that otherwise force the user to type commas.
+  if ((op === "in" || op === "!in") && (kind === "text" || kind === "number" || kind === "url")) {
+    return <ChipListInput inputType={kind} value={value} onChange={onChange} onSubmit={onSubmit} />;
   }
   if (kind === "none") {
     return <input id="filterVal" type="text" placeholder="(no value)" value="" disabled readOnly />;
