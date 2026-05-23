@@ -149,7 +149,8 @@ Do not attempt items marked [Complex].
       emoji/picto replaced with codicons; .empty-state ::before uses the
       codicon font directly.
 
-14. Database filter bar UX audit (NOT the filter tree — that part works).
+14. ✅ Database filter bar UX audit (NOT the filter tree — that part works).
+    → FILTER_BAR_AUDIT.md
     Write a notes doc next to CODE_QUALITY.md analysing the shortcomings of
     the filter bar: column select → operator select → value cell → Create
     Filter Tile button.
@@ -183,7 +184,8 @@ Do not attempt items marked [Complex].
     findings in the same table-style as CODE_QUALITY.md, with file:line
     citations.
 
-15. Make Lotion databases actually useful for real work.
+15. ✅ Make Lotion databases actually useful for real work.
+    → DATABASE_ROADMAP.md
     Write a forward-looking doc (DATABASE_ROADMAP.md or similar) next to
     CODE_QUALITY.md. Premise: Lotion's databases today are a playground —
     views, filters, sort exist; what's missing is what Notion users live
