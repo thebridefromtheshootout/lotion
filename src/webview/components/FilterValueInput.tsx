@@ -147,6 +147,46 @@ function ChipListInput({
   );
 }
 
+// Returns the JS RegExp parse error for `pattern`, or null if it's valid.
+// Empty pattern is treated as valid (the user is still typing).
+function regexParseError(pattern: string): string | null {
+  if (!pattern) return null;
+  try {
+    new RegExp(pattern);
+    return null;
+  } catch (err) {
+    return err instanceof Error ? err.message : String(err);
+  }
+}
+
+function RegexInput({
+  value,
+  onChange,
+  onSubmit,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  onSubmit: () => void;
+}) {
+  const error = regexParseError(value);
+  const invalid = error !== null;
+  return (
+    <input
+      id="filterVal"
+      type="text"
+      className={`filter-regex-input${invalid ? " invalid" : ""}`}
+      placeholder="/regex/"
+      value={value}
+      title={invalid ? `Invalid regex: ${error}` : "Case-insensitive regex"}
+      aria-invalid={invalid || undefined}
+      onChange={(e) => onChange(e.target.value)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") onSubmit();
+      }}
+    />
+  );
+}
+
 export function FilterValueInput({ kind, op, options, value, onChange, onSubmit }: FilterValueInputProps) {
   // `between` always needs two values of the column's natural type; the
   // single-input branches below don't know how to render a pair, so we
@@ -186,6 +226,12 @@ export function FilterValueInput({ kind, op, options, value, onChange, onSubmit 
   // text/number/url shapes that otherwise force the user to type commas.
   if ((op === "in" || op === "!in") && (kind === "text" || kind === "number" || kind === "url")) {
     return <ChipListInput inputType={kind} value={value} onChange={onChange} onSubmit={onSubmit} />;
+  }
+  // `matches_regex` needs live validation — the runtime catches bad regex
+  // and returns false silently, so without UI feedback the user can't tell
+  // "no matches" from "broken regex." Surface the parse error inline.
+  if (op === "matches_regex") {
+    return <RegexInput value={value} onChange={onChange} onSubmit={onSubmit} />;
   }
   if (kind === "none") {
     return <input id="filterVal" type="text" placeholder="(no value)" value="" disabled readOnly />;

@@ -303,6 +303,12 @@ h2 .codicon {
   border: none;
   box-shadow: none;
 }
+/* Regex input flips to a destructive border when the pattern fails to
+   parse. Tooltip carries the exact error message. */
+.filter-bar input.filter-regex-input.invalid {
+  border-color: var(--vscode-inputValidation-errorBorder, var(--vscode-errorForeground, #f48771));
+  box-shadow: 0 0 0 1px var(--vscode-inputValidation-errorBorder, var(--vscode-errorForeground, #f48771));
+}
 .filter-bar .filter-checkbox-value {
   display: inline-flex;
   align-items: center;
