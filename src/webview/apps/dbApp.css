@@ -80,10 +80,25 @@ h2 {
 
 /* ── Codicon sizing ──────────────────────── */
 /* Buttons typically run at 11–13px text — pull the codicon down a touch
-   so it doesn't tower over the label, and align by middle in flex rows. */
+   so it doesn't tower over the label, and align by middle in flex rows.
+   vertical-align covers inline contexts where the parent isn't a flex row. */
 .codicon {
   font-size: 14px;
   line-height: 1;
+  vertical-align: middle;
+}
+/* Any button-shaped element that mixes icon + label needs a flex row so
+   the codicon's font metrics don't push the glyph above the text baseline. */
+.icon-btn,
+.log-btn,
+.col-sort-btn,
+.col-copy-btn,
+.layout-btn,
+.coordinates {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
 }
 .icon-btn .codicon,
 .col-sort-btn .codicon,
