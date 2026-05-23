@@ -281,7 +281,9 @@ export function FilterBar({ schema, titleFieldLabel, filterTree, setFilterTree }
             onChange={handleValueChange}
             onSubmit={createFilterTile}
           />
-          <button onClick={createFilterTile}>Create Filter Tile</button>
+          <button onClick={createFilterTile} title="Add filter tile to staging (Enter)">
+            <Icon name="add" /> Add
+          </button>
         </div>
         {submitError && (
           <div className="filter-bar-error" role="alert">
