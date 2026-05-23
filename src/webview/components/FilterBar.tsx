@@ -234,6 +234,16 @@ export function FilterBar({ schema, titleFieldLabel, filterTree, setFilterTree }
     setFilterValue("");
   }
 
+  // Add tile leaves the column + operator selected on purpose so the user can
+  // build several conditions on the same column quickly. `resetBar` is the
+  // escape hatch — wipes the picker back to its defaults.
+  function resetBar() {
+    setSelectedCol("__title");
+    setSelectedOp(defaultOperatorFor("text"));
+    setFilterValue("");
+    setSubmitError(null);
+  }
+
   // Any input change clears the stale error — the user has moved on.
   function handleValueChange(v: string) {
     setFilterValue(v);
@@ -290,6 +300,13 @@ export function FilterBar({ schema, titleFieldLabel, filterTree, setFilterTree }
           />
           <button onClick={createFilterTile} title="Add filter tile to staging (Enter)">
             <Icon name="add" /> Add
+          </button>
+          <button
+            onClick={resetBar}
+            title="Reset column, operator, and value to defaults"
+            aria-label="Reset filter bar"
+          >
+            <Icon name="clear-all" />
           </button>
         </div>
         {submitError && (
