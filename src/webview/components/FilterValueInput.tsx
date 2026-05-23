@@ -308,7 +308,14 @@ export function FilterValueInput({ kind, op, options, value, onChange, onSubmit 
     return <RegexInput value={value} onChange={onChange} onSubmit={onSubmit} />;
   }
   if (kind === "none") {
-    return <input id="filterVal" type="text" placeholder="(no value)" value="" disabled readOnly />;
+    // `isempty` / `isnotempty` don't need a value. Render a compact label
+    // instead of a 180px disabled input so the bar isn't taking up space
+    // it'll never use.
+    return (
+      <span id="filterVal" className="filter-no-value" aria-label="No value needed">
+        (no value needed)
+      </span>
+    );
   }
   if (kind === "boolean") {
     // True/false columns get an actual checkbox + a label so the picked

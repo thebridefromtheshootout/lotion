@@ -238,6 +238,16 @@ h2 .codicon {
   font-size: 14px;
   user-select: none;
 }
+.filter-bar .filter-no-value {
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  padding: 0 4px;
+  color: var(--muted);
+  font-size: 11px;
+  font-style: italic;
+  user-select: none;
+}
 .filter-bar .filter-chip-list {
   display: inline-flex;
   flex-wrap: wrap;
