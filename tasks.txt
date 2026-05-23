@@ -148,3 +148,71 @@ Do not attempt items marked [Complex].
       FilterTreeView, TableView, FormatCell, DatabaseViewRoot — all
       emoji/picto replaced with codicons; .empty-state ::before uses the
       codicon font directly.
+
+14. Database filter bar UX audit (NOT the filter tree — that part works).
+    Write a notes doc next to CODE_QUALITY.md analysing the shortcomings of
+    the filter bar: column select → operator select → value cell → Create
+    Filter Tile button.
+
+    Specific things worth auditing:
+    - Operator menu is a flat list of 20 ops regardless of column type. A
+      regex op on a checkbox column makes no sense; "between" on a select
+      column makes no sense; "has_any" on a text column makes no sense.
+      Should be filtered to ops valid for the selected column's type.
+    - The operator labels mix symbols and words inconsistently
+      ("== (equals)", ">", "contains", "isempty"). Pick one register.
+    - "between" requires two values but the value cell accepts a single
+      free-form string. There's no UI affordance for the second bound.
+    - "in" / "!in" accept a comma-separated string but the user has no
+      hint about that format and no chip UI to build the list.
+    - "matches_regex" is free-form text with no validation feedback when
+      the regex is malformed.
+    - Date columns get a single date input, but ops like "between" need
+      two dates and the input falls back to plain text.
+    - Multi-select value picker (checkbox list) has no search; with 30+
+      options it becomes unusable.
+    - The value cell doesn't react to invalid input — Enter just flashes
+      the bar.
+    - "Create Filter Tile" is a verbose noun-phrase label; could be
+      Enter-only or a tighter "Add" button.
+    - The bar doesn't remember the last selected column/op when the user
+      adds a tile — small UX papercut.
+    - Coordinates and url column types fall through to plain text.
+
+    Deliverable: src/../FILTER_BAR_AUDIT.md (or DB_FILTER_BAR.md) with
+    findings in the same table-style as CODE_QUALITY.md, with file:line
+    citations.
+
+15. Make Lotion databases actually useful for real work.
+    Write a forward-looking doc (DATABASE_ROADMAP.md or similar) next to
+    CODE_QUALITY.md. Premise: Lotion's databases today are a playground —
+    views, filters, sort exist; what's missing is what Notion users live
+    on day-to-day. Plain-markdown-on-disk + a real database engine is
+    the unique pitch, but only if the database engine is real.
+
+    Topics to cover, with concrete proposals for each:
+    - Formulas (computed columns). E.g. `=concat(first, " ", last)` or
+      `=sum(price * qty)` or `=daysSince(due)`. Where would the formula
+      live in the schema fence? How are circular refs detected?
+    - Relations across databases. `relation:other-db` column type whose
+      value is a link to another DB's entry. Bidirectional reverse-link
+      surfacing.
+    - Rollups. Aggregations across a relation — count, sum, avg, min, max,
+      concat, latest, earliest. Notion calls these "rollup properties."
+    - Templates for new entries (per-database). When clicking "New Entry"
+      offer N templates with pre-filled property values + body skeletons.
+    - Form view / quick-entry. A compact form (one entry per submit) for
+      data capture, separate from the table editor.
+    - Better imports: today CSV → DB and table → DB. Could add JSON,
+      ndjson, markdown frontmatter scan ("turn this folder of pages into
+      a DB").
+    - Better exports: CSV out exists. Add markdown table out, JSON out,
+      and a "publish DB as static HTML" path.
+    - Cross-database joins / lookups in views (not just within one DB).
+    - Property history / audit trail (who/when changed what — works since
+      data is git-tracked).
+
+    For each, identify the file(s) that'd need changes (likely
+    src/database/dbCommands.ts, src/database/databaseTypes.ts in
+    contracts/, the dbWebview, FormatCell, schema fence parser). Order
+    by impact × effort.
