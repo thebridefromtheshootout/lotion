@@ -2,7 +2,7 @@ import React, { useRef, useState } from "react";
 import { DbColumn, DbFilterGroup, DbViewFilter, isFilterLeaf } from "../types";
 import { pruneEmptyGroups } from "../utils/filterSort";
 import { getNodeByPath, isAncestor } from "../utils/filterTree";
-import type { DbFilterOperator } from "../../contracts/databaseTypes";
+import { type DbFilterOperator, defaultOperatorFor, validOperatorsFor } from "../../contracts/databaseTypes";
 import { ColumnNameOptions } from "./ColumnNameOptions";
 import { FilterValueInput, inputKindFor } from "./FilterValueInput";
 import { FilterTreeView, FilterChipText } from "./FilterTreeView";
@@ -15,28 +15,28 @@ interface FilterBarProps {
   setFilterTree: (tree: DbFilterGroup) => void;
 }
 
-const OPERATORS: { value: DbFilterOperator; label: string }[] = [
-  { value: "contains", label: "contains" },
-  { value: "!contains", label: "!contains" },
-  { value: "==", label: "== (equals)" },
-  { value: "!=", label: "!= (not equal)" },
-  { value: "startswith", label: "startswith" },
-  { value: "!startswith", label: "!startswith" },
-  { value: "endswith", label: "endswith" },
-  { value: "!endswith", label: "!endswith" },
-  { value: ">", label: ">" },
-  { value: ">=", label: ">=" },
-  { value: "<", label: "<" },
-  { value: "<=", label: "<=" },
-  { value: "between", label: "between" },
-  { value: "in", label: "in" },
-  { value: "!in", label: "!in" },
-  { value: "has_any", label: "has_any" },
-  { value: "has_all", label: "has_all" },
-  { value: "matches_regex", label: "matches_regex" },
-  { value: "isempty", label: "isempty" },
-  { value: "isnotempty", label: "isnotempty" },
-];
+const OPERATOR_LABELS: Record<DbFilterOperator, string> = {
+  contains: "contains",
+  "!contains": "!contains",
+  "==": "== (equals)",
+  "!=": "!= (not equal)",
+  startswith: "startswith",
+  "!startswith": "!startswith",
+  endswith: "endswith",
+  "!endswith": "!endswith",
+  ">": ">",
+  ">=": ">=",
+  "<": "<",
+  "<=": "<=",
+  between: "between",
+  in: "in",
+  "!in": "!in",
+  has_any: "has_any",
+  has_all: "has_all",
+  matches_regex: "matches_regex",
+  isempty: "isempty",
+  isnotempty: "isnotempty",
+};
 
 /** Drag payload transferred via dataTransfer */
 interface DragPayloadTree {
@@ -58,7 +58,22 @@ export function FilterBar({ schema, titleFieldLabel, filterTree, setFilterTree }
   const [filterValue, setFilterValue] = useState<string>("");
 
   const currentColumn = schema.find((c) => c.name === selectedCol);
+  // __title is the implicit string "title" column — treat as text for operator validity.
+  const currentColumnType = currentColumn?.type ?? "text";
+  const availableOps = validOperatorsFor(currentColumnType);
   const valueKind = inputKindFor(currentColumn?.type, selectedOp);
+
+  // If the user switches column to a type that doesn't support the currently
+  // selected operator, snap to the type's default. Without this, the bar
+  // would render an op that's no longer in the dropdown.
+  function handleColumnChange(nextCol: string) {
+    setSelectedCol(nextCol);
+    const nextColumn = schema.find((c) => c.name === nextCol);
+    const nextType = nextColumn?.type ?? "text";
+    if (!validOperatorsFor(nextType).includes(selectedOp)) {
+      setSelectedOp(defaultOperatorFor(nextType));
+    }
+  }
 
   // ── Staging area: tiles created but not yet placed in the tree ──
   const [stagedTiles, setStagedTiles] = useState<DbViewFilter[]>([]);
@@ -204,7 +219,7 @@ export function FilterBar({ schema, titleFieldLabel, filterTree, setFilterTree }
     <>
       <div className="filter-bar">
         <div className="filter-bar-inputs">
-          <select ref={colRef} id="filterCol" value={selectedCol} onChange={(e) => setSelectedCol(e.target.value)}>
+          <select ref={colRef} id="filterCol" value={selectedCol} onChange={(e) => handleColumnChange(e.target.value)}>
             <option value="__title">{titleFieldLabel}</option>
             <ColumnNameOptions columns={schema} />
           </select>
@@ -214,9 +229,9 @@ export function FilterBar({ schema, titleFieldLabel, filterTree, setFilterTree }
             value={selectedOp}
             onChange={(e) => setSelectedOp(e.target.value as DbFilterOperator)}
           >
-            {OPERATORS.map((o) => (
-              <option key={o.value} value={o.value}>
-                {o.label}
+            {availableOps.map((op) => (
+              <option key={op} value={op}>
+                {OPERATOR_LABELS[op]}
               </option>
             ))}
           </select>
