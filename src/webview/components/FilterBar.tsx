@@ -15,27 +15,34 @@ interface FilterBarProps {
   setFilterTree: (tree: DbFilterGroup) => void;
 }
 
+// Labels for the operator dropdown.
+//
+// Register: numeric / ordering ops stay as symbols (>, ≥, <, ≤) since
+// symbols read faster for math. Everything else (set, string, presence,
+// equality) uses verbal labels so the dropdown isn't a soup of `!startswith`
+// and `has_any`. "==" reads as "equals" in this context, not as a programming
+// idiom, and the negated forms use "doesn't / is not" instead of `!`-prefix.
 const OPERATOR_LABELS: Record<DbFilterOperator, string> = {
   contains: "contains",
-  "!contains": "!contains",
-  "==": "== (equals)",
-  "!=": "!= (not equal)",
-  startswith: "startswith",
-  "!startswith": "!startswith",
-  endswith: "endswith",
-  "!endswith": "!endswith",
+  "!contains": "doesn't contain",
+  "==": "equals",
+  "!=": "doesn't equal",
+  startswith: "starts with",
+  "!startswith": "doesn't start with",
+  endswith: "ends with",
+  "!endswith": "doesn't end with",
   ">": ">",
-  ">=": ">=",
+  ">=": "≥",
   "<": "<",
-  "<=": "<=",
+  "<=": "≤",
   between: "between",
-  in: "in",
-  "!in": "!in",
-  has_any: "has_any",
-  has_all: "has_all",
-  matches_regex: "matches_regex",
-  isempty: "isempty",
-  isnotempty: "isnotempty",
+  in: "is one of",
+  "!in": "is not one of",
+  has_any: "has any of",
+  has_all: "has all of",
+  matches_regex: "matches regex",
+  isempty: "is empty",
+  isnotempty: "is not empty",
 };
 
 /** Drag payload transferred via dataTransfer */
