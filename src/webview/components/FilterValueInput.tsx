@@ -187,6 +187,80 @@ function RegexInput({
   );
 }
 
+function MultiSelectPicker({
+  options,
+  value,
+  onChange,
+}: {
+  options: string[];
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  const [query, setQuery] = useState("");
+  const selected = new Set(
+    value
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean),
+  );
+  const q = query.trim().toLowerCase();
+  // Without search, schemas with 30+ options become a tall scroll-wall.
+  // Substring match on the option label keeps the picker usable at scale.
+  const visible = q ? options.filter((o) => o.toLowerCase().includes(q)) : options;
+
+  function toggle(opt: string, checked: boolean) {
+    const next = new Set(selected);
+    if (checked) next.add(opt);
+    else next.delete(opt);
+    onChange(Array.from(next).join(", "));
+  }
+  function clearAll() {
+    onChange("");
+  }
+
+  if (options.length === 0) {
+    return (
+      <div id="filterVal" className="filter-multi-select" role="group">
+        <span className="filter-empty-options">no options defined</span>
+      </div>
+    );
+  }
+
+  return (
+    <div id="filterVal" className="filter-multi-select" role="group">
+      <div className="filter-multi-select-header">
+        <input
+          type="text"
+          className="filter-multi-select-search"
+          placeholder="Filter options…"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+        />
+        <span className="filter-multi-select-meta">
+          {selected.size} of {options.length}
+        </span>
+        {selected.size > 0 && (
+          <button type="button" className="filter-multi-select-clear" onClick={clearAll}>
+            Clear
+          </button>
+        )}
+      </div>
+      <div className="filter-multi-select-options">
+        {visible.length === 0 ? (
+          <span className="filter-empty-options">no matches</span>
+        ) : (
+          visible.map((o) => (
+            <label key={o} className="filter-multi-select-option">
+              <input type="checkbox" checked={selected.has(o)} onChange={(e) => toggle(o, e.target.checked)} />
+              <span>{o}</span>
+            </label>
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
+
 export function FilterValueInput({ kind, op, options, value, onChange, onSubmit }: FilterValueInputProps) {
   // `between` always needs two values of the column's natural type; the
   // single-input branches below don't know how to render a pair, so we
@@ -260,32 +334,7 @@ export function FilterValueInput({ kind, op, options, value, onChange, onSubmit 
     );
   }
   if (kind === "multi-select") {
-    const selected = new Set(
-      value
-        .split(",")
-        .map((s) => s.trim())
-        .filter(Boolean),
-    );
-    function toggle(opt: string, checked: boolean) {
-      const next = new Set(selected);
-      if (checked) next.add(opt);
-      else next.delete(opt);
-      onChange(Array.from(next).join(", "));
-    }
-    return (
-      <div id="filterVal" className="filter-multi-select" role="group">
-        {(options ?? []).length === 0 ? (
-          <span className="filter-empty-options">no options defined</span>
-        ) : (
-          (options ?? []).map((o) => (
-            <label key={o} className="filter-multi-select-option">
-              <input type="checkbox" checked={selected.has(o)} onChange={(e) => toggle(o, e.target.checked)} />
-              <span>{o}</span>
-            </label>
-          ))
-        )}
-      </div>
-    );
+    return <MultiSelectPicker options={options ?? []} value={value} onChange={onChange} />;
   }
   return (
     <input
