@@ -185,6 +185,22 @@ h2 .codicon {
   align-items: center;
   flex-wrap: wrap;
 }
+/* Without these, children shrink before they wrap on narrow webviews —
+   the operator <select> in particular truncates its label long before
+   the row wraps to a second line. Force a sensible min and let wrap kick in. */
+.filter-bar-inputs > select,
+.filter-bar-inputs > input,
+.filter-bar-inputs > button,
+.filter-bar-inputs > .filter-multi-select,
+.filter-bar-inputs > .filter-chip-list,
+.filter-bar-inputs > .filter-between,
+.filter-bar-inputs > .filter-checkbox-value {
+  flex-shrink: 0;
+}
+.filter-bar-inputs > #filterCol,
+.filter-bar-inputs > #filterOp {
+  min-width: 120px;
+}
 .filter-bar select,
 .filter-bar input {
   background: var(--input-bg);
