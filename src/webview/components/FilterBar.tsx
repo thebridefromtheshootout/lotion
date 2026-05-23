@@ -78,11 +78,32 @@ export function FilterBar({ schema, titleFieldLabel, filterTree, setFilterTree }
   // ── Staging area: tiles created but not yet placed in the tree ──
   const [stagedTiles, setStagedTiles] = useState<DbViewFilter[]>([]);
 
+  // Inline error shown beneath the bar when submit fails (empty value,
+  // bad regex, etc.) — replaces the old 600ms full-bar red flash, which
+  // didn't tell the user *what* was wrong.
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
+  function validateForSubmit(leaf: DbViewFilter | null): string | null {
+    if (!leaf) return "Filter bar not ready.";
+    if (leaf.op === "matches_regex") {
+      try {
+        new RegExp(leaf.value);
+      } catch (err) {
+        return `Invalid regex: ${err instanceof Error ? err.message : String(err)}`;
+      }
+    }
+    if (!isValidLeafValue(leaf)) return "Value is required for this operator.";
+    return null;
+  }
+
   function createFilterTile() {
     const nextLeaf = readDbViewFilterInput();
-    if (!nextLeaf || !isValidLeafValue(nextLeaf)) {
+    const error = validateForSubmit(nextLeaf);
+    if (error || !nextLeaf) {
+      setSubmitError(error ?? "Filter bar not ready.");
       return;
     }
+    setSubmitError(null);
     setStagedTiles((prev) => [...prev, nextLeaf]);
     clearValueInput();
   }
@@ -188,10 +209,12 @@ export function FilterBar({ schema, titleFieldLabel, filterTree, setFilterTree }
 
   function addConditionToPath(path: number[]) {
     const nextLeaf = readDbViewFilterInput();
-    if (!nextLeaf || !isValidLeafValue(nextLeaf)) {
-      flashFilterBar();
+    const error = validateForSubmit(nextLeaf);
+    if (error || !nextLeaf) {
+      setSubmitError(error ?? "Filter bar not ready.");
       return;
     }
+    setSubmitError(null);
     const next = deepClone(filterTree);
     const group = getNodeByPath(next, path) as DbFilterGroup;
     group.clauses.push(nextLeaf);
@@ -202,6 +225,12 @@ export function FilterBar({ schema, titleFieldLabel, filterTree, setFilterTree }
 
   function clearValueInput() {
     setFilterValue("");
+  }
+
+  // Any input change clears the stale error — the user has moved on.
+  function handleValueChange(v: string) {
+    setFilterValue(v);
+    if (submitError) setSubmitError(null);
   }
 
   function readDbViewFilterInput(): DbViewFilter | null {
@@ -240,11 +269,16 @@ export function FilterBar({ schema, titleFieldLabel, filterTree, setFilterTree }
             op={selectedOp}
             options={currentColumn?.options}
             value={filterValue}
-            onChange={setFilterValue}
+            onChange={handleValueChange}
             onSubmit={createFilterTile}
           />
           <button onClick={createFilterTile}>Create Filter Tile</button>
         </div>
+        {submitError && (
+          <div className="filter-bar-error" role="alert">
+            {submitError}
+          </div>
+        )}
         {stagedTiles.length > 0 && (
           <div className="filter-staging">
             {stagedTiles.map((tile, i) => (
@@ -281,14 +315,6 @@ export function FilterBar({ schema, titleFieldLabel, filterTree, setFilterTree }
 
 function isValidLeafValue(leaf: DbViewFilter): boolean {
   return leaf.value.length > 0 || leaf.op === "isempty" || leaf.op === "isnotempty";
-}
-
-function flashFilterBar() {
-  const bar = document.querySelector(".filter-bar");
-  if (bar) {
-    bar.classList.add("filter-bar-flash");
-    setTimeout(() => bar.classList.remove("filter-bar-flash"), 600);
-  }
 }
 
 function setDragPayload(ev: React.DragEvent, payload: DragPayload) {

@@ -170,21 +170,14 @@ h2 .codicon {
     border-color 0.15s ease,
     box-shadow 0.15s ease;
 }
-.filter-bar-flash {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 40%, transparent);
-  animation: bar-flash 0.6s ease;
-}
-@keyframes bar-flash {
-  0% {
-    box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 50%, transparent);
-  }
-  50% {
-    box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 40%, transparent);
-  }
-  100% {
-    box-shadow: 0 0 0 0 transparent;
-  }
+.filter-bar-error {
+  margin-top: 6px;
+  padding: 4px 8px;
+  font-size: 11px;
+  color: var(--vscode-inputValidation-errorForeground, var(--vscode-errorForeground, #f48771));
+  background: color-mix(in srgb, var(--vscode-inputValidation-errorBorder, #f48771) 12%, transparent);
+  border: 1px solid var(--vscode-inputValidation-errorBorder, var(--vscode-errorForeground, #f48771));
+  border-radius: 4px;
 }
 .filter-bar-inputs {
   display: flex;
