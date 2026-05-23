@@ -237,6 +237,7 @@ export function FilterBar({ schema, titleFieldLabel, filterTree, setFilterTree }
           </select>
           <FilterValueInput
             kind={valueKind}
+            op={selectedOp}
             options={currentColumn?.options}
             value={filterValue}
             onChange={setFilterValue}

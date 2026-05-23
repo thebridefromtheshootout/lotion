@@ -9,13 +9,13 @@ export function inputKindFor(type: DbColumn["type"] | undefined, op: DbFilterOpe
   if (op === "isempty" || op === "isnotempty") {
     return "none";
   }
-  // Regex / between are always free-form text regardless of column type.
-  if (op === "matches_regex" || op === "between") {
+  if (op === "matches_regex") {
     return "text";
   }
-  // `in` / `!in` accept a comma-separated list. For column types where we
-  // know the option set (select / multi-select), still let the user check
-  // multiple options to build that list.
+  // `between` keeps the column's natural input kind — the two-input shape
+  // is handled by `FilterValueInput` itself, not by collapsing to "text".
+  // `in` / `!in` accept a list. For column types where we know the option
+  // set (select / multi-select), let the user check multiple options.
   switch (type) {
     case "number":
       return "number";
@@ -26,8 +26,6 @@ export function inputKindFor(type: DbColumn["type"] | undefined, op: DbFilterOpe
     case "url":
       return "url";
     case "select":
-      // For has_any / has_all / in / !in on a single-select column, fall
-      // back to a checkbox list so the user can pick multiple options.
       if (op === "has_any" || op === "has_all" || op === "in" || op === "!in") {
         return "multi-select";
       }
@@ -41,13 +39,56 @@ export function inputKindFor(type: DbColumn["type"] | undefined, op: DbFilterOpe
 
 interface FilterValueInputProps {
   kind: ValueInputKind;
+  op: DbFilterOperator;
   options: string[] | undefined;
   value: string;
   onChange: (v: string) => void;
   onSubmit: () => void;
 }
 
-export function FilterValueInput({ kind, options, value, onChange, onSubmit }: FilterValueInputProps) {
+/** Split / join the comma-separated payload used for `between` (low, high). */
+function splitBetween(value: string): [string, string] {
+  const parts = value.split(",").map((s) => s.trim());
+  return [parts[0] ?? "", parts[1] ?? ""];
+}
+function joinBetween(low: string, high: string): string {
+  return [low, high].map((s) => s.trim()).join(", ");
+}
+
+export function FilterValueInput({ kind, op, options, value, onChange, onSubmit }: FilterValueInputProps) {
+  // `between` always needs two values of the column's natural type; the
+  // single-input branches below don't know how to render a pair, so we
+  // short-circuit here. Only the typed kinds make sense for a range
+  // (number, date, text) — select/multi-select/boolean fall back to text.
+  if (op === "between") {
+    const betweenKind: "number" | "date" | "text" = kind === "number" || kind === "date" ? kind : "text";
+    const [low, high] = splitBetween(value);
+    return (
+      <span id="filterVal" className="filter-between" role="group" aria-label="Between range">
+        <input
+          type={betweenKind}
+          placeholder="from"
+          value={low}
+          onChange={(e) => onChange(joinBetween(e.target.value, high))}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") onSubmit();
+          }}
+        />
+        <span className="filter-between-sep" aria-hidden="true">
+          …
+        </span>
+        <input
+          type={betweenKind}
+          placeholder="to"
+          value={high}
+          onChange={(e) => onChange(joinBetween(low, e.target.value))}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") onSubmit();
+          }}
+        />
+      </span>
+    );
+  }
   if (kind === "none") {
     return <input id="filterVal" type="text" placeholder="(no value)" value="" disabled readOnly />;
   }

@@ -225,6 +225,19 @@ h2 .codicon {
 }
 
 /* Type-aware filter value cells */
+.filter-bar .filter-between {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.filter-bar .filter-between input {
+  width: 110px;
+}
+.filter-bar .filter-between-sep {
+  color: var(--muted);
+  font-size: 14px;
+  user-select: none;
+}
 .filter-bar .filter-checkbox-value {
   display: inline-flex;
   align-items: center;
