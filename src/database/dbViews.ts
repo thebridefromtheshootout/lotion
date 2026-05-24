@@ -1,10 +1,5 @@
 import * as fs from "fs";
-import {
-  parseFencedBlockFromFile,
-  parseFencedBlockFromText,
-  SCHEMA_FENCE_START,
-  SCHEMA_FENCE_END,
-} from "./dbSchema";
+import { parseFencedBlockFromFile, parseFencedBlockFromText, SCHEMA_FENCE_START, SCHEMA_FENCE_END } from "./dbSchema";
 import type { DbFilterOperator, DbViewFilter, DbFilterClause, DbView, LayoutKind } from "../contracts/databaseTypes";
 import { Regex } from "../core/regex";
 import { Markers } from "../core/markers";
@@ -111,6 +106,11 @@ function parseViewsYaml(lines: string[]): DbView[] {
         current.filters![current.filters!.length - 1].value = filterVal[1].trim();
         continue;
       }
+      const filterCase = line.match(Regex.dbFilterCaseSensitiveLine);
+      if (filterCase && current.filters!.length > 0) {
+        current.filters![current.filters!.length - 1].caseSensitive = filterCase[1] === "true";
+        continue;
+      }
     }
   }
 
@@ -160,6 +160,9 @@ export function serializeViews(views: DbView[]): string {
         lines.push(`      - col: ${f.col}`);
         lines.push(`        op: ${f.op || "contains"}`);
         lines.push(`        value: ${f.value}`);
+        if (f.caseSensitive) {
+          lines.push(`        caseSensitive: true`);
+        }
       }
     }
   }

@@ -159,6 +159,7 @@ export const Regex = {
   dbFilterColLine: /^\s+-\s+col:\s*(.+)$/,
   dbFilterOpLine: /^\s+op:\s*(.+)$/,
   dbFilterValueLine: /^\s+value:\s*(.+)$/,
+  dbFilterCaseSensitiveLine: /^\s+caseSensitive:\s*(true|false)\s*$/,
 
   // Database property tables
   propertyTableHeader: /^\|\s*Property\s*\|\s*Value\s*\|/i,
@@ -179,7 +180,8 @@ export const Regex = {
   // produced by core/ids.guid(). Tightening the capture group from
   // [0-9a-f-]+ to the explicit shape stops a malformed marker (or a
   // hand-typed `lotion-processor:zzz`) from being accepted as a real GUID.
-  processorMarkerGlobal: /<!--\s*lotion-processor:\s*([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\s*-->/g,
+  processorMarkerGlobal:
+    /<!--\s*lotion-processor:\s*([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\s*-->/g,
   processorStart: /^<!--\s*lotion-processor:\s*([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\s*-->$/,
   processorDetailsOpen: /^<details[^>]*>\s*$/,
   processorSummaryOpen: /^<summary>/,
