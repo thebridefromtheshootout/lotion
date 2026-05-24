@@ -13,7 +13,7 @@ export function matchesFilters(
 function evalClause(node: FilterNode, entry: { title: string; properties: Record<string, string> }): boolean {
   if (isLeaf(node)) {
     const target = node.col === "__title" ? entry.title : entry.properties[node.col] || "";
-    return evalFilter(target, node.op, node.value);
+    return evalFilter(target, node.op, node.value, node.caseSensitive === true);
   }
   const group = node as FilterGroup;
   let result: boolean;
@@ -27,9 +27,12 @@ function evalClause(node: FilterNode, entry: { title: string; properties: Record
   return group.not ? !result : result;
 }
 
-function evalFilter(target: string, op: string, value: string): boolean {
-  const t = target.toLowerCase();
-  const v = value.toLowerCase();
+function evalFilter(target: string, op: string, value: string, caseSensitive: boolean): boolean {
+  // String comparisons default to case-insensitive (most users expect this);
+  // the caseSensitive flag is the opt-in escape hatch for users matching
+  // config keys / IDs / source identifiers.
+  const t = caseSensitive ? target : target.toLowerCase();
+  const v = caseSensitive ? value : value.toLowerCase();
   switch (op) {
     case "==":
       return t === v;
@@ -49,7 +52,7 @@ function evalFilter(target: string, op: string, value: string): boolean {
       return !t.endsWith(v);
     case "matches_regex":
       try {
-        return new RegExp(value, "i").test(target);
+        return new RegExp(value, caseSensitive ? "" : "i").test(target);
       } catch {
         return false;
       }

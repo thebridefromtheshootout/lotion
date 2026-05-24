@@ -318,14 +318,15 @@ export function FilterValueInput({ kind, op, options, value, onChange, onSubmit 
     );
   }
   if (kind === "boolean") {
-    // True/false columns get an actual checkbox + a label so the picked
-    // value is unambiguous. Click toggles between "true" and "false".
-    const checked = value === "true";
+    // Single-op (`==`) checkbox columns: render a plain `<select>` with
+    // two options. A toggleable checkbox-as-value confuses users into
+    // thinking they're toggling their own data; a labeled select makes
+    // the intent ("the row's value is true" / "is false") explicit.
     return (
-      <label id="filterVal" className="filter-checkbox-value" title="Filter value">
-        <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked ? "true" : "false")} />
-        <span>{checked ? "true" : "false"}</span>
-      </label>
+      <select id="filterVal" value={value || "true"} onChange={(e) => onChange(e.target.value)}>
+        <option value="true">true</option>
+        <option value="false">false</option>
+      </select>
     );
   }
   if (kind === "select") {

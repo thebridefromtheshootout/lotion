@@ -190,6 +190,11 @@ export function FilterChipText({ leaf, titleFieldLabel }: { leaf: DbViewFilter; 
   return (
     <>
       {leaf.col === "__title" ? titleFieldLabel : leaf.col} <em>{leaf.op || "contains"}</em> {leaf.value}
+      {leaf.caseSensitive ? (
+        <span className="filter-chip-case" title="Case-sensitive">
+          Aa
+        </span>
+      ) : null}
     </>
   );
 }

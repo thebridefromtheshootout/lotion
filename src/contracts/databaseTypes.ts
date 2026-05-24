@@ -154,6 +154,12 @@ export interface DbViewFilter {
   col: string;
   op: DbFilterOperator;
   value: string;
+  /**
+   * If true, string comparisons (==, contains, startswith, regex, etc.)
+   * are case-sensitive. Default false — the runtime lowercases both sides.
+   * Numeric ops (>, between, …) ignore this flag.
+   */
+  caseSensitive?: boolean;
 }
 
 /** The group branch of `DbFilterClause` — combines children with a logical operator. */

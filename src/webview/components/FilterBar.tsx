@@ -63,6 +63,7 @@ export function FilterBar({ schema, titleFieldLabel, filterTree, setFilterTree }
   const [selectedCol, setSelectedCol] = useState<string>("__title");
   const [selectedOp, setSelectedOp] = useState<DbFilterOperator>("contains");
   const [filterValue, setFilterValue] = useState<string>("");
+  const [caseSensitive, setCaseSensitive] = useState<boolean>(false);
 
   const currentColumn = schema.find((c) => c.name === selectedCol);
   // __title is the implicit string "title" column — treat as text for operator validity.
@@ -241,6 +242,7 @@ export function FilterBar({ schema, titleFieldLabel, filterTree, setFilterTree }
     setSelectedCol("__title");
     setSelectedOp(defaultOperatorFor("text"));
     setFilterValue("");
+    setCaseSensitive(false);
     setSubmitError(null);
   }
 
@@ -258,6 +260,9 @@ export function FilterBar({ schema, titleFieldLabel, filterTree, setFilterTree }
       col: colRef.current.value,
       op: opRef.current.value as DbFilterOperator,
       value: filterValue.trim(),
+      // Only persist the flag when it's on — keeps the saved YAML clean
+      // and round-trips legacy views unchanged.
+      ...(caseSensitive ? { caseSensitive: true } : {}),
     };
   }
 
@@ -291,6 +296,16 @@ export function FilterBar({ schema, titleFieldLabel, filterTree, setFilterTree }
               </option>
             ))}
           </select>
+          <button
+            type="button"
+            className={`filter-case-toggle${caseSensitive ? " active" : ""}`}
+            onClick={() => setCaseSensitive((v) => !v)}
+            title={caseSensitive ? "Case-sensitive (click for insensitive)" : "Case-insensitive (click for sensitive)"}
+            aria-pressed={caseSensitive}
+            aria-label="Toggle case sensitivity"
+          >
+            Aa
+          </button>
           <FilterValueInput
             kind={valueKind}
             op={selectedOp}
