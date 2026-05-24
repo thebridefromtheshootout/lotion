@@ -6,6 +6,18 @@ import { Markers } from "../core/markers";
 
 export type { DbFilterOperator, DbViewFilter, DbFilterClause, DbView, LayoutKind } from "../contracts/databaseTypes";
 
+// Maps legacy `!X` operators to their affirmative equivalent. The runtime
+// in `filterSort` still handles `!X` for in-memory robustness, but parsed
+// views always migrate so the chip UI sees a single canonical shape:
+// affirmative op + `not: true`.
+const LEGACY_NEGATED_OPS: Record<string, string> = {
+  "!=": "==",
+  "!contains": "contains",
+  "!startswith": "startswith",
+  "!endswith": "endswith",
+  "!in": "in",
+};
+
 // ── View parsing ───────────────────────────────────────────────────
 
 const VIEWS_FENCE_START = Regex.dbViewsFenceStart;
@@ -98,7 +110,19 @@ function parseViewsYaml(lines: string[]): DbView[] {
       }
       const filterOp = line.match(Regex.dbFilterOpLine);
       if (filterOp && current.filters!.length > 0) {
-        current.filters![current.filters!.length - 1].op = filterOp[1].trim() as DbFilterOperator;
+        const rawOp = filterOp[1].trim();
+        const last = current.filters![current.filters!.length - 1];
+        // Migrate legacy `!X` operators (`!=`, `!contains`, …) to the
+        // affirmative op + flip `not`. The runtime understands the legacy
+        // form too, but converging on one shape keeps chip rendering and
+        // the operator dropdown consistent.
+        const migrated = LEGACY_NEGATED_OPS[rawOp];
+        if (migrated) {
+          last.op = migrated as DbFilterOperator;
+          last.not = !last.not;
+        } else {
+          last.op = rawOp as DbFilterOperator;
+        }
         continue;
       }
       const filterVal = line.match(Regex.dbFilterValueLine);
@@ -109,6 +133,14 @@ function parseViewsYaml(lines: string[]): DbView[] {
       const filterCase = line.match(Regex.dbFilterCaseSensitiveLine);
       if (filterCase && current.filters!.length > 0) {
         current.filters![current.filters!.length - 1].caseSensitive = filterCase[1] === "true";
+        continue;
+      }
+      const filterNot = line.match(Regex.dbFilterNotLine);
+      if (filterNot && current.filters!.length > 0) {
+        const last = current.filters![current.filters!.length - 1];
+        // XOR with whatever the op-migration already set, so a saved
+        // `not: true` plus a legacy `!X` op cancel out as expected.
+        last.not = last.not !== (filterNot[1] === "true");
         continue;
       }
     }
@@ -162,6 +194,9 @@ export function serializeViews(views: DbView[]): string {
         lines.push(`        value: ${f.value}`);
         if (f.caseSensitive) {
           lines.push(`        caseSensitive: true`);
+        }
+        if (f.not) {
+          lines.push(`        not: true`);
         }
       }
     }

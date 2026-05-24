@@ -160,6 +160,7 @@ export const Regex = {
   dbFilterOpLine: /^\s+op:\s*(.+)$/,
   dbFilterValueLine: /^\s+value:\s*(.+)$/,
   dbFilterCaseSensitiveLine: /^\s+caseSensitive:\s*(true|false)\s*$/,
+  dbFilterNotLine: /^\s+not:\s*(true|false)\s*$/,
 
   // Database property tables
   propertyTableHeader: /^\|\s*Property\s*\|\s*Value\s*\|/i,

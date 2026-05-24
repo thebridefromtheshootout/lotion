@@ -18,26 +18,22 @@ interface FilterBarProps {
 // Labels for the operator dropdown.
 //
 // Register: numeric / ordering ops stay as symbols (>, ≥, <, ≤) since
-// symbols read faster for math. Everything else (set, string, presence,
-// equality) uses verbal labels so the dropdown isn't a soup of `!startswith`
-// and `has_any`. "==" reads as "equals" in this context, not as a programming
-// idiom, and the negated forms use "doesn't / is not" instead of `!`-prefix.
-const OPERATOR_LABELS: Record<DbFilterOperator, string> = {
+// symbols read faster for math. Everything else uses verbal labels so the
+// dropdown isn't a soup of operator soup. `!`-prefixed variants
+// (`!contains`, `!=`, …) are intentionally omitted — negation is now
+// expressed via the leaf's NOT toggle. The legacy keys still parse in
+// saved views; the parser migrates them to the affirmative op + `not: true`.
+const OPERATOR_LABELS: Partial<Record<DbFilterOperator, string>> = {
   contains: "contains",
-  "!contains": "doesn't contain",
   "==": "equals",
-  "!=": "doesn't equal",
   startswith: "starts with",
-  "!startswith": "doesn't start with",
   endswith: "ends with",
-  "!endswith": "doesn't end with",
   ">": ">",
   ">=": "≥",
   "<": "<",
   "<=": "≤",
   between: "between",
   in: "is one of",
-  "!in": "is not one of",
   has_any: "has any of",
   has_all: "has all of",
   matches_regex: "matches regex",
@@ -146,13 +142,15 @@ export function FilterBar({ schema, titleFieldLabel, filterTree, setFilterTree }
   }
 
   function toggleNot(path: number[]) {
-    updateGroupAtPath(
-      path,
-      (group) => {
-        group.not = !group.not;
-      },
-      true,
-    );
+    const next = deepClone(filterTree);
+    const node = getNodeByPath(next, path);
+    if (isFilterLeaf(node)) {
+      node.not = !node.not;
+    } else {
+      node.not = !node.not;
+    }
+    ensureRootAnd(next);
+    setFilterTree(next);
   }
 
   function moveTreeNode(fromPath: number[], toGroupPath: number[]) {

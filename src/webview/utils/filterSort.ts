@@ -13,7 +13,8 @@ export function matchesFilters(
 function evalClause(node: FilterNode, entry: { title: string; properties: Record<string, string> }): boolean {
   if (isLeaf(node)) {
     const target = node.col === "__title" ? entry.title : entry.properties[node.col] || "";
-    return evalFilter(target, node.op, node.value, node.caseSensitive === true);
+    const raw = evalFilter(target, node.op, node.value, node.caseSensitive === true);
+    return node.not ? !raw : raw;
   }
   const group = node as FilterGroup;
   let result: boolean;

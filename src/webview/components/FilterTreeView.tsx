@@ -41,8 +41,17 @@ export function FilterTreeView({
     // styled with the group's dashed border / padding.
     return (
       <Draggable enabled={!isRoot} onDragStart={(e) => onDragStart(e, path)}>
-        <span className="filter-chip">
+        <span className={`filter-chip${node.not ? " filter-chip-negated" : ""}`}>
           <FilterChipText leaf={node} titleFieldLabel={titleFieldLabel} />
+          <button
+            type="button"
+            className={`filter-chip-not${node.not ? " active" : ""}`}
+            onClick={() => onToggleNot(path)}
+            title={node.not ? "Filter is negated — click to un-negate" : "Negate this filter"}
+            aria-pressed={node.not || false}
+          >
+            NOT
+          </button>
           <span className="remove" onClick={() => onRemove(path)} aria-label="Remove filter">
             <Icon name="close" />
           </span>
@@ -198,3 +207,17 @@ export function FilterChipText({ leaf, titleFieldLabel }: { leaf: DbViewFilter; 
     </>
   );
 }
+
+/**
+ * For legacy in-memory filters that still carry a `!X` operator (rather
+ * than the affirmative op + `not` flag), surface them as their affirmative
+ * equivalent so chip rendering and the operator dropdown converge on one
+ * shape. The runtime in `filterSort` understands both forms.
+ */
+export const LEGACY_NEGATION_MAP: Record<string, string> = {
+  "!=": "==",
+  "!contains": "contains",
+  "!startswith": "startswith",
+  "!endswith": "endswith",
+  "!in": "in",
+};

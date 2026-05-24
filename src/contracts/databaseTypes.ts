@@ -51,60 +51,45 @@ export type DbFilterOperator =
 // nonsense combinations like `matches_regex` on a checkbox or `between`
 // on a select can be prevented.
 
+// `!`-prefixed variants (`!contains`, `!=`, etc.) are intentionally NOT in
+// any pool — negation is expressed via the leaf's `not` flag (see
+// DbViewFilter.not). The runtime still recognises `!X` for backward compat
+// with views written before the NOT-toggle migration; new tiles always use
+// the affirmative op + `not`.
+
 const TEXT_OPS: DbFilterOperator[] = [
   "contains",
-  "!contains",
   "==",
-  "!=",
   "startswith",
-  "!startswith",
   "endswith",
-  "!endswith",
   "matches_regex",
   "in",
-  "!in",
   "isempty",
   "isnotempty",
 ];
 
 const URL_OPS: DbFilterOperator[] = [
   "contains",
-  "!contains",
   "==",
-  "!=",
   "startswith",
-  "!startswith",
   "endswith",
-  "!endswith",
   "matches_regex",
   "isempty",
   "isnotempty",
 ];
 
-const NUMERIC_OPS: DbFilterOperator[] = [
-  "==",
-  "!=",
-  ">",
-  ">=",
-  "<",
-  "<=",
-  "between",
-  "in",
-  "!in",
-  "isempty",
-  "isnotempty",
-];
+const NUMERIC_OPS: DbFilterOperator[] = ["==", ">", ">=", "<", "<=", "between", "in", "isempty", "isnotempty"];
 
-const DATE_OPS: DbFilterOperator[] = ["==", "!=", ">", ">=", "<", "<=", "between", "isempty", "isnotempty"];
+const DATE_OPS: DbFilterOperator[] = ["==", ">", ">=", "<", "<=", "between", "isempty", "isnotempty"];
 
 // Checkbox columns only expose "==" — "is true" and "is false" are
 // expressed by toggling the value, not by flipping operators. Dropping
 // "!=" removes a redundant cognitive choice (`!= true` ≡ `== false`).
 const CHECKBOX_OPS: DbFilterOperator[] = ["=="];
 
-const SELECT_OPS: DbFilterOperator[] = ["==", "!=", "in", "!in", "isempty", "isnotempty"];
+const SELECT_OPS: DbFilterOperator[] = ["==", "in", "isempty", "isnotempty"];
 
-const MULTI_SELECT_OPS: DbFilterOperator[] = ["has_any", "has_all", "in", "!in", "contains", "isempty", "isnotempty"];
+const MULTI_SELECT_OPS: DbFilterOperator[] = ["has_any", "has_all", "in", "contains", "isempty", "isnotempty"];
 
 const IMAGE_COORD_OPS: DbFilterOperator[] = ["isempty", "isnotempty"];
 
@@ -160,6 +145,13 @@ export interface DbViewFilter {
    * Numeric ops (>, between, …) ignore this flag.
    */
   caseSensitive?: boolean;
+  /**
+   * If true, negate the leaf's outcome (the chip renders a NOT badge).
+   * Replaces the family of `!`-prefixed operators (`!contains`, `!=`,
+   * `!startswith`, `!endswith`, `!in`) — kept as a separate flag so the
+   * operator alphabet halves and the UI matches the existing group NOT.
+   */
+  not?: boolean;
 }
 
 /** The group branch of `DbFilterClause` — combines children with a logical operator. */

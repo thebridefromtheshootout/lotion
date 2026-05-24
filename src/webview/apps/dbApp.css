@@ -518,6 +518,38 @@ h2 .codicon {
   opacity: 1;
   background: color-mix(in srgb, var(--accent) 25%, transparent);
 }
+/* NOT badge embedded in a chip — collapses the family of `!`-prefixed
+   operators into one flag the user can toggle without rebuilding the chip. */
+.filter-chip-not {
+  background: transparent;
+  border: 1px solid color-mix(in srgb, var(--fg) 18%, transparent);
+  border-radius: 999px;
+  padding: 0 6px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  cursor: pointer;
+  text-transform: uppercase;
+  line-height: 1.6;
+  transition:
+    background var(--motion-fast),
+    color var(--motion-fast),
+    border-color var(--motion-fast);
+}
+.filter-chip-not:hover {
+  border-color: color-mix(in srgb, var(--accent) 50%, transparent);
+  color: var(--fg);
+}
+.filter-chip-not.active {
+  background: color-mix(in srgb, var(--vscode-errorForeground, #e76f51) 18%, transparent);
+  border-color: color-mix(in srgb, var(--vscode-errorForeground, #e76f51) 55%, transparent);
+  color: var(--vscode-errorForeground, #e76f51);
+}
+.filter-chip-negated {
+  background: color-mix(in srgb, var(--vscode-errorForeground, #e76f51) 8%, var(--surface));
+  border-color: color-mix(in srgb, var(--vscode-errorForeground, #e76f51) 28%, transparent);
+}
 
 /* ── Filter tree collapsible ─────────────── */
 .filter-tree-collapsible {
