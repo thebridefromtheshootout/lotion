@@ -1,0 +1,104 @@
+import * as fs from "fs";
+import * as path from "path";
+import { Regex } from "../core/regex";
+import { parsePropertyTable } from "./dbFrontmatter";
+
+// ── Per-database entry templates ───────────────────────────────────
+//
+// Templates live in `.templates/<name>.md` under the DB folder. Each
+// template file uses the same shape as an entry — an optional property
+// table that supplies default property values, plus a free-form body
+// that becomes the new entry's body content.
+//
+// The folder is hidden (`.`-prefixed) so it's already excluded by the
+// DB-entry walker (`readDbEntries` filters dot-folders), meaning
+// templates don't accidentally appear as entries.
+
+const TEMPLATES_DIRNAME = ".templates";
+
+export interface TemplateFile {
+  name: string;
+  path: string;
+}
+
+/** List all template files in the DB folder. Empty array when none. */
+export function listTemplates(dbDir: string): TemplateFile[] {
+  const dir = path.join(dbDir, TEMPLATES_DIRNAME);
+  if (!fs.existsSync(dir) || !fs.statSync(dir).isDirectory()) {
+    return [];
+  }
+
+  const out: TemplateFile[] = [];
+  for (const file of fs.readdirSync(dir)) {
+    if (!file.endsWith(".md")) continue;
+    out.push({
+      name: file.replace(/\.md$/, ""),
+      path: path.join(dir, file),
+    });
+  }
+  return out.sort((a, b) => a.name.localeCompare(b.name));
+}
+
+export interface ParsedTemplate {
+  /** Default property values pulled from the template's property table. */
+  defaults: Record<string, string>;
+  /** Body content after the property table — becomes the new entry's body. */
+  body: string;
+}
+
+/**
+ * Split a template file's contents into property-table defaults and body.
+ * A template without a property table is body-only (no defaults).
+ */
+export function parseTemplate(content: string): ParsedTemplate {
+  const defaults = parsePropertyTable(content) ?? {};
+  return { defaults, body: extractBodyAfterPropertyTable(content) };
+}
+
+/** Read + parse a template file from disk. */
+export function readTemplate(filePath: string): ParsedTemplate | undefined {
+  if (!fs.existsSync(filePath)) {
+    return undefined;
+  }
+  return parseTemplate(fs.readFileSync(filePath, "utf-8"));
+}
+
+/**
+ * Strip the property table (header + separator + all data rows) from
+ * `content` and return whatever follows. When there's no table, the
+ * full content is returned with leading H1 trimmed off (the entry
+ * creator builds its own H1 from the entry title).
+ */
+function extractBodyAfterPropertyTable(content: string): string {
+  const lines = content.split(Regex.lineBreakSplit);
+
+  let headerIdx = -1;
+  for (let i = 0; i < lines.length; i++) {
+    if (Regex.propertyTableHeader.test(lines[i])) {
+      headerIdx = i;
+      break;
+    }
+  }
+
+  let bodyStart = 0;
+  if (headerIdx !== -1 && headerIdx + 1 < lines.length && Regex.propertyTableSeparator.test(lines[headerIdx + 1])) {
+    let endIdx = headerIdx + 1;
+    for (let i = headerIdx + 2; i < lines.length; i++) {
+      if (!lines[i].startsWith("|")) break;
+      endIdx = i;
+    }
+    bodyStart = endIdx + 1;
+  } else {
+    // No property table — skip a leading H1 if present (the entry creator
+    // builds its own heading from the title).
+    for (let i = 0; i < lines.length; i++) {
+      if (lines[i].trim() === "") continue;
+      if (Regex.headingH1Multiline.test(lines[i])) {
+        bodyStart = i + 1;
+      }
+      break;
+    }
+  }
+
+  return lines.slice(bodyStart).join("\n").replace(/^\n+/, "");
+}

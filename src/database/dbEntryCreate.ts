@@ -14,6 +14,7 @@ import { promptForColumnValue } from "./dbColumnPrompt";
 import { parseSchemaOrShowError } from "./dbSchemaEdits";
 import { readDbEntries } from "./dbEntries";
 import { validateEntry } from "./dbValidate";
+import { listTemplates, readTemplate } from "./dbTemplates";
 
 // ── /db-entry handler — create a new entry in a database ───────────
 
@@ -40,6 +41,22 @@ export async function handleDbEntryCommand(
   const schema = parseSchemaOrShowError(document);
   if (!schema) {
     return;
+  }
+
+  // If templates exist and the caller didn't pre-populate defaults
+  // (a webview "duplicate entry" flow, for example), let the user pick
+  // one. The template's property table becomes pre-filled defaults; its
+  // body content is appended to the new entry below the property table.
+  let templateBody = "";
+  if (Object.keys(defaults).length === 0) {
+    const pick = await pickTemplate(cwd);
+    if (pick === undefined) {
+      return; // user cancelled
+    }
+    if (pick) {
+      defaults = { ...pick.defaults };
+      templateBody = pick.body;
+    }
   }
 
   const entryInput = await promptDbEntryInput(schema, defaults);
@@ -73,8 +90,11 @@ export async function handleDbEntryCommand(
     fs.mkdirSync(entryDir, { recursive: true });
   }
 
-  // Build entry content: heading then property table
-  const entryContent = `# ${entryTitle}\n\n${buildPropertyTable(props)}\n\n---\n\n`;
+  // Build entry content: heading then property table, then template body
+  // (when one was picked). The trailing `---` is a section break so the
+  // user can start writing immediately below it.
+  const bodyPart = templateBody.length > 0 ? `${templateBody}\n\n---\n\n` : `---\n\n`;
+  const entryContent = `# ${entryTitle}\n\n${buildPropertyTable(props)}\n\n${bodyPart}`;
   fs.writeFileSync(entryFilePath, entryContent, "utf-8");
 
   // 4. Insert ordered-list link in database index.md
@@ -241,6 +261,41 @@ async function promptDbEntryInput(
   }
 
   return { entryTitle, props };
+}
+
+/**
+ * Show the template picker when `.templates/*.md` files exist in the DB folder.
+ *
+ * Returns:
+ *  - `null` when the user picked "Blank" or no templates exist (use bare flow)
+ *  - `{ defaults, body }` when the user picked a template
+ *  - `undefined` when the user dismissed the picker (cancel the whole flow)
+ */
+async function pickTemplate(
+  dbDir: string,
+): Promise<{ defaults: Record<string, string>; body: string } | null | undefined> {
+  const templates = listTemplates(dbDir);
+  if (templates.length === 0) {
+    return null;
+  }
+
+  const BLANK = { label: "Blank", description: "Start from an empty entry" };
+  const picks = [BLANK, ...templates.map((t) => ({ label: t.name, description: "Template" }))];
+
+  const choice = await hostEditor.showQuickPick(picks, { placeHolder: "Pick a template" });
+  if (!choice) {
+    return undefined;
+  }
+  if (choice.label === BLANK.label) {
+    return null;
+  }
+
+  const file = templates.find((t) => t.name === choice.label);
+  if (!file) {
+    return null;
+  }
+  const parsed = readTemplate(file.path);
+  return parsed ?? null;
 }
 
 function getDefaultValueForColumn(col: DbColumn, defaults: Record<string, string>): string | undefined {
