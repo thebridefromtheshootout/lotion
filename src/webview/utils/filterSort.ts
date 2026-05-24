@@ -93,32 +93,35 @@ function splitLowerCsv(value: string): string[] {
   return value.split(",").map((part) => part.trim().toLowerCase());
 }
 
+// Coerce a property value to something orderable: a raw number if it parses
+// as one, otherwise epoch ms if it parses as a date, otherwise null. The old
+// path silently lex-compared lowercase strings when both sides weren't
+// numeric — which sort-of-worked for ISO dates and was misleading for
+// everything else. Operator gating by column type (FILTER_BAR_AUDIT #1)
+// already keeps `>`/`>=`/`<`/`<=`/`between` off of text columns in new
+// views; this just stops legacy saved views from getting the lex fallback.
+function parseAsComparable(s: string): number | null {
+  if (s === "") return null;
+  const n = Number(s);
+  if (!isNaN(n)) return n;
+  const d = Date.parse(s);
+  if (!isNaN(d)) return d;
+  return null;
+}
+
 function compareNumeric(target: string, op: string, value: string): boolean {
-  const a = Number(target);
-  const b = Number(value);
-  if (!isNaN(a) && !isNaN(b)) {
-    switch (op) {
-      case ">":
-        return a > b;
-      case ">=":
-        return a >= b;
-      case "<":
-        return a < b;
-      case "<=":
-        return a <= b;
-    }
-  }
-  const ta = target.toLowerCase();
-  const tv = value.toLowerCase();
+  const a = parseAsComparable(target);
+  const b = parseAsComparable(value);
+  if (a === null || b === null) return false;
   switch (op) {
     case ">":
-      return ta > tv;
+      return a > b;
     case ">=":
-      return ta >= tv;
+      return a >= b;
     case "<":
-      return ta < tv;
+      return a < b;
     case "<=":
-      return ta <= tv;
+      return a <= b;
   }
   return false;
 }
