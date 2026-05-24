@@ -287,6 +287,7 @@ These are honest paper cuts more than feature gaps.
 | Filter UI cleanup              | See [FILTER_BAR_AUDIT.md](FILTER_BAR_AUDIT.md) for the full set.                                                              | See that doc. |
 | "Recently changed" indicator   | A dot/badge on entries modified in the last N hours (from `fs.statSync.mtime`).                                               | Half-day.     |
 | Pagination on large DBs        | Today's table view renders every entry. With 5,000+ entries, that's slow. Virtualize the table (react-window) or paginate.    | 1 day.        |
+| `datetime` column type         | Today's `date` column type truncates time-of-day in the filter input. Add a `datetime` type with `type="datetime-local"` input and epoch-ms compare. Referenced from [FILTER_BAR_AUDIT.md #17](FILTER_BAR_AUDIT.md). | Half-day.     |
 
 ---
 
