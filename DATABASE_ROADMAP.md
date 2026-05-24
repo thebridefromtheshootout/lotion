@@ -4,6 +4,24 @@ Premise: Lotion's database engine today is a playground. It has views, filters, 
 
 This doc inventories what's missing and proposes concrete shapes for the gaps, ordered by impact/effort.
 
+<!-- toc-start -->
+- [Database Roadmap — Making Lotion's Databases Useful for Real Work](#database-roadmap-making-lotions-databases-useful-for-real-work)
+  - [Where we are today](#where-we-are-today)
+  - [Tier 1 — Real-work essentials](#tier-1-real-work-essentials)
+    - [1.1 Formulas (computed columns)](#11-formulas-computed-columns)
+    - [1.2 Relations between databases](#12-relations-between-databases)
+    - [1.3 Rollups (aggregations across a relation)](#13-rollups-aggregations-across-a-relation)
+    - [1.4 Templates per database](#14-templates-per-database)
+    - [1.5 Validation: required, unique, default](#15-validation-required-unique-default)
+  - [Tier 2 — High-leverage adds](#tier-2-high-leverage-adds)
+    - [2.1 Form view / quick-entry](#21-form-view-quick-entry)
+    - [2.2 Better imports](#22-better-imports)
+    - [2.3 Better exports](#23-better-exports)
+    - [2.5 Bulk edit / multi-select rows](#25-bulk-edit-multi-select-rows)
+  - [Tier 3 — Polish](#tier-3-polish)
+  - [Suggested order](#suggested-order)
+<!-- toc-end -->
+
 ---
 
 ## Where we are today
@@ -48,13 +66,16 @@ columns:
 **Storage:** Formula columns are **not stored** in the property table on each entry — they're computed at view-time. The schema fence carries the formula expression.
 
 **Engine choices:**
-
-- Write a small s-expression-flavored evaluator (~200 LOC). Tokenize → parse → eval with a table of built-ins (`concat`, `if`, `sum`, `daysBetween`, `now`, `lower`, `upper`, comparisons, arithmetic). Pure functions only. No loops, no recursion.
-- Reuse [expr-eval](https://github.com/silentmatt/expr-eval) (small npm dep) or [filtrex](https://github.com/m93a/filtrex). Trade dep weight for not maintaining a parser.
+- we don't need to support an engine. let's support formula creation through the dropdown style ui we hvae for filters.
+  - we can provide a 'custom' formula option thatasks for the function name.
+  - and the lotion-db code block holds a link to the ./rsrc/formulas.js file that has the user's custom formulas.
+<strikeout>- Write a small s-expression-flavored evaluator (~200 LOC). Tokenize → parse → eval with a table of built-ins (`concat`, `if`, `sum`, `daysBetween`, `now`, `lower`, `upper`, comparisons, arithmetic). Pure functions only. No loops, no recursion.
+- Reuse [expr-eval](https://github.com/silentmatt/expr-eval) (small npm dep) or [filtrex](https://github.com/m93a/filtrex). Trade dep weight for not maintaining a parser.</strikeout>
 
 **Tricky bits:**
 
 - **Cycle detection.** `a = b + 1` and `b = a - 1` must be caught at parse-time. Topo-sort the formula DAG.
+  - we still need this.
 - **Type inference.** Formulas can return different types per row if expressions branch. Either require a declared `returns:` (cleaner) or infer per-cell.
 - **Empty / missing values.** What does `null + 1` produce? Probably `null`. Sort + filter need to handle.
 - **Where does evaluation run?** Webview side (fast, but the schema needs to ship the formula). Or extension side (slower, batches with file loads). Webview is right — formulas are display-only.
@@ -221,8 +242,7 @@ A compact form panel for adding entries — one at a time, one screen, all prope
 Today: CSV, markdown table. Add:
 
 - **JSON / ndjson** — `/json-to-db` from clipboard or file. Auto-infer schema from key types.
-- **Frontmatter scan** — `/folder-to-db` walks a folder of markdown files with frontmatter, derives schema from frontmatter keys, treats each file as an entry. Lifts existing markdown vaults into structured DBs in one shot.
-
+~~- **Frontmatter scan** — `/folder-to-db` walks a folder of markdown files with frontmatter, derives schema from frontmatter keys, treats each file as an entry. Lifts existing markdown vaults into structured DBs in one shot.~~
 **Files:** Extend [`dbTabularImport.ts`](src/database/dbTabularImport.ts) or split into `dbImport/` directory.
 
 **Effort:** Small (~1 day per importer).
@@ -235,14 +255,17 @@ Today: CSV via toolbar button. Add:
 
 - **JSON export** (single button or `/db-to-json`).
 - **Markdown table** export (single button — useful for pasting summaries into other pages).
-- **Publish DB as static HTML** — render the current view as a standalone HTML file (or set of files). Drop into `public/` for Pages/Vercel/Netlify hosting. This is the "share my DB" path that lots of people want.
-
+  - if we support this we must identify tables that came from dbs and provide /regen-from-db command.
+  - dataflow has to be one way → db to table.
+~~- **Publish DB as static HTML** — render the current view as a standalone HTML file (or set of files). Drop into `public/` for Pages/Vercel/Netlify hosting. This is the "share my DB" path that lots of people want.~~
+  - instead of share my db in particular, we should just let the user figure out how to serve markdown folders.
+    - I'm sure there are md site generators?
 **Effort:** Small (~1 day for JSON+MD, half-week for HTML publish).
 
 ---
 
-### 2.4 Inline DB summaries on other pages
-
+~~### 2.4 Inline DB summaries on other pages~~
+This is just sugar.
 A way to embed a live count/sum/value from a DB onto any markdown page:
 
 ```markdown
@@ -267,10 +290,9 @@ Shift-click to select multiple rows, then edit a single column for all of them i
 
 ---
 
-### 2.6 Hidden / reordered columns per view
-
+~~### 2.6 Hidden / reordered columns per view~~
 (Verify whether this already exists — couldn't see it in `DbView`. If not, it's a per-view list of column names + their visibility.)
-
+This is just a specialized filter.
 **Effort:** Half-day.
 
 ---
