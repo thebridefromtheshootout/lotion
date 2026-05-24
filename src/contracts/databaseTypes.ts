@@ -8,6 +8,16 @@ export interface DbColumn {
   options?: string[];
   maxWidth?: number;
   maxHeight?: number;
+  /** When true, entry creation refuses an empty value for this column. */
+  required?: boolean;
+  /** When true, no two entries in the DB may share the same value for this column (case-insensitive, trimmed). */
+  unique?: boolean;
+  /** Pre-filled value at entry creation time when no override is given. */
+  default?: string;
+  /** Numeric columns only — minimum allowed value (inclusive). */
+  min?: number;
+  /** Numeric columns only — maximum allowed value (inclusive). */
+  max?: number;
 }
 
 export interface DbSchema {

@@ -64,21 +64,11 @@ export function parseFencedBlockFromText<T>(
  * Returns the schema and the line range of the code block.
  */
 export function parseSchemaFromFile(filePath: string): DbSchema | undefined {
-  return parseFencedBlockFromFile<DbSchema | undefined>(
-    filePath,
-    SCHEMA_FENCE_START,
-    parseSimpleYaml,
-    undefined,
-  );
+  return parseFencedBlockFromFile<DbSchema | undefined>(filePath, SCHEMA_FENCE_START, parseSimpleYaml, undefined);
 }
 
 export function parseSchemaFromText(text: string): DbSchema | undefined {
-  return parseFencedBlockFromText<DbSchema | undefined>(
-    text,
-    SCHEMA_FENCE_START,
-    parseSimpleYaml,
-    undefined,
-  );
+  return parseFencedBlockFromText<DbSchema | undefined>(text, SCHEMA_FENCE_START, parseSimpleYaml, undefined);
 }
 
 /**
@@ -139,6 +129,36 @@ function parseSimpleYaml(lines: string[]): DbSchema | undefined {
       current.maxHeight = parseInt(maxHeightLine[1], 10);
       continue;
     }
+
+    const requiredLine = line.match(Regex.dbRequiredLine);
+    if (requiredLine && current) {
+      current.required = requiredLine[1] === "true";
+      continue;
+    }
+
+    const uniqueLine = line.match(Regex.dbUniqueLine);
+    if (uniqueLine && current) {
+      current.unique = uniqueLine[1] === "true";
+      continue;
+    }
+
+    const defaultLine = line.match(Regex.dbColumnDefaultLine);
+    if (defaultLine && current) {
+      current.default = defaultLine[1].trim();
+      continue;
+    }
+
+    const minLine = line.match(Regex.dbMinLine);
+    if (minLine && current) {
+      current.min = parseFloat(minLine[1]);
+      continue;
+    }
+
+    const maxLine = line.match(Regex.dbMaxLine);
+    if (maxLine && current) {
+      current.max = parseFloat(maxLine[1]);
+      continue;
+    }
   }
 
   // Push last column
@@ -175,6 +195,21 @@ export function serializeSchema(schema: DbSchema): string {
     }
     if (col.maxHeight !== undefined) {
       lines.push(`    maxHeight: ${col.maxHeight}`);
+    }
+    if (col.required) {
+      lines.push(`    required: true`);
+    }
+    if (col.unique) {
+      lines.push(`    unique: true`);
+    }
+    if (col.default !== undefined && col.default !== "") {
+      lines.push(`    default: ${col.default}`);
+    }
+    if (col.min !== undefined) {
+      lines.push(`    min: ${col.min}`);
+    }
+    if (col.max !== undefined) {
+      lines.push(`    max: ${col.max}`);
     }
   }
   return lines.join("\n");

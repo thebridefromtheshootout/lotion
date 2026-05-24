@@ -142,6 +142,31 @@ describe("serializeSchema", () => {
     expect(parsed).toBeDefined();
     expect(parsed!.columns).toEqual(original.columns);
   });
+
+  it("round-trips validation fields (required, unique, default, min, max)", () => {
+    const original: DbSchema = {
+      columns: [
+        { name: "Status", type: "select", options: ["todo", "doing", "done"], required: true, default: "todo" },
+        { name: "Slug", type: "text", unique: true },
+        { name: "Priority", type: "number", required: true, min: 1, max: 5, default: "3" },
+      ],
+    };
+
+    const serialized = serializeSchema(original);
+    const parsed = parseSchemaFromText("```lotion-db\n" + serialized + "\n```");
+    expect(parsed).toBeDefined();
+    expect(parsed!.columns).toEqual(original.columns);
+  });
+
+  it("omits falsey validation flags from serialized output", () => {
+    const schema: DbSchema = {
+      columns: [{ name: "Name", type: "text", required: false, unique: false, default: "" }],
+    };
+    const result = serializeSchema(schema);
+    expect(result).not.toContain("required:");
+    expect(result).not.toContain("unique:");
+    expect(result).not.toContain("default:");
+  });
 });
 
 // ═══════════════════════════════════════════════════════════════════
