@@ -12,6 +12,8 @@ import { collectOrderedList, renumberEdits, applyRenumberEdits } from "../lists/
 import type { ListNode } from "../lists/listModel";
 import { promptForColumnValue } from "./dbColumnPrompt";
 import { parseSchemaOrShowError } from "./dbSchemaEdits";
+import { readDbEntries } from "./dbEntries";
+import { validateEntry } from "./dbValidate";
 
 // ── /db-entry handler — create a new entry in a database ───────────
 
@@ -45,6 +47,16 @@ export async function handleDbEntryCommand(
     return;
   }
   const { entryTitle, props } = entryInput;
+
+  // Schema-level cross-entry checks (uniqueness). Per-cell validation has
+  // already run inside the prompts; this catches violations that need the
+  // rest of the DB to surface — chiefly `unique: true` collisions.
+  const otherEntries = readDbEntries(cwd).map((e) => e.properties);
+  const violations = validateEntry(schema, props, otherEntries);
+  if (violations.length > 0) {
+    hostEditor.showError(`Lotion: ${violations.map((v) => v.message).join("; ")}`);
+    return;
+  }
 
   // 3. Create child entry page
   const slug = toPathSlug(entryTitle);
@@ -117,10 +129,13 @@ async function insertDbEntryLinkWithListModel(
       }
 
       // Non-empty content line: remove trigger and append a new ordered entry line below.
-      await hostEditor.replaceRange(new Range(new Position(lineNumber, slashIdx), new Position(lineNumber, slashIdx + 1)), "");
+      await hostEditor.replaceRange(
+        new Range(new Position(lineNumber, slashIdx), new Position(lineNumber, slashIdx + 1)),
+        "",
+      );
       const refreshedLine = hostEditor.getLine(lineNumber);
       const orderedWithContent = refreshedLine.text.match(Regex.orderedListWithContent);
-      const indent = orderedWithContent?.[1] ?? (refreshedLine.text.match(Regex.lineIndent)?.[1] ?? "");
+      const indent = orderedWithContent?.[1] ?? refreshedLine.text.match(Regex.lineIndent)?.[1] ?? "";
       const sep = orderedWithContent?.[3] ?? ". ";
       await hostEditor.insertAt(refreshedLine.range.end, `\n${indent}1${sep}${rawLink}`);
       insertedLine = lineNumber + 1;
@@ -132,7 +147,7 @@ async function insertDbEntryLinkWithListModel(
   const orderedOnly = lineText.match(Regex.orderedListMarkerOnly);
 
   if (orderedOnly || lineText.trim().length === 0) {
-    const indent = orderedOnly?.[1] ?? (lineText.match(Regex.lineIndent)?.[1] ?? "");
+    const indent = orderedOnly?.[1] ?? lineText.match(Regex.lineIndent)?.[1] ?? "";
     await hostEditor.replaceRange(line.range, `${indent}1. ${rawLink}`);
     await renumberOrderedListAtLine(insertedLine);
     return;
@@ -232,6 +247,11 @@ function getDefaultValueForColumn(col: DbColumn, defaults: Record<string, string
   const providedDefault = defaults[col.name];
   if (providedDefault !== undefined) {
     return providedDefault;
+  }
+  // Schema-level `default:` wins over the type-fallback so a user who
+  // declares `default: 2026-01-01` doesn't get overridden by today's date.
+  if (col.default !== undefined && col.default !== "") {
+    return col.default;
   }
   if (col.type === "date") {
     const today = new Date().toISOString().slice(0, 10);

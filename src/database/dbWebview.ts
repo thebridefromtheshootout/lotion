@@ -13,6 +13,7 @@ import {
   parseSchemaFromFile,
   findParentDbIndex,
 } from "./database";
+import { validateColumnValue, validateUniqueness } from "./dbValidate";
 import { Cmd, Panel } from "../core/commands";
 import { Regex } from "../core/regex";
 import { ExtensionToDbPanelCommunicator } from "../communicators/dbPanelCommunicator";
@@ -25,9 +26,7 @@ import { resolveDbEntries, resolveEntryPath, sendInit } from "./dbWebviewHelpers
 /** Wrapper to match SlashCommand handler signature — resolves parent DB index for child entries */
 async function handleOpenDbWebview(doc: TextDocument, _pos: Position): Promise<void> {
   const fsPath = doc.uri.fsPath;
-  const dbIndexPath = Regex.dbSchemaFenceStartMultiline.test(doc.getText())
-    ? fsPath
-    : findParentDbIndex(fsPath);
+  const dbIndexPath = Regex.dbSchemaFenceStartMultiline.test(doc.getText()) ? fsPath : findParentDbIndex(fsPath);
   if (!dbIndexPath) {
     await hostEditor.showWarning("Lotion: This file is not part of a database.");
     return;
@@ -104,6 +103,33 @@ export async function openDbWebview(dbIndexPath: string): Promise<void> {
   communicator.registerOnUpdateEntryProperty((msg) => {
     const entryFile = resolveEntryPath(dbDir, msg.relativePath);
     if (!entryFile) return;
+
+    // Validate against schema before committing — required, type, range,
+    // option membership, uniqueness. On violation the write is skipped
+    // and the user sees a warning; the panel refresh below restores the
+    // cell to its on-disk value so the rejected input isn't kept.
+    const schema = parseSchemaFromFile(dbIndexPath);
+    const col = schema?.columns.find((c) => c.name === msg.column);
+    if (col) {
+      const cellError = validateColumnValue(col, msg.value);
+      if (cellError) {
+        hostEditor.showWarning(`Lotion: ${cellError}`);
+        softRefreshDbWebview(dbIndexPath);
+        return;
+      }
+      if (col.unique) {
+        const others = readDbEntries(dbDir)
+          .filter((e) => e.relativePath !== msg.relativePath)
+          .map((e) => e.properties[col.name] ?? "");
+        const uniqueError = validateUniqueness(col, msg.value, others);
+        if (uniqueError) {
+          hostEditor.showWarning(`Lotion: ${uniqueError}`);
+          softRefreshDbWebview(dbIndexPath);
+          return;
+        }
+      }
+    }
+
     updateEntryProperty(entryFile, msg.column, msg.value);
     softRefreshDbWebview(dbIndexPath);
   });

@@ -1,6 +1,6 @@
 import { hostEditor } from "../hostEditor/HostingEditor";
 import { DbColumn } from "./dbSchema";
-import { Regex } from "../core/regex";
+import { validateColumnValue } from "./dbValidate";
 
 // ── Column value prompters ─────────────────────────────────────────
 
@@ -10,6 +10,21 @@ export async function promptForColumnValue(
   purpose: "entry" | "backfill" = "entry",
 ): Promise<string | undefined> {
   const promptLabel = purpose === "backfill" ? `Backfill default for "${col.name}"` : col.name;
+  // Caller-provided default wins (e.g. backfill flows); fall back to the
+  // column's schema-level `default` so users see a pre-filled value when
+  // they've declared one in the lotion-db fence.
+  const initialValue = defaultValue ?? col.default;
+
+  // Prompt-time validator: enforce "required by default" (legacy) plus any
+  // schema constraints (min/max, format, option membership) via the shared
+  // runtime validator. A column with `required: false` may be left empty.
+  const promptValidate = (v: string): string | undefined => {
+    const trimmed = (v ?? "").trim();
+    if (trimmed.length === 0) {
+      return col.required === false ? undefined : `${col.name} is required`;
+    }
+    return validateColumnValue(col, v);
+  };
 
   switch (col.type) {
     case "text":
@@ -18,20 +33,9 @@ export async function promptForColumnValue(
       return hostEditor
         .showInputBox({
           prompt: `${promptLabel} (${col.type})`,
-          value: defaultValue,
+          value: initialValue,
           placeHolder: col.type === "number" ? "0" : "",
-          validateInput:
-            col.type === "number"
-              ? (v) => {
-                  if (!v || v.trim().length === 0) {
-                    return `${col.name} is required`;
-                  }
-                  if (isNaN(Number(v))) {
-                    return "Must be a number";
-                  }
-                  return undefined;
-                }
-              : (v) => (!v || v.trim().length === 0 ? `${col.name} is required` : undefined),
+          validateInput: promptValidate,
         })
         .then((v) => v ?? undefined);
 
@@ -39,17 +43,9 @@ export async function promptForColumnValue(
       return hostEditor
         .showInputBox({
           prompt: `${promptLabel} (YYYY-MM-DD)`,
-          value: defaultValue,
+          value: initialValue,
           placeHolder: new Date().toISOString().slice(0, 10),
-          validateInput: (v) => {
-            if (!v || v.trim().length === 0) {
-              return `${col.name} is required`;
-            }
-            if (!Regex.isoDateYmd.test(v)) {
-              return "Use YYYY-MM-DD format";
-            }
-            return undefined;
-          },
+          validateInput: promptValidate,
         })
         .then((v) => v ?? undefined);
 
@@ -67,7 +63,7 @@ export async function promptForColumnValue(
           )
           .then((v) => v?.label);
       }
-      return hostEditor.showInputBox({ prompt: promptLabel, value: defaultValue }).then((v) => v ?? undefined);
+      return hostEditor.showInputBox({ prompt: promptLabel, value: initialValue }).then((v) => v ?? undefined);
 
     case "multi-select":
       if (col.options && col.options.length > 0) {
@@ -84,8 +80,8 @@ export async function promptForColumnValue(
       return hostEditor
         .showInputBox({
           prompt: `${promptLabel} (comma-separated)`,
-          value: defaultValue,
-          validateInput: (v) => (!v || v.trim().length === 0 ? `${col.name} is required` : undefined),
+          value: initialValue,
+          validateInput: promptValidate,
         })
         .then((v) => v ?? undefined);
 
@@ -93,7 +89,7 @@ export async function promptForColumnValue(
       return hostEditor
         .showInputBox({
           prompt: `${promptLabel} — path to image in .rsrc (e.g. .rsrc/photo.png)`,
-          value: defaultValue,
+          value: initialValue,
           placeHolder: ".rsrc/image.png",
         })
         .then((v) => v ?? undefined);
@@ -102,18 +98,9 @@ export async function promptForColumnValue(
       return hostEditor
         .showInputBox({
           prompt: `${promptLabel} (lat, lng)`,
-          value: defaultValue,
+          value: initialValue,
           placeHolder: "48.8566, 2.3522",
-          validateInput: (v) => {
-            if (!v || v.trim().length === 0) {
-              return `${col.name} is required`;
-            }
-            const parts = v.split(",").map((p) => p.trim());
-            if (parts.length !== 2 || parts.some((p) => isNaN(Number(p)))) {
-              return "Use lat, lng format (e.g. 48.8566, 2.3522)";
-            }
-            return undefined;
-          },
+          validateInput: promptValidate,
         })
         .then((v) => v ?? undefined);
 
@@ -167,10 +154,9 @@ export async function promptColumnDefinition(
   const includeImageDimensions = options.includeImageDimensions ?? true;
   const typePlaceholder = options.typePlaceholder ?? `Type for column "${name}"`;
 
-  const typePick = await hostEditor.showQuickPick(
-    columnTypePickItems(includeImageType),
-    { placeHolder: typePlaceholder },
-  );
+  const typePick = await hostEditor.showQuickPick(columnTypePickItems(includeImageType), {
+    placeHolder: typePlaceholder,
+  });
   if (!typePick) {
     return undefined;
   }
