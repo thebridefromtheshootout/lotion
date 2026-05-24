@@ -303,6 +303,9 @@ describe("serializeViews", () => {
   });
 
   it("round-trips views through parse/serialize", () => {
+    // Note: `op: "!="` in the in-memory filter serialises as-is, but the
+    // parser migrates legacy `!X` operators to `{ op: "==", not: true }`
+    // (see FILTER_BAR_AUDIT #6 + filterNotMigration.test.ts).
     const original: DbView[] = [
       {
         name: "Main",
@@ -326,7 +329,8 @@ describe("serializeViews", () => {
     expect(parsed[0].sortCol).toBe("Created");
     expect(parsed[0].sortDir).toBe("asc");
     expect(parsed[0].filters).toHaveLength(2);
-    expect(parsed[0].filters[0].op).toBe("!=");
+    expect(parsed[0].filters[0]).toEqual({ col: "Status", op: "==", value: "Archived", not: true });
+    expect(parsed[0].filters[1].op).toBe(">=");
     expect(parsed[1].name).toBe("Secondary");
   });
 
@@ -450,7 +454,8 @@ describe("parsePropertyTable", () => {
   });
 
   it("parses simple key-value pairs", () => {
-    const text = "# Entry\n\n| Property | Value |\n| -------- | ----- |\n| title    | My Page |\n| status   | Draft   |\n";
+    const text =
+      "# Entry\n\n| Property | Value |\n| -------- | ----- |\n| title    | My Page |\n| status   | Draft   |\n";
     const result = parsePropertyTable(text);
     expect(result).toEqual({ title: "My Page", status: "Draft" });
   });
@@ -462,7 +467,8 @@ describe("parsePropertyTable", () => {
   });
 
   it("handles values with colons", () => {
-    const text = "| Property | Value               |\n| -------- | ------------------- |\n| url      | https://example.com |\n";
+    const text =
+      "| Property | Value               |\n| -------- | ------------------- |\n| url      | https://example.com |\n";
     const result = parsePropertyTable(text);
     expect(result).toBeDefined();
     expect(result!.url).toBe("https://example.com");

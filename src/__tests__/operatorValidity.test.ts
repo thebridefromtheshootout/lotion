@@ -30,9 +30,9 @@ describe("validOperatorsFor", () => {
     expect(ops).not.toContain("in"); // dates as exact strings don't usually take a list
   });
 
-  test("checkbox columns only get == / !=", () => {
+  test("checkbox columns only get == (== false replaces the old !=)", () => {
     const ops = validOperatorsFor("checkbox");
-    expect(ops).toEqual(["==", "!="]);
+    expect(ops).toEqual(["=="]);
   });
 
   test("select columns get equality + in/!in + empty checks", () => {
