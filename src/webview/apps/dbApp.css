@@ -518,6 +518,43 @@ h2 .codicon {
   opacity: 1;
   background: color-mix(in srgb, var(--accent) 25%, transparent);
 }
+/* Per-chip remove button inside the `in` / `!in` chip list. Plain
+   icon-only button — needs a round target so the close glyph is centered
+   instead of sitting on the text baseline. */
+.filter-chip-list-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  opacity: 0.6;
+  transition:
+    opacity var(--motion-fast),
+    background var(--motion-fast);
+}
+.filter-chip-list-remove:hover {
+  opacity: 1;
+  background: color-mix(in srgb, var(--accent) 20%, transparent);
+}
+.filter-chip-list-remove:focus-visible {
+  outline: 1px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
+/* FormatCell checkbox column — keep the codicon glyph centered in the cell
+   instead of sitting on the text baseline. */
+.check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
 /* NOT badge embedded in a chip — collapses the family of `!`-prefixed
    operators into one flag the user can toggle without rebuilding the chip. */
 .filter-chip-not {
@@ -604,6 +641,9 @@ h2 .codicon {
   border-color: var(--accent);
 }
 .drag-handle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   font-size: 14px;
   cursor: grab;
   opacity: 0.5;
@@ -1121,6 +1161,14 @@ tr:hover td {
 .cal-today-btn {
   min-height: 28px;
   padding: 3px 10px;
+}
+.cal-nav-btn {
+  /* icon-only — center the glyph so the chevron doesn't drift to the
+     baseline of the button's font line. */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
 }
 .cal-nav-label {
   font-size: 13px;
