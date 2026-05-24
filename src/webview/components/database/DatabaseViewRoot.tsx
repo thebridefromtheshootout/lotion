@@ -3,6 +3,7 @@ import { DbColumn, DbEntryData, DbViewData, LayoutKind, FilterGroup, FilterNode,
 import { matchesFilters, compareFn } from "../../utils/filterSort";
 import { entriesToCsv } from "../../utils/csv";
 import { entriesToJson } from "../../utils/jsonExport";
+import { entriesToMarkdownTable } from "../../utils/markdownTableExport";
 import { DbPanelToExtensionCommunicator } from "../../communicators/DbPanelToExtensionCommunicator";
 import { Toolbar } from "./Toolbar";
 import { FilterBar } from "../FilterBar";
@@ -25,6 +26,7 @@ export function DatabaseViewRoot() {
   const [titleFieldLabel, setTitleFieldLabel] = useState("Title");
   const [dbName, setDbName] = useState("");
   const [baseUri, setBaseUri] = useState("");
+  const [dbWorkspacePath, setDbWorkspacePath] = useState("");
 
   // ── View state ──
   const [layout, setLayout] = useState<LayoutKind>("table");
@@ -69,6 +71,7 @@ export function DatabaseViewRoot() {
       setTitleFieldLabel(msg.titleFieldLabel);
       setDbName(msg.dbName);
       setBaseUri(msg.baseUri || "");
+      setDbWorkspacePath(msg.dbWorkspacePath || "");
 
       // Set defaults for kanban/calendar
       const selectCols = msg.schema.filter((c: DbColumn) => c.type === "select");
@@ -151,6 +154,13 @@ export function DatabaseViewRoot() {
     communicator.sendCopyToClipboard(json, label);
   }, [entries, schema, titleFieldLabel, activeViewName]);
 
+  // ── Copy active view as a markdown table (with DB-origin marker) ──
+  const handleCopyViewAsMarkdownTable = useCallback(() => {
+    const md = entriesToMarkdownTable(entries, schema, titleFieldLabel, dbWorkspacePath);
+    const label = activeViewName ? `view "${activeViewName}" as markdown table` : "view as markdown table";
+    communicator.sendCopyToClipboard(md, label);
+  }, [entries, schema, titleFieldLabel, dbWorkspacePath, activeViewName]);
+
   // ── Save view ──
   const handleSaveView = useCallback(() => {
     const flatFilters: DbViewFilter[] = [];
@@ -195,6 +205,7 @@ export function DatabaseViewRoot() {
         onSaveView={handleSaveView}
         onCopyViewAsCsv={handleCopyViewAsCsv}
         onCopyViewAsJson={handleCopyViewAsJson}
+        onCopyViewAsMarkdownTable={handleCopyViewAsMarkdownTable}
         communicator={communicator}
       />
       <FilterBar

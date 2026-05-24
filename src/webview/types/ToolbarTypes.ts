@@ -11,5 +11,6 @@ export interface ToolbarProps {
   onSaveView: () => void;
   onCopyViewAsCsv: () => void;
   onCopyViewAsJson: () => void;
+  onCopyViewAsMarkdownTable: () => void;
   communicator: DbPanelToExtensionCommunicator;
 }

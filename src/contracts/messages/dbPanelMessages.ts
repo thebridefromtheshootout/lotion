@@ -1,5 +1,13 @@
 import type { IExtensionPanelMessage } from "../communicator";
-import type { DbColumn, DbEntry, DbView, DbViewFilter, DbFilterClause, DbEntryLink, LayoutKind } from "../databaseTypes";
+import type {
+  DbColumn,
+  DbEntry,
+  DbView,
+  DbViewFilter,
+  DbFilterClause,
+  DbEntryLink,
+  LayoutKind,
+} from "../databaseTypes";
 
 // Re-export DbEntryLink so existing importers of this file still work
 export type { DbEntryLink } from "../databaseTypes";
@@ -16,6 +24,13 @@ export interface IDbPanelInitPayload {
   dbName: string;
   /** Webview-safe base URI for resolving relative image paths. */
   baseUri: string;
+  /**
+   * The DB index path relative to the workspace root, normalised to forward
+   * slashes (e.g. "projects/index.md"). Used by the markdown-table export
+   * to embed a `<!-- lotion-db-table source="..." -->` marker that
+   * `/regen-from-db` can resolve.
+   */
+  dbWorkspacePath: string;
 }
 
 export interface IExtensionToDbPanelInitMessage extends IExtensionPanelMessage<"init">, IDbPanelInitPayload {}

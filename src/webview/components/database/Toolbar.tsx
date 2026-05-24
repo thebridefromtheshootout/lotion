@@ -13,6 +13,7 @@ export function Toolbar({
   onSaveView,
   onCopyViewAsCsv,
   onCopyViewAsJson,
+  onCopyViewAsMarkdownTable,
   communicator,
 }: ToolbarProps) {
   const hasSelect = schema.some((c) => c.type === "select");
@@ -71,6 +72,12 @@ export function Toolbar({
       </button>
       <button onClick={onCopyViewAsJson} title="Copy current view as JSON">
         <Icon name="copy" /> Copy JSON
+      </button>
+      <button
+        onClick={onCopyViewAsMarkdownTable}
+        title="Copy current view as a markdown table (tagged so /regen-from-db can refresh it)"
+      >
+        <Icon name="copy" /> Copy MD
       </button>
       <select value={activeViewName} onChange={(e) => onLoadView(e.target.value)}>
         <option value="">— Views —</option>

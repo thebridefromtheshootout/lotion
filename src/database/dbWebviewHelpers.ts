@@ -3,12 +3,7 @@ import * as fs from "fs";
 import { Uri } from "../hostEditor/EditorTypes";
 import type { WebviewPanel } from "../hostEditor/EditorTypes";
 import { hostEditor } from "../hostEditor/HostingEditor";
-import {
-  DbEntry,
-  parseSchemaFromFile,
-  parseViewsFromFile,
-  readDbEntries,
-} from "./database";
+import { DbEntry, parseSchemaFromFile, parseViewsFromFile, readDbEntries } from "./database";
 import { Regex } from "../core/regex";
 import type { ExtensionToDbPanelCommunicator } from "../communicators/dbPanelCommunicator";
 import type { IDbPanelInitPayload, DbEntryLink } from "../contracts/messages/dbPanelMessages";
@@ -34,6 +29,14 @@ export async function sendInit(
   const baseUri = wsRoot
     ? panel.webview.asWebviewUri(wsRoot).toString()
     : panel.webview.asWebviewUri(Uri.file(dbDir)).toString();
+  // The DB index path relative to the workspace root, with forward slashes
+  // so the same value works on Windows. Falls back to just the basename when
+  // there's no workspace folder (rare — single-file open).
+  const wsRootPath = wsRoot?.fsPath;
+  const dbWorkspacePath = wsRootPath
+    ? path.relative(wsRootPath, dbIndexPath).split(path.sep).join("/")
+    : path.basename(dbIndexPath);
+
   const dbPayload: IDbPanelInitPayload = {
     schema: schema.columns,
     entries,
@@ -42,6 +45,7 @@ export async function sendInit(
     titleFieldLabel: schema.titleField || "Title",
     dbName: path.basename(dbDir),
     baseUri,
+    dbWorkspacePath,
   };
   communicator.sendInit(dbPayload);
 }
