@@ -35,7 +35,13 @@ import {
 
 import { createSecretboxGuard, createSecretboxSaveGuard } from "./blocks";
 
-import { toggleWrap, createHeadingColors, createSmartTypography, createAutoInlineCode, createLinkFactory } from "./formatting";
+import {
+  toggleWrap,
+  createHeadingColors,
+  createSmartTypography,
+  createAutoInlineCode,
+  createLinkFactory,
+} from "./formatting";
 
 import {
   createBacklinkCodeLensProvider,
@@ -56,6 +62,7 @@ import {
   findParentDbIndex,
   isDbFile,
   invalidateDbFileCache,
+  createDbEntryLinter,
 } from "./database";
 
 import { createImageDropProvider, createImagePasteProvider, createImageHoverProvider } from "./media";
@@ -67,11 +74,7 @@ import {
   createWordCountStatusBar,
 } from "./views";
 
-import {
-  createBookmarkTreeView,
-  createStrikethroughDecorations,
-  createLineLock,
-} from "./productivity";
+import { createBookmarkTreeView, createStrikethroughDecorations, createLineLock } from "./productivity";
 
 // ── Extension activation ───────────────────────────────────────────
 export function activate(context: ExtensionContext) {
@@ -87,7 +90,6 @@ export function activate(context: ExtensionContext) {
   // ── Per-document block index (cached, throttled rebuild on text change) ──
   context.subscriptions.push(initBlockIndex());
 
-
   const updateCursorContext = () => {
     if (!hostEditor.isMarkdownEditor()) {
       hostEditor.executeCommand("setContext", Context.cursorInTable, false);
@@ -101,7 +103,7 @@ export function activate(context: ExtensionContext) {
     hostEditor.executeCommand("setContext", Context.cursorInTable, inTable);
     const lineText = doc?.lineAt(pos.line).text ?? "";
     hostEditor.executeCommand("setContext", Context.cursorOnNonEmptyLine, lineText.length > 0);
-    const hasNonEmptySelection = hostEditor.getSelections().some(s => !s.isEmpty);
+    const hasNonEmptySelection = hostEditor.getSelections().some((s) => !s.isEmpty);
     hostEditor.executeCommand("setContext", Context.hasNonEmptySelection, hasNonEmptySelection);
   };
   updateCursorContext();
@@ -255,6 +257,7 @@ export function activate(context: ExtensionContext) {
     createLinkFactory(),
     createTocAutoUpdater(),
     createStructureLinter(),
+    createDbEntryLinter(),
     createLinkValidator(),
     createSecretboxGuard(),
     createSecretboxSaveGuard(),

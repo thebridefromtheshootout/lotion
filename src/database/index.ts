@@ -22,6 +22,7 @@ export {
 } from "./database";
 export { createDbCodeLensProvider, generateDbLenses } from "./dbCodeLens";
 export { openDbWebview, refreshAllDbWebviews } from "./dbWebview";
+export { createDbEntryLinter } from "./dbDiagnostics";
 
 // ── Slash commands ─────────────────────────────────────────────────
 import type { SlashCommand } from "../core/slashCommands";
