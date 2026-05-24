@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { DbColumn, DbEntryData, DbViewData, LayoutKind, FilterGroup, FilterNode, isLeaf, GraphLink } from "../../types";
 import { matchesFilters, compareFn } from "../../utils/filterSort";
 import { entriesToCsv } from "../../utils/csv";
+import { entriesToJson } from "../../utils/jsonExport";
 import { DbPanelToExtensionCommunicator } from "../../communicators/DbPanelToExtensionCommunicator";
 import { Toolbar } from "./Toolbar";
 import { FilterBar } from "../FilterBar";
@@ -143,6 +144,13 @@ export function DatabaseViewRoot() {
     communicator.sendCopyToClipboard(csv, label);
   }, [entries, schema, titleFieldLabel, activeViewName]);
 
+  // ── Copy active view as JSON ──
+  const handleCopyViewAsJson = useCallback(() => {
+    const json = entriesToJson(entries, schema, titleFieldLabel);
+    const label = activeViewName ? `view "${activeViewName}" as JSON` : "view as JSON";
+    communicator.sendCopyToClipboard(json, label);
+  }, [entries, schema, titleFieldLabel, activeViewName]);
+
   // ── Save view ──
   const handleSaveView = useCallback(() => {
     const flatFilters: DbViewFilter[] = [];
@@ -186,6 +194,7 @@ export function DatabaseViewRoot() {
         onLoadView={handleLoadView}
         onSaveView={handleSaveView}
         onCopyViewAsCsv={handleCopyViewAsCsv}
+        onCopyViewAsJson={handleCopyViewAsJson}
         communicator={communicator}
       />
       <FilterBar

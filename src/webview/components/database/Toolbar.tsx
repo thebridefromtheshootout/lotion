@@ -12,6 +12,7 @@ export function Toolbar({
   onLoadView,
   onSaveView,
   onCopyViewAsCsv,
+  onCopyViewAsJson,
   communicator,
 }: ToolbarProps) {
   const hasSelect = schema.some((c) => c.type === "select");
@@ -67,6 +68,9 @@ export function Toolbar({
       </button>
       <button onClick={onCopyViewAsCsv} title="Copy current view as CSV">
         <Icon name="copy" /> Copy CSV
+      </button>
+      <button onClick={onCopyViewAsJson} title="Copy current view as JSON">
+        <Icon name="copy" /> Copy JSON
       </button>
       <select value={activeViewName} onChange={(e) => onLoadView(e.target.value)}>
         <option value="">— Views —</option>
