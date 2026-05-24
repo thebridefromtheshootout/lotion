@@ -126,8 +126,9 @@ export const Cmd = {
   dbSyncFieldOrder: "lotion.dbSyncFieldOrder",
   dbTableToDatabase: "lotion.dbTableToDatabase",
   dbCsvToDatabase: "lotion.dbCsvToDatabase",
+  dbJsonToDatabase: "lotion.dbJsonToDatabase",
   openDbWebview: "lotion.openDbWebview",
-  
+
   // ── Productivity ───────────────────────────────────────────────────
   fireInto: "lotion.fireInto",
 

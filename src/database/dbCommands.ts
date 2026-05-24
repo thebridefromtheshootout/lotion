@@ -17,7 +17,7 @@ import {
   handleSyncFieldOrderCommand,
 } from "./dbSchemaEdits";
 import { handleNewViewCommand } from "./dbViewCreate";
-import { handleTableToDbCommand, handleCsvToDbCommand } from "./dbTabularImport";
+import { handleTableToDbCommand, handleCsvToDbCommand, handleJsonToDbCommand } from "./dbTabularImport";
 
 // ── Slash command definitions ──────────────────────────────────────
 
@@ -116,6 +116,16 @@ export const CSV_TO_DB_SLASH_COMMAND: SlashCommand = {
   handler: handleCsvToDbCommand,
 };
 
+export const JSON_TO_DB_SLASH_COMMAND: SlashCommand = {
+  label: "/json-to-db",
+  insertText: "",
+  detail: "🧾 Create a new DB from JSON file (array of objects)",
+  isAction: true,
+  commandId: Cmd.dbJsonToDatabase,
+  kind: 21,
+  handler: handleJsonToDbCommand,
+};
+
 // ── Re-exports so existing `import { ... } from "./dbCommands"` keeps working ──
 
 export { handleDatabaseCommand } from "./dbCreate";
@@ -128,5 +138,5 @@ export {
   handleSyncFieldOrderCommand,
 } from "./dbSchemaEdits";
 export { handleNewViewCommand } from "./dbViewCreate";
-export { handleTableToDbCommand, handleCsvToDbCommand } from "./dbTabularImport";
+export { handleTableToDbCommand, handleCsvToDbCommand, handleJsonToDbCommand } from "./dbTabularImport";
 export { logEntryAndPromptNew } from "./dbLogEntry";

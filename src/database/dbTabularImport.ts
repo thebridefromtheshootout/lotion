@@ -12,6 +12,7 @@ import { toPathSlug } from "../core/slug";
 import { parseCsvText } from "../core/csv";
 import { parseTable } from "../editor/table";
 import { promptColumnDefinition } from "./dbColumnPrompt";
+import { parseJsonToTabular, JsonImportError } from "./dbJsonImport";
 
 // ── Table / CSV import to DB ──────────────────────────────────────
 
@@ -96,7 +97,7 @@ async function createDatabaseFromTabularData(
   document: TextDocument,
   position: Position,
   data: ParsedTabularData,
-  sourceLabel: "table" | "csv",
+  sourceLabel: "table" | "csv" | "json",
   opts?: { deleteSourceTable?: boolean },
 ): Promise<void> {
   const cwd = getCwd();
@@ -164,7 +165,11 @@ async function createDatabaseFromTabularData(
   fs.mkdirSync(dbDir, { recursive: true });
 
   const schemaYaml = serializeSchema(schema);
-  fs.writeFileSync(dbFilePath, `# ${dbName}\n\n\`\`\`${Markers.dbFenceLang}\n${schemaYaml}\n\`\`\`\n\n---\n\n`, "utf-8");
+  fs.writeFileSync(
+    dbFilePath,
+    `# ${dbName}\n\n\`\`\`${Markers.dbFenceLang}\n${schemaYaml}\n\`\`\`\n\n---\n\n`,
+    "utf-8",
+  );
 
   const entryLinks: string[] = [];
   let created = 0;
@@ -279,7 +284,10 @@ export async function handleCsvToDbCommand(document: TextDocument, position: Pos
   }
 
   const headerPick = await hostEditor.showQuickPick(
-    [{ label: "Yes", description: "First row is a header row" }, { label: "No", description: "First row is data" }],
+    [
+      { label: "Yes", description: "First row is a header row" },
+      { label: "No", description: "First row is data" },
+    ],
     { placeHolder: "Is the first CSV row a header row?" },
   );
   if (!headerPick) {
@@ -293,4 +301,41 @@ export async function handleCsvToDbCommand(document: TextDocument, position: Pos
   const headers = normalizeTabularHeaders(rows[0]);
   const bodyRows = rows.slice(1).map((row) => normalizeRowWidth(row, headers.length));
   await createDatabaseFromTabularData(document, position, { headers, rows: bodyRows }, "csv");
+}
+
+export async function handleJsonToDbCommand(document: TextDocument, position: Position): Promise<void> {
+  const uris = await hostEditor.showOpenDialog({
+    canSelectMany: false,
+    filters: { JSON: ["json"], Text: ["txt"] },
+    openLabel: "Select JSON file",
+  });
+  if (!uris || uris.length === 0) {
+    return;
+  }
+
+  const jsonPath = uris[0].fsPath;
+  if (!fs.existsSync(jsonPath)) {
+    hostEditor.showError("Selected JSON file was not found.");
+    return;
+  }
+
+  let tabular;
+  try {
+    tabular = parseJsonToTabular(fs.readFileSync(jsonPath, "utf-8"));
+  } catch (e) {
+    if (e instanceof JsonImportError) {
+      hostEditor.showError(`Lotion: ${e.message}`);
+      return;
+    }
+    throw e;
+  }
+
+  if (tabular.headers.length === 0 || tabular.rows.length === 0) {
+    hostEditor.showWarning("JSON appears to be empty.");
+    return;
+  }
+
+  const normalizedHeaders = normalizeTabularHeaders(tabular.headers);
+  const normalizedRows = tabular.rows.map((row) => normalizeRowWidth(row, normalizedHeaders.length));
+  await createDatabaseFromTabularData(document, position, { headers: normalizedHeaders, rows: normalizedRows }, "json");
 }
