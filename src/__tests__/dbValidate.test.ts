@@ -146,6 +146,31 @@ describe("validateUniqueness", () => {
   it("allows novel values", () => {
     expect(validateUniqueness(col, "gamma", ["alpha", "beta"])).toBeUndefined();
   });
+
+  describe("multi-select", () => {
+    const ms: DbColumn = { name: "Tags", type: "multi-select", options: ["red", "green", "blue"], unique: true };
+
+    it("treats values with the same items in different order as duplicates", () => {
+      expect(validateUniqueness(ms, "red, blue", ["green", "blue, red"])).toBe(
+        "Tags must be unique (value already exists)",
+      );
+    });
+
+    it("treats whitespace + case variation as duplicates", () => {
+      expect(validateUniqueness(ms, "Red,  Blue", ["blue,red"])).toBe("Tags must be unique (value already exists)");
+    });
+
+    it("does not flag a true set difference", () => {
+      expect(validateUniqueness(ms, "red, blue", ["red, green"])).toBeUndefined();
+    });
+
+    it("collapses intra-cell duplicates before comparing", () => {
+      // "red, red, blue" → set {red, blue}; should match "blue, red".
+      expect(validateUniqueness(ms, "red, red, blue", ["blue, red"])).toBe(
+        "Tags must be unique (value already exists)",
+      );
+    });
+  });
 });
 
 // ═══════════════════════════════════════════════════════════════════

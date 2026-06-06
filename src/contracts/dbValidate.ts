@@ -85,22 +85,43 @@ export function validateColumnValue(col: DbColumn, value: string | undefined): s
 }
 
 /**
+ * Normalise a cell value for unique-comparison. Strings are trimmed +
+ * lowercased; multi-select values are reduced to a sorted set so that
+ * "A, B" and "b, a" collide as duplicates.
+ */
+function normaliseForUniqueness(col: DbColumn, value: string): string {
+  const trimmed = value.trim().toLowerCase();
+  if (col.type !== "multi-select") {
+    return trimmed;
+  }
+  const items = trimmed
+    .split(",")
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0);
+  // De-duplicate within a single cell ("A, A" → "a") so reflexive
+  // duplicates don't sneak past the cross-row check.
+  return Array.from(new Set(items)).sort().join(",");
+}
+
+/**
  * Check whether `value` collides with any existing value for the same
  * unique column. `otherValues` should be the column's values from all
  * OTHER entries in the DB (exclude the entry being edited).
  *
  * Comparison is case-insensitive and trimmed — the same notion of
- * "equality" the filter runtime uses by default.
+ * "equality" the filter runtime uses by default. For multi-select
+ * columns the comparison is set-based (order-independent) so "A, B"
+ * and "B, A" register as a duplicate.
  */
 export function validateUniqueness(col: DbColumn, value: string, otherValues: string[]): string | undefined {
   if (!col.unique) {
     return undefined;
   }
-  const needle = value.trim().toLowerCase();
+  const needle = normaliseForUniqueness(col, value);
   if (needle.length === 0) {
     return undefined;
   }
-  const clash = otherValues.some((v) => v.trim().toLowerCase() === needle);
+  const clash = otherValues.some((v) => normaliseForUniqueness(col, v) === needle);
   return clash ? `${col.name} must be unique (value already exists)` : undefined;
 }
 
