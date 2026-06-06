@@ -24,6 +24,7 @@ for the canonical list.
 | ------------------- | --------------------------------------------------- |
 | `/align`            | ↔️ Re-align table columns                           |
 | `/callout`          | 📢 Callout block (NOTE, TIP, WARNING...)            |
+| `/carry-forward`    | ⏩ Move unfinished tasks to next day                |
 | `/clean-list`       | 🧹 Remove empty lines/items in current list         |
 | `/code`             | 🔣 Fenced code block                                |
 | `/cols-left`        | ⬅️ Add columns to the left                          |
@@ -61,6 +62,8 @@ for the canonical list.
 | `/openlink`         | 📂 Open the nearest page link                       |
 | `/page`             | 📄 Create a child page                              |
 | `/paste-column`     | 📥 Paste column from clipboard                      |
+| `/plan-this-week`   | 📅 Insert weekly plan for the current week          |
+| `/plan-week-of`     | 📅 Insert weekly plan — pick a week                 |
 | `/processor`        | 🔧 Insert a processor block (shell command)         |
 | `/quote`            | 💬 Blockquote — >                                   |
 | `/refresh`          | 🔄 Re-run all processor blocks in this file         |

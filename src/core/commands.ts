@@ -127,9 +127,12 @@ export const Cmd = {
   dbTableToDatabase: "lotion.dbTableToDatabase",
   dbCsvToDatabase: "lotion.dbCsvToDatabase",
   openDbWebview: "lotion.openDbWebview",
-  
+
   // ── Productivity ───────────────────────────────────────────────────
   fireInto: "lotion.fireInto",
+  planThisWeek: "lotion.planThisWeek",
+  planWeekOf: "lotion.planWeekOf",
+  carryForward: "lotion.carryForward",
 
   // ── Views ──────────────────────────────────────────────────────────
   revealHeading: "lotion.revealHeading",

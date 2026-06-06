@@ -5,4 +5,4 @@ export { createStrikethroughDecorations } from "./taskStrikethrough";
 export { handleGitCommitCommand } from "./gitCommit";
 export { fireInto } from "./fireInto";
 export { createLineLock } from "./lineLock";
-
+export { PRODUCTIVITY_SLASH_COMMANDS } from "./weeklyPlan";

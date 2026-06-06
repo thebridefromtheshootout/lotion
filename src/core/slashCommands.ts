@@ -14,6 +14,7 @@ import { NAVIGATION_SLASH_COMMANDS } from "../navigation";
 import { LINKS_SLASH_COMMANDS } from "../links";
 import { DATABASE_SLASH_COMMANDS } from "../database";
 import { LISTS_SLASH_COMMANDS } from "../lists";
+import { PRODUCTIVITY_SLASH_COMMANDS } from "../productivity";
 
 // ── Slash command definitions ──────────────────────────────────────
 export interface SlashCommand {
@@ -36,7 +37,13 @@ export interface SlashCommand {
 
 // ── Static text-insert commands (no handlers needed) ──────────────
 const STATIC_SLASH_COMMANDS: SlashCommand[] = [
-  { label: "/inline-math", insertText: "$ $", detail: "🧮 Inline math — $ ... $", kind: 11, cmdFilter: Filter().pageIsNotDbIndex().cursorNotInCode() },
+  {
+    label: "/inline-math",
+    insertText: "$ $",
+    detail: "🧮 Inline math — $ ... $",
+    kind: 11,
+    cmdFilter: Filter().pageIsNotDbIndex().cursorNotInCode(),
+  },
   {
     label: "/section",
     insertText: "",
@@ -86,6 +93,7 @@ export const SLASH_COMMANDS: SlashCommand[] = [
   ...LINKS_SLASH_COMMANDS,
   ...DATABASE_SLASH_COMMANDS,
   ...LISTS_SLASH_COMMANDS,
+  ...PRODUCTIVITY_SLASH_COMMANDS,
 ];
 
 // ── Completion provider factory ────────────────────────────────────
@@ -101,9 +109,7 @@ export function createSlashCompletionProvider(): Disposable {
         }
 
         const ctx = computeCursorContext(document, position);
-        const visibleCmds = SLASH_COMMANDS.filter((cmd) =>
-          cmd.cmdFilter ? cmd.cmdFilter.evaluate(ctx) : true
-        );
+        const visibleCmds = SLASH_COMMANDS.filter((cmd) => (cmd.cmdFilter ? cmd.cmdFilter.evaluate(ctx) : true));
 
         return visibleCmds.map((cmd) => {
           const item = new CompletionItem(cmd.label, cmd.kind ?? CompletionItemKind.Snippet);
