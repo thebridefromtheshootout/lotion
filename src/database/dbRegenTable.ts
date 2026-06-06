@@ -82,20 +82,33 @@ export function findMarkedTableAround(document: TextDocument, cursorLine: number
 }
 
 /**
- * Resolve a workspace-relative path to an absolute fs path. Rejects
- * any path that escapes the workspace root.
+ * Resolve a marker source path to an absolute fs path.
+ *
+ * In a workspace, the marker is anchored to the workspace root and any
+ * resolved path that escapes that root is rejected (path-traversal
+ * guard for shared workspaces).
+ *
+ * Without a workspace, single-file mode has no shared root to escape;
+ * we resolve against the document's directory for relative paths and
+ * accept absolute paths as-is. That's what the export side emits in
+ * the no-workspace fallback, so the round-trip still works.
  */
-function resolveSourceDbPath(sourcePath: string): string | undefined {
-  const wsRoot = hostEditor.getWorkspaceFolders()?.[0]?.uri.fsPath;
-  if (!wsRoot) return undefined;
-
+function resolveSourceDbPath(sourcePath: string, documentFsPath: string): string | undefined {
   const normalised = sourcePath.split(/[\\/]/).join(path.sep);
-  const target = path.resolve(wsRoot, normalised);
-  const rootAbs = path.resolve(wsRoot);
-  if (target !== rootAbs && !target.startsWith(rootAbs + path.sep)) {
-    return undefined;
+  const wsRoot = hostEditor.getWorkspaceFolders()?.[0]?.uri.fsPath;
+
+  if (wsRoot) {
+    const rootAbs = path.resolve(wsRoot);
+    const target = path.resolve(rootAbs, normalised);
+    if (target !== rootAbs && !target.startsWith(rootAbs + path.sep)) {
+      return undefined;
+    }
+    return target;
   }
-  return target;
+
+  // No workspace — accept absolute paths verbatim, resolve relative
+  // paths against the document's directory.
+  return path.resolve(path.dirname(documentFsPath), normalised);
 }
 
 export async function handleRegenFromDbCommand(document: TextDocument, position: Position): Promise<void> {
@@ -107,9 +120,11 @@ export async function handleRegenFromDbCommand(document: TextDocument, position:
     return;
   }
 
-  const dbIndexPath = resolveSourceDbPath(region.sourcePath);
+  const dbIndexPath = resolveSourceDbPath(region.sourcePath, document.uri.fsPath);
   if (!dbIndexPath) {
-    hostEditor.showError(`Lotion: cannot resolve source DB "${region.sourcePath}" against the workspace root.`);
+    hostEditor.showError(
+      `Lotion: cannot resolve source DB "${region.sourcePath}" — refusing to follow a path traversal.`,
+    );
     return;
   }
 

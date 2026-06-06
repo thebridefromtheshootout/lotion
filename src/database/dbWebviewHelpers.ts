@@ -29,13 +29,17 @@ export async function sendInit(
   const baseUri = wsRoot
     ? panel.webview.asWebviewUri(wsRoot).toString()
     : panel.webview.asWebviewUri(Uri.file(dbDir)).toString();
-  // The DB index path relative to the workspace root, with forward slashes
-  // so the same value works on Windows. Falls back to just the basename when
-  // there's no workspace folder (rare — single-file open).
+  // The marker source path the webview embeds in the "Copy MD" output.
+  // In a workspace we emit a workspace-relative path so the marker is
+  // portable across machines that share the same repo. Without a
+  // workspace (single-file mode) we emit the absolute path with forward
+  // slashes — `/regen-from-db` accepts absolute paths in that mode, so
+  // the round-trip still works for the local user. (Previously this
+  // fell back to just the basename, which made regen impossible.)
   const wsRootPath = wsRoot?.fsPath;
   const dbWorkspacePath = wsRootPath
     ? path.relative(wsRootPath, dbIndexPath).split(path.sep).join("/")
-    : path.basename(dbIndexPath);
+    : dbIndexPath.split(path.sep).join("/");
 
   const dbPayload: IDbPanelInitPayload = {
     schema: schema.columns,
