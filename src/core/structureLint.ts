@@ -76,6 +76,13 @@ export function createStructureLinter(): Disposable {
     hostEditor.onDidSaveTextDocument(lintDocument),
     hostEditor.onDidChangeTextDocument((e) => lintDebounced(e.document)),
     hostEditor.onDidCloseTextDocument((doc) => {
+      // Cancel any in-flight debounced lint so it doesn't re-`set` a
+      // diagnostic on a doc the user just closed.
+      const pending = pendingTimers.get(doc);
+      if (pending) {
+        clearTimeout(pending);
+        pendingTimers.delete(doc);
+      }
       diagnosticCollection.delete(doc.uri);
     }),
   ];
