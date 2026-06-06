@@ -15,23 +15,40 @@ export type { DbEntry } from "../contracts/databaseTypes";
  * Each entry is a <slug>/index.md with frontmatter.
  */
 export function readDbEntries(dbDir: string): DbEntry[] {
-  if (!fs.existsSync(dbDir)) {
+  let names: string[];
+  try {
+    names = fs.readdirSync(dbDir);
+  } catch {
+    // ENOENT (DB folder deleted), EACCES, etc. — return empty so the
+    // webview/regen/diagnostics callers stay alive instead of crashing.
     return [];
   }
 
   const entries: DbEntry[] = [];
-  for (const dir of fs.readdirSync(dbDir)) {
-    const dirPath = path.join(dbDir, dir);
-    // Skip non-directories and hidden folders
-    if (!fs.statSync(dirPath).isDirectory() || dir.startsWith(".")) {
+  for (const dir of names) {
+    // Skip hidden folders before any disk hit.
+    if (dir.startsWith(".")) {
       continue;
     }
-    const entryPath = path.join(dirPath, "index.md");
-    if (!fs.existsSync(entryPath)) {
+    const dirPath = path.join(dbDir, dir);
+    try {
+      if (!fs.statSync(dirPath).isDirectory()) {
+        continue;
+      }
+    } catch {
+      // Race: entry was deleted between readdir and stat. Skip.
       continue;
     }
 
-    const content = fs.readFileSync(entryPath, "utf-8");
+    const entryPath = path.join(dirPath, "index.md");
+    let content: string;
+    try {
+      content = fs.readFileSync(entryPath, "utf-8");
+    } catch {
+      // ENOENT (no index.md), EISDIR (index.md is a folder), EACCES — skip.
+      continue;
+    }
+
     // Skip database files (they have a lotion-db block)
     if (Regex.dbSchemaFenceStartMultiline.test(content)) {
       continue;
@@ -141,10 +158,10 @@ export function cursorInDbEntry(document: TextDocument, _position: Position): bo
 export function findParentDbIndex(filePath: string): string | undefined {
   // Child entry structure: dbDir/<slug>/index.md
   // DB index:              dbDir/index.md
-  const parentDir = path.dirname(filePath);           // dbDir/<slug>
-  const dbDir = path.dirname(parentDir);              // dbDir
+  const parentDir = path.dirname(filePath); // dbDir/<slug>
+  const dbDir = path.dirname(parentDir); // dbDir
   const candidateIndex = path.join(dbDir, "index.md");
-  if (candidateIndex === filePath) return undefined;   // this IS the index
+  if (candidateIndex === filePath) return undefined; // this IS the index
   // isDbFile handles the existsSync (it returns false on stat failure)
   return isDbFile(candidateIndex) ? candidateIndex : undefined;
 }
