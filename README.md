@@ -83,17 +83,20 @@ for the canonical list.
 | `/th1`              | ▶ Toggle heading 1 (collapsible)                    |
 | `/th2`              | ▶ Toggle heading 2 (collapsible)                    |
 | `/th3`              | ▶ Toggle heading 3 (collapsible)                    |
+| `/tl`               | ▶ Collapsible list item (ul)                        |
 | `/to-bullets`       | • Convert numbered list to bullet list              |
 | `/to-numbered`      | 🔢 Convert bullet list to numbered list             |
 | `/toc`              | 📑 Table of contents from headings                  |
 | `/today`            | 📅 Insert today's date                              |
 | `/todo`             | ☑️ To-do checkbox — - [ ]                           |
 | `/toggle`           | ▶ Collapsible toggle block                          |
+| `/tol`              | ▶ Collapsible list item (ol)                        |
 | `/transpose`        | 🔄 Transpose table rows/cols                        |
 | `/turninto`         | 🔄 Turn heading/link into something else            |
 | `/unlock`           | 🔓 Decrypt a locked secret box                      |
 | `/update-processor` | ✏️ Change a processor's shell command               |
 | `/view-database`    | 📊 Open database webview                            |
+| `/wrap-list`        | ▶ Wrap list item + children as collapsible          |
 
 <!-- END AUTO-SLASH-TABLE -->
 
@@ -154,6 +157,24 @@ to the doc; an HTML marker (`<!--lotion-comment:ID-->`) anchors the
 comment to its line. CodeLens above the comment shows author and a
 resolve / delete action.
 
+## Collapsible list items
+
+`/tl` inserts a collapsible unordered list item; `/tol` inserts the ordered
+variant. The list marker stays before `<details>` and the sub-list is the
+collapsible body:
+
+```markdown
+- <details><summary>Shopping</summary>
+  - Apples
+  - Bananas
+
+</details>
+```
+
+`/wrap-list` (visible only when the cursor is on a list item) wraps the
+current item's text into the `<summary>` and folds its existing indented
+children into the body — one command, in-place, fully undoable.
+
 ## Secret boxes
 
 `/secretbox` inserts a `<details>` block marked with
@@ -165,6 +186,28 @@ an unlocked secret box to disk so plaintext never gets committed.
 
 `Lotion: Open Daily Note` opens (creating if needed) today's note at
 `<lotion.dailyNotePath>/YYYY-MM-DD.md`. Date format is configurable.
+
+## Weekly plan
+
+`/plan-this-week` inserts a week template at the cursor for the current week.
+`/plan-week-of` shows a picker with every Monday of the year — select one to
+insert that week's template. Both produce:
+
+```markdown
+## Week of (02-06-2026 – 06-06-2026)
+
+### Monday, 02-06-2026
+
+- [ ]
+
+### Tuesday, 03-06-2026
+
+- [ ] …
+```
+
+`/carry-forward` is available when the cursor is inside a `### Day` section.
+It moves all unchecked `- [ ]` items from that day to the next day's section
+in a single undoable edit.
 
 ## Graphs
 
