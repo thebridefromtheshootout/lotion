@@ -1,4 +1,5 @@
 import { entriesToMarkdownTable, DB_TABLE_MARKER_PREFIX } from "../webview/utils/markdownTableExport";
+import { DB_TABLE_MARKER_REGEX, decodeMarkerSourcePath, encodeMarkerSourcePath } from "../contracts/dbMarkdownTable";
 import type { DbColumn, DbEntryData } from "../webview/types";
 
 const schema: DbColumn[] = [
@@ -44,5 +45,22 @@ describe("entriesToMarkdownTable", () => {
     const lines = out.split("\n");
     // Header + separator + 2 data rows must all be the same length.
     expect(new Set([lines[1].length, lines[2].length, lines[3].length, lines[4].length]).size).toBe(1);
+  });
+
+  it("survives a source path containing chars that would break the marker", () => {
+    // Paths with `"`, `-->`, or a leading `%` would otherwise either close
+    // the quoted source token early or terminate the comment prematurely.
+    const tricky = 'weird"path/sub--with-->arrow/index.md';
+    const out = entriesToMarkdownTable([], schema, "Title", tricky);
+    const marker = out.split("\n")[0];
+    const match = marker.match(DB_TABLE_MARKER_REGEX);
+    expect(match).not.toBeNull();
+    expect(decodeMarkerSourcePath(match![1])).toBe(tricky);
+  });
+
+  it("encodeMarkerSourcePath is a pure-function round-trip", () => {
+    for (const p of ["a/b/c.md", 'has"quote.md', "has-->arrow.md", "has%percent.md", "plain"]) {
+      expect(decodeMarkerSourcePath(encodeMarkerSourcePath(p))).toBe(p);
+    }
   });
 });

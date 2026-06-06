@@ -2,7 +2,7 @@ import * as path from "path";
 import { Position, Range } from "../hostEditor/EditorTypes";
 import type { TextDocument } from "../hostEditor/EditorTypes";
 import { hostEditor } from "../hostEditor/HostingEditor";
-import { DB_TABLE_MARKER_REGEX, formatMarkdownTable } from "../contracts/dbMarkdownTable";
+import { DB_TABLE_MARKER_REGEX, decodeMarkerSourcePath, formatMarkdownTable } from "../contracts/dbMarkdownTable";
 import { parseSchemaFromFile } from "./dbSchema";
 import { readDbEntries } from "./dbEntries";
 
@@ -48,7 +48,7 @@ export function findMarkedTableAround(document: TextDocument, cursorLine: number
     const match = document.lineAt(idx).text.match(DB_TABLE_MARKER_REGEX);
     if (match) {
       markerLine = idx;
-      sourcePath = match[1];
+      sourcePath = decodeMarkerSourcePath(match[1]);
       break;
     }
   }
