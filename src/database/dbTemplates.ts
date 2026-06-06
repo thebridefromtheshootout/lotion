@@ -65,9 +65,15 @@ export function readTemplate(filePath: string): ParsedTemplate | undefined {
 
 /**
  * Strip the property table (header + separator + all data rows) from
- * `content` and return whatever follows. When there's no table, the
- * full content is returned with leading H1 trimmed off (the entry
- * creator builds its own H1 from the entry title).
+ * `content` and return whatever follows.
+ *
+ * Two intentional shortcuts:
+ *  - When a property table is present, **anything above it is dropped**
+ *    (template H1, intro prose, etc.). The new entry's heading is built
+ *    by `dbEntryCreate` from the user-typed title; template prose that
+ *    needs to survive should sit below the property table.
+ *  - When no property table is present, a leading H1 is stripped (same
+ *    reason) and everything else passes through.
  */
 function extractBodyAfterPropertyTable(content: string): string {
   const lines = content.split(Regex.lineBreakSplit);

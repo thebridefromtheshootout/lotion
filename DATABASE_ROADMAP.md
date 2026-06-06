@@ -174,18 +174,11 @@ columns:
 
 **Why it matters:** "New Entry" today prompts for each property value in a sequence of input boxes ([`dbEntryCreate.ts:25-80`](src/database/dbEntryCreate.ts#L25)). For a project-tracker DB you'd want: "New Bug" template (pre-fills `type: bug`, `priority: medium`, body section "## Repro\n## Expected\n## Actual"); "New Feature" template; etc. Today you'd have to repeat that flow every time.
 
-**Proposed shape:** Templates live in the DB folder as `_templates/<name>.md` (or `.templates/`), each a markdown file with a `templateFor:` frontmatter pointing to the DB and a body that uses `{{property}}` placeholders the user fills in. Schema fence opts in:
+**Proposed shape:** Templates live in the DB folder as `.templates/<name>.md` (hidden so the existing entry walker already skips it). Each template file is just an entry-shaped markdown — an optional property table whose values pre-fill the column prompts, plus a body that becomes the new entry's body. No schema-fence opt-in is needed: any `.md` file under `.templates/` shows up as a template option.
 
-```yaml
-templates:
-  - bug
-  - feature
-  - chore
-```
+**UI:** Clicking "+ New Entry" opens a tiny chooser ("Blank" + the templates discovered on disk) before the property-value prompts.
 
-**UI:** Clicking "+ New Entry" in the toolbar opens a tiny chooser (the templates listed in the schema, plus "Blank") before the property-value prompts.
-
-**Files affected:** New `src/database/dbTemplates.ts` (list, read, instantiate). [`dbEntryCreate.ts`](src/database/dbEntryCreate.ts) — branch into template flow if templates exist. [`Toolbar.tsx`](src/webview/components/database/Toolbar.tsx) — replace single "New Entry" button with a split-button if templates exist.
+**Files shipped:** [`dbTemplates.ts`](src/database/dbTemplates.ts) lists and parses templates; [`dbEntryCreate.ts`](src/database/dbEntryCreate.ts) branches into the chooser when templates exist and no caller-supplied defaults are present.
 
 **Effort:** Small (~1 day).
 
