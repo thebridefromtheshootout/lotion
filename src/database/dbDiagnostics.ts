@@ -4,19 +4,23 @@ import { Diagnostic, DiagnosticSeverity, Disposable, Position, Range } from "../
 import type { DiagnosticCollection, TextDocument } from "../hostEditor/EditorTypes";
 import { Regex } from "../core/regex";
 import { findParentDbIndex, readDbEntries } from "./dbEntries";
-import { parseSchemaFromFile } from "./dbSchema";
+import { parseSchemaFromFile, parseSchemaFromText } from "./dbSchema";
 import { parsePropertyTable } from "./dbFrontmatter";
-import { validateEntry } from "./dbValidate";
+import { validateColumnValue, validateEntry } from "./dbValidate";
 
-// ── Schema-violation diagnostics for DB entry files ────────────────
+// ── Schema-violation diagnostics for DB index + entry files ───────
 //
-// Phase D of DATABASE_ROADMAP §1.5. Surfaces validation violations
-// (required/type/range/options/uniqueness) as workspace diagnostics so
-// the Problems panel shows them at a glance — no need to wait for the
-// user to open the webview and click the cell.
+// Phase D of DATABASE_ROADMAP §1.5 + round-3 §1.5 follow-up (#7).
+// Surfaces two flavours of validation issue in the Problems panel:
 //
-// The collection only targets DB *entry* files (a `<slug>/index.md`
-// child of a DB folder). Index files and non-DB markdown are skipped.
+//   1. Entry files (`<slug>/index.md` under a DB folder): per-cell
+//      and uniqueness violations of the entry's property table.
+//   2. Index files (the file carrying the `lotion-db` schema fence):
+//      schema-level config that contradicts itself, e.g. a `default:`
+//      value that isn't in `options:` or fails its own validator.
+//
+// Each doc goes through one of the two paths; non-DB markdown is
+// skipped entirely.
 
 const COLLECTION_NAME = "lotion-db-validation";
 let collection: DiagnosticCollection;
@@ -24,10 +28,6 @@ let collection: DiagnosticCollection;
 /** Returns the parent DB index path if `doc` is a DB entry file. */
 function findParentDbIndexForEntry(doc: TextDocument): string | undefined {
   if (doc.languageId !== "markdown") {
-    return undefined;
-  }
-  // The DB index itself has a schema fence — skip it (no property table to validate).
-  if (Regex.dbSchemaFenceStartMultiline.test(doc.getText())) {
     return undefined;
   }
   return findParentDbIndex(doc.uri.fsPath);
@@ -69,6 +69,75 @@ function findPropertyRowLines(
     endIdx = i;
   }
   return { rows, tableStart: headerIdx, tableEnd: endIdx };
+}
+
+/**
+ * Lint a DB *index* file (the file carrying the `lotion-db` schema fence)
+ * for schema-level config errors — currently just `default:` values that
+ * don't pass their own column's validator (e.g. a select default not in
+ * `options:`, a number default outside `min/max`).
+ */
+function lintIndex(doc: TextDocument): void {
+  const text = doc.getText();
+  const schema = parseSchemaFromText(text);
+  if (!schema) {
+    collection.delete(doc.uri);
+    return;
+  }
+
+  const lines = text.split(Regex.lineBreakSplit);
+  const diagnostics: Diagnostic[] = [];
+
+  for (const col of schema.columns) {
+    if (col.default === undefined || col.default === "") continue;
+    const violation = validateColumnValue(col, col.default);
+    if (!violation) continue;
+
+    // Anchor the diagnostic on the schema's `default:` line for this
+    // column (or the column's `- name:` header if we can't find it).
+    const range =
+      findSchemaLineRange(doc, lines, col.name, "default") ?? findSchemaLineRange(doc, lines, col.name, "name");
+    diagnostics.push(
+      new Diagnostic(
+        range ?? new Range(new Position(0, 0), new Position(0, 0)),
+        `Lotion: schema default for "${col.name}" — ${violation}`,
+        DiagnosticSeverity.Warning,
+      ),
+    );
+  }
+
+  collection.set(doc.uri, diagnostics);
+}
+
+/**
+ * Find the line range of `<key>:` belonging to the column block whose
+ * `- name:` matches `columnName`. Returns undefined if the column or the
+ * key isn't found in source.
+ */
+function findSchemaLineRange(
+  doc: TextDocument,
+  lines: string[],
+  columnName: string,
+  key: "name" | "default",
+): Range | undefined {
+  for (let i = 0; i < lines.length; i++) {
+    const nameMatch = lines[i].match(Regex.dbDashNameLine);
+    if (!nameMatch || nameMatch[1].trim() !== columnName) continue;
+
+    if (key === "name") {
+      return doc.lineAt(i).range;
+    }
+
+    // Walk forward until the next column or fence-end, looking for `default:`.
+    for (let j = i + 1; j < lines.length; j++) {
+      if (Regex.dbDashNameLine.test(lines[j]) || Regex.dbFenceEnd.test(lines[j])) break;
+      if (Regex.dbColumnDefaultLine.test(lines[j])) {
+        return doc.lineAt(j).range;
+      }
+    }
+    return undefined;
+  }
+  return undefined;
 }
 
 function lintEntry(doc: TextDocument): void {
@@ -119,6 +188,19 @@ function lintEntry(doc: TextDocument): void {
   collection.set(doc.uri, diagnostics);
 }
 
+/** Dispatch: index files go to lintIndex, child entries to lintEntry. */
+function lintDocument(doc: TextDocument): void {
+  if (doc.languageId !== "markdown") {
+    collection.delete(doc.uri);
+    return;
+  }
+  if (Regex.dbSchemaFenceStartMultiline.test(doc.getText())) {
+    lintIndex(doc);
+    return;
+  }
+  lintEntry(doc);
+}
+
 export function createDbEntryLinter(): Disposable {
   collection = hostEditor.createDiagnosticCollection(COLLECTION_NAME);
 
@@ -132,15 +214,15 @@ export function createDbEntryLinter(): Disposable {
       doc,
       setTimeout(() => {
         pendingTimers.delete(doc);
-        lintEntry(doc);
+        lintDocument(doc);
       }, 200),
     );
   }
 
   const disposables = [
     collection,
-    hostEditor.onDidOpenTextDocument(lintEntry),
-    hostEditor.onDidSaveTextDocument(lintEntry),
+    hostEditor.onDidOpenTextDocument(lintDocument),
+    hostEditor.onDidSaveTextDocument(lintDocument),
     hostEditor.onDidChangeTextDocument((e) => lintDebounced(e.document)),
     hostEditor.onDidCloseTextDocument((doc) => {
       // Cancel any in-flight debounced lint so it doesn't re-`set` a
@@ -154,7 +236,7 @@ export function createDbEntryLinter(): Disposable {
     }),
   ];
 
-  hostEditor.getTextDocuments().forEach(lintEntry);
+  hostEditor.getTextDocuments().forEach(lintDocument);
 
   return Disposable.from(...disposables);
 }
