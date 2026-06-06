@@ -18,6 +18,7 @@ import {
 } from "./dbSchemaEdits";
 import { handleNewViewCommand } from "./dbViewCreate";
 import { handleTableToDbCommand, handleCsvToDbCommand, handleJsonToDbCommand } from "./dbTabularImport";
+import { handleRegenFromDbCommand } from "./dbRegenTable";
 
 // ── Slash command definitions ──────────────────────────────────────
 
@@ -126,6 +127,16 @@ export const JSON_TO_DB_SLASH_COMMAND: SlashCommand = {
   handler: handleJsonToDbCommand,
 };
 
+export const REGEN_FROM_DB_SLASH_COMMAND: SlashCommand = {
+  label: "/regen-from-db",
+  insertText: "",
+  detail: "🔄 Refresh the markdown table at the cursor from its source database",
+  isAction: true,
+  commandId: Cmd.dbRegenFromDb,
+  kind: 21,
+  handler: handleRegenFromDbCommand,
+};
+
 // ── Re-exports so existing `import { ... } from "./dbCommands"` keeps working ──
 
 export { handleDatabaseCommand } from "./dbCreate";
@@ -139,4 +150,5 @@ export {
 } from "./dbSchemaEdits";
 export { handleNewViewCommand } from "./dbViewCreate";
 export { handleTableToDbCommand, handleCsvToDbCommand, handleJsonToDbCommand } from "./dbTabularImport";
+export { handleRegenFromDbCommand } from "./dbRegenTable";
 export { logEntryAndPromptNew } from "./dbLogEntry";

@@ -127,6 +127,7 @@ export const Cmd = {
   dbTableToDatabase: "lotion.dbTableToDatabase",
   dbCsvToDatabase: "lotion.dbCsvToDatabase",
   dbJsonToDatabase: "lotion.dbJsonToDatabase",
+  dbRegenFromDb: "lotion.dbRegenFromDb",
   openDbWebview: "lotion.openDbWebview",
 
   // ── Productivity ───────────────────────────────────────────────────
