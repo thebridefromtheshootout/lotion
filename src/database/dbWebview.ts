@@ -74,7 +74,14 @@ export async function openDbWebview(dbIndexPath: string): Promise<void> {
   const communicator = new ExtensionToDbPanelCommunicator(panel.webview);
   panels.set(dbIndexPath, { panel, communicator });
 
-  panel.onDidDispose(() => panels.delete(dbIndexPath));
+  panel.onDidDispose(() => {
+    const pending = refreshTimers.get(dbIndexPath);
+    if (pending) {
+      clearTimeout(pending);
+      refreshTimers.delete(dbIndexPath);
+    }
+    panels.delete(dbIndexPath);
+  });
   const refreshPanel = async () => {
     await sendInit(communicator, panel, dbIndexPath);
   };
@@ -114,7 +121,7 @@ export async function openDbWebview(dbIndexPath: string): Promise<void> {
       const cellError = validateColumnValue(col, msg.value);
       if (cellError) {
         hostEditor.showWarning(`Lotion: ${cellError}`);
-        softRefreshDbWebview(dbIndexPath);
+        scheduleSoftRefresh(dbIndexPath);
         return;
       }
       if (col.unique) {
@@ -124,14 +131,14 @@ export async function openDbWebview(dbIndexPath: string): Promise<void> {
         const uniqueError = validateUniqueness(col, msg.value, others);
         if (uniqueError) {
           hostEditor.showWarning(`Lotion: ${uniqueError}`);
-          softRefreshDbWebview(dbIndexPath);
+          scheduleSoftRefresh(dbIndexPath);
           return;
         }
       }
     }
 
     updateEntryProperty(entryFile, msg.column, msg.value);
-    softRefreshDbWebview(dbIndexPath);
+    scheduleSoftRefresh(dbIndexPath);
   });
 
   communicator.registerOnPromptSaveView(async (msg) => {
@@ -231,6 +238,29 @@ export function softRefreshDbWebview(dbIndexPath: string): void {
   }
   const { entries } = resolveDbEntries(dbIndexPath);
   state.communicator.sendUpdateEntries(entries);
+}
+
+// ── Coalesced refresh ──────────────────────────────────────────────
+//
+// `softRefreshDbWebview` re-reads the entire DB folder. For a bulk-edit
+// of 50 rows, that's 50 disk scans + 50 webview messages back-to-back —
+// a visible stutter. `scheduleSoftRefresh` collapses calls fired within
+// a 50ms window into a single refresh at the trailing edge. Callers
+// that want an immediate refresh (e.g. the initial panel ready handler)
+// still use `softRefreshDbWebview` / `refreshDbWebview` directly.
+
+const refreshTimers = new Map<string, ReturnType<typeof setTimeout>>();
+
+function scheduleSoftRefresh(dbIndexPath: string): void {
+  const existing = refreshTimers.get(dbIndexPath);
+  if (existing) clearTimeout(existing);
+  refreshTimers.set(
+    dbIndexPath,
+    setTimeout(() => {
+      refreshTimers.delete(dbIndexPath);
+      softRefreshDbWebview(dbIndexPath);
+    }, 50),
+  );
 }
 
 export function refreshAllDbWebviews(): void {
