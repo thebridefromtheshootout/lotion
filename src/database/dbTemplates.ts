@@ -31,9 +31,19 @@ export function listTemplates(dbDir: string): TemplateFile[] {
   const out: TemplateFile[] = [];
   for (const file of fs.readdirSync(dir)) {
     if (!file.endsWith(".md")) continue;
+    const fullPath = path.join(dir, file);
+    // A `.templates/foo.md/` *directory* (or a dangling symlink) would
+    // otherwise sneak through and trigger EISDIR / ENOENT inside
+    // readFileSync at picker time. Skip anything that isn't a regular
+    // file (or follows to one).
+    try {
+      if (!fs.statSync(fullPath).isFile()) continue;
+    } catch {
+      continue;
+    }
     out.push({
       name: file.replace(/\.md$/, ""),
-      path: path.join(dir, file),
+      path: fullPath,
     });
   }
   return out.sort((a, b) => a.name.localeCompare(b.name));
@@ -55,12 +65,13 @@ export function parseTemplate(content: string): ParsedTemplate {
   return { defaults, body: extractBodyAfterPropertyTable(content) };
 }
 
-/** Read + parse a template file from disk. */
+/** Read + parse a template file from disk. Returns undefined on any I/O failure. */
 export function readTemplate(filePath: string): ParsedTemplate | undefined {
-  if (!fs.existsSync(filePath)) {
+  try {
+    return parseTemplate(fs.readFileSync(filePath, "utf-8"));
+  } catch {
     return undefined;
   }
-  return parseTemplate(fs.readFileSync(filePath, "utf-8"));
 }
 
 /**
