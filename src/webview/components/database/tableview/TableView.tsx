@@ -437,7 +437,21 @@ interface BulkEditBarProps {
   onClear: () => void;
 }
 
-function BulkEditBar({ schema, selectionCount, onApply, onClear }: BulkEditBarProps) {
+/** Wrapped so tests can stub it; webview runtime has `window.confirm`. */
+function defaultConfirm(message: string): boolean {
+  if (typeof window === "undefined" || typeof window.confirm !== "function") {
+    return true;
+  }
+  return window.confirm(message);
+}
+
+function BulkEditBar({
+  schema,
+  selectionCount,
+  onApply,
+  onClear,
+  confirmFn = defaultConfirm,
+}: BulkEditBarProps & { confirmFn?: (msg: string) => boolean }) {
   // Unique columns can't be safely bulk-edited — every selected row
   // would get the same value, immediately violating the constraint
   // for all but one of them. Surface this in the picker rather than
@@ -470,10 +484,19 @@ function BulkEditBar({ schema, selectionCount, onApply, onClear }: BulkEditBarPr
       setError(violation);
       return;
     }
+    // Clearing a column across many rows is irreversible from the UI
+    // (the prior values are no longer in memory). Gate it behind an
+    // explicit confirm so an accidental Apply doesn't wipe data.
+    if (value.trim().length === 0) {
+      const ok = confirmFn(
+        `Clear "${col.name}" in ${selectionCount} row${selectionCount === 1 ? "" : "s"}? This can't be undone from here.`,
+      );
+      if (!ok) return;
+    }
     setError(null);
     onApply(col.name, value);
     setValue("");
-  }, [col, value, onApply]);
+  }, [col, value, onApply, selectionCount, confirmFn]);
 
   const onValueChange = useCallback((next: string) => {
     setValue(next);
