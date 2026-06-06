@@ -51,6 +51,20 @@ describe("findMarkedTableAround", () => {
     expect(findMarkedTableAround(mkDoc(plain) as any, 1)).toBeUndefined();
   });
 
+  it("finds the marker for large tables (>32 rows)", () => {
+    const N = 50;
+    const lines = [
+      '<!-- lotion-db-table source="big/index.md" -->',
+      "| col |",
+      "| --- |",
+      ...Array.from({ length: N }, (_, i) => `| r${i} |`),
+    ];
+    const doc = mkDoc(lines.join("\n"));
+    // Cursor on the very last data row (line 2 + N).
+    const region = findMarkedTableAround(doc as any, 2 + N);
+    expect(region).toEqual({ sourcePath: "big/index.md", markerLine: 0, endLine: 2 + N });
+  });
+
   it("does not associate a marker with an unrelated table further down", () => {
     const split = [
       '<!-- lotion-db-table source="a/index.md" -->',

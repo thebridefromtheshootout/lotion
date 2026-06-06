@@ -23,20 +23,31 @@ export interface MarkedTableRegion {
 }
 
 /**
- * Locate a marked DB table at or near the cursor. We scan a small window
- * upward (the marker can sit on the line above, e.g. when the cursor lands
- * on the header row) so the command works from anywhere "inside" the table.
+ * Locate a marked DB table at or near the cursor. Walks upward through
+ * contiguous pipe-prefixed lines (so any table-row count works, not
+ * just small ones) and expects the marker to sit on the line directly
+ * above the block.
  */
 export function findMarkedTableAround(document: TextDocument, cursorLine: number): MarkedTableRegion | undefined {
-  const SCAN_BACK = 32; // generous — most DB exports are under 30 rows
-  const start = Math.max(0, cursorLine - SCAN_BACK);
+  if (cursorLine < 0 || cursorLine >= document.lineCount) return undefined;
 
+  // Walk upward through the contiguous pipe block. The cursor line itself
+  // may be the marker, a table row, or anywhere inside the block.
+  let blockTop = cursorLine;
+  while (blockTop > 0 && document.lineAt(blockTop).text.startsWith("|")) {
+    blockTop--;
+  }
+
+  // The marker should be the line directly above the block (or the
+  // cursor line itself if it is the marker).
+  const candidateLines = [cursorLine, blockTop];
   let markerLine = -1;
   let sourcePath = "";
-  for (let i = cursorLine; i >= start; i--) {
-    const match = document.lineAt(i).text.match(DB_TABLE_MARKER_REGEX);
+  for (const idx of candidateLines) {
+    if (idx < 0 || idx >= document.lineCount) continue;
+    const match = document.lineAt(idx).text.match(DB_TABLE_MARKER_REGEX);
     if (match) {
-      markerLine = i;
+      markerLine = idx;
       sourcePath = match[1];
       break;
     }
