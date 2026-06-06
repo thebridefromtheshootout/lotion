@@ -49,29 +49,56 @@ export async function promptForColumnValue(
         })
         .then((v) => v ?? undefined);
 
-    case "checkbox":
-      return hostEditor
-        .showQuickPick([{ label: "true" }, { label: "false" }], { placeHolder: promptLabel })
-        .then((v) => v?.label);
+    case "checkbox": {
+      // Pre-select the schema default (or current value) so confirming the
+      // pick keeps existing data. Optional columns ("required: false") get
+      // a "Skip" entry so the user can clear the cell.
+      const items: Array<{ label: string; description?: string; picked?: boolean }> = [
+        { label: "true", picked: initialValue === "true" },
+        { label: "false", picked: initialValue === "false" },
+      ];
+      if (col.required === false) {
+        items.unshift({ label: "Skip", description: "Leave this field empty" });
+      }
+      const pick = await hostEditor.showQuickPick(items, { placeHolder: promptLabel });
+      if (!pick) return undefined;
+      return pick.label === "Skip" ? "" : pick.label;
+    }
 
     case "select":
       if (col.options && col.options.length > 0) {
-        return hostEditor
-          .showQuickPick(
-            col.options.map((o) => ({ label: o })),
-            { placeHolder: promptLabel },
-          )
-          .then((v) => v?.label);
+        const items: Array<{ label: string; description?: string; picked?: boolean }> = col.options.map((o) => ({
+          label: o,
+          picked: o === initialValue,
+        }));
+        if (col.required === false) {
+          items.unshift({ label: "Skip", description: "Leave this field empty" });
+        }
+        const pick = await hostEditor.showQuickPick(items, { placeHolder: promptLabel });
+        if (!pick) return undefined;
+        return pick.label === "Skip" ? "" : pick.label;
       }
       return hostEditor.showInputBox({ prompt: promptLabel, value: initialValue }).then((v) => v ?? undefined);
 
     case "multi-select":
       if (col.options && col.options.length > 0) {
-        const picks = await hostEditor.showQuickPick(
-          col.options.map((o) => ({ label: o })),
-          { placeHolder: `${promptLabel} (select at least one)`, canPickMany: true },
+        // Pre-tick anything matching the default/current comma-separated value.
+        const seeded = new Set(
+          (initialValue ?? "")
+            .split(",")
+            .map((s) => s.trim())
+            .filter((s) => s.length > 0),
         );
-        if (!picks || picks.length === 0) {
+        const picks = await hostEditor.showQuickPick(
+          col.options.map((o) => ({ label: o, picked: seeded.has(o) })),
+          {
+            placeHolder: col.required === false ? promptLabel : `${promptLabel} (select at least one)`,
+            canPickMany: true,
+          },
+        );
+        if (!picks) return undefined;
+        if (picks.length === 0) {
+          if (col.required === false) return "";
           hostEditor.showWarning(`${col.name} requires at least one selection.`);
           return undefined;
         }
