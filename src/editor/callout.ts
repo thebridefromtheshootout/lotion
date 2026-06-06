@@ -1,4 +1,3 @@
-
 import { Position, Range, SnippetString } from "../hostEditor/EditorTypes";
 import type { TextDocument } from "../hostEditor/EditorTypes";
 import { hostEditor } from "../hostEditor/HostingEditor";
@@ -54,6 +53,41 @@ export const TOGGLE_SLASH_COMMAND: SlashCommand = {
   cleanLine: true,
 };
 
+export const TOGGLE_LIST_SLASH_COMMAND: SlashCommand = {
+  label: "/tl",
+  insertText: "",
+  detail: "▶ Collapsible list item (ul)",
+  isAction: true,
+  commandId: Cmd.insertToggleList,
+  kind: 14,
+  handler: handleToggleListCommand,
+  cmdFilter: Filter().pageIsNotDbIndex().cursorAllowsBlockMarkdown(),
+  cleanLine: true,
+};
+
+export const TOGGLE_OL_SLASH_COMMAND: SlashCommand = {
+  label: "/tol",
+  insertText: "",
+  detail: "▶ Collapsible list item (ol)",
+  isAction: true,
+  commandId: Cmd.insertToggleOl,
+  kind: 14,
+  handler: handleToggleOlCommand,
+  cmdFilter: Filter().pageIsNotDbIndex().cursorAllowsBlockMarkdown(),
+  cleanLine: true,
+};
+
+export const WRAP_LIST_SLASH_COMMAND: SlashCommand = {
+  label: "/wrap-list",
+  insertText: "",
+  detail: "▶ Wrap list item + children as collapsible",
+  isAction: true,
+  commandId: Cmd.wrapListCollapsible,
+  kind: 14,
+  handler: handleWrapListCommand,
+  cmdFilter: Filter().pageIsNotDbIndex().cursorInList(),
+};
+
 export const CALLOUT_SLASH_COMMAND: SlashCommand = {
   label: "/callout",
   insertText: "",
@@ -100,6 +134,71 @@ export function handleToggleHeadingCommand(level: number) {
 
     await hostEditor.insertSnippet(snippet, hostEditor.getCursorPosition()!);
   };
+}
+
+// ── /tl handler ────────────────────────────────────────────────────
+export async function handleToggleListCommand(document: TextDocument, position: Position): Promise<void> {
+  if (!hostEditor.isActiveEditorDocumentEqualTo(document)) return;
+  await hostEditor.deleteRange(new Range(position.translate(0, -1), position));
+  const snippet = new SnippetString("- <details><summary>${1:Summary}</summary>\n\n  - ${0}\n\n</details>");
+  await hostEditor.insertSnippet(snippet, hostEditor.getCursorPosition()!);
+}
+
+// ── /tol handler ───────────────────────────────────────────────────
+export async function handleToggleOlCommand(document: TextDocument, position: Position): Promise<void> {
+  if (!hostEditor.isActiveEditorDocumentEqualTo(document)) return;
+  await hostEditor.deleteRange(new Range(position.translate(0, -1), position));
+  const snippet = new SnippetString("1. <details><summary>${1:Summary}</summary>\n\n   1. ${0}\n\n</details>");
+  await hostEditor.insertSnippet(snippet, hostEditor.getCursorPosition()!);
+}
+
+// ── /wrap-list handler ─────────────────────────────────────────────
+export async function handleWrapListCommand(document: TextDocument, position: Position): Promise<void> {
+  if (!hostEditor.isActiveEditorDocumentEqualTo(document)) return;
+
+  const lineText = document.lineAt(position.line).text;
+  const match = lineText.match(/^(\s*)([-*+]|\d+\.)\s+(.*)/);
+  if (!match) return;
+
+  const [, indent, marker, rawText] = match;
+  const summaryText = rawText.trimEnd();
+  const baseIndent = indent.length;
+
+  // Find the last non-blank line that is more indented than the current item
+  let lastChildLine = position.line;
+  for (let i = position.line + 1; i < document.lineCount; i++) {
+    const t = document.lineAt(i).text;
+    if (t.trim().length === 0) continue;
+    if ((t.match(/^(\s*)/)?.[1].length ?? 0) > baseIndent) {
+      lastChildLine = i;
+    } else {
+      break;
+    }
+  }
+
+  // Collect children, trimming leading/trailing blank lines
+  const childLines: string[] = [];
+  for (let i = position.line + 1; i <= lastChildLine; i++) {
+    childLines.push(document.lineAt(i).text);
+  }
+  while (childLines.length > 0 && childLines[0].trim() === "") childLines.shift();
+  while (childLines.length > 0 && childLines[childLines.length - 1].trim() === "") childLines.pop();
+
+  const bodyIndent = indent + " ".repeat(marker.length + 1);
+  const body = childLines.length > 0 ? childLines : [`${bodyIndent}- `];
+
+  const result = [
+    `${indent}${marker} <details><summary>${summaryText}</summary>`,
+    "",
+    ...body,
+    "",
+    `${indent}</details>`,
+  ].join("\n");
+
+  await hostEditor.replaceRange(
+    new Range(new Position(position.line, 0), new Position(lastChildLine, document.lineAt(lastChildLine).text.length)),
+    result,
+  );
 }
 
 // ── /callout handler ───────────────────────────────────────────────

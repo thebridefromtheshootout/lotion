@@ -1,5 +1,12 @@
 // ── Editor module barrel ────────────────────────────────────────────
-export { handleToggleCommand, handleCalloutCommand, handleToggleHeadingCommand } from "./callout";
+export {
+  handleToggleCommand,
+  handleCalloutCommand,
+  handleToggleHeadingCommand,
+  handleToggleListCommand,
+  handleToggleOlCommand,
+  handleWrapListCommand,
+} from "./callout";
 export { handleCodeBlockCommand } from "./codeBlock";
 export { cursorInCodeContext } from "./codeContext";
 export {
@@ -35,6 +42,9 @@ import {
   TOGGLE_H2_SLASH_COMMAND,
   TOGGLE_H3_SLASH_COMMAND,
   TOGGLE_SLASH_COMMAND,
+  TOGGLE_LIST_SLASH_COMMAND,
+  TOGGLE_OL_SLASH_COMMAND,
+  WRAP_LIST_SLASH_COMMAND,
   CALLOUT_SLASH_COMMAND,
 } from "./callout";
 import { BLOCK_INSERT_SLASH_COMMANDS } from "./blockInserts";
@@ -46,11 +56,7 @@ import { EMOJI_SLASH_COMMAND } from "./emoji";
 import { FOOTNOTE_SLASH_COMMAND } from "./footnote";
 import { TOC_SLASH_COMMAND } from "./toc";
 import { COMMENTS_SLASH_COMMAND } from "./comments/commentPanel";
-import {
-  PROCESSOR_SLASH_COMMAND,
-  REFRESH_SLASH_COMMAND,
-  UPDATE_PROCESSOR_SLASH_COMMAND,
-} from "./processor";
+import { PROCESSOR_SLASH_COMMAND, REFRESH_SLASH_COMMAND, UPDATE_PROCESSOR_SLASH_COMMAND } from "./processor";
 
 export const EDITOR_SLASH_COMMANDS: SlashCommand[] = [
   ...BLOCK_INSERT_SLASH_COMMANDS,
@@ -58,6 +64,9 @@ export const EDITOR_SLASH_COMMANDS: SlashCommand[] = [
   TOGGLE_H2_SLASH_COMMAND,
   TOGGLE_H3_SLASH_COMMAND,
   TOGGLE_SLASH_COMMAND,
+  TOGGLE_LIST_SLASH_COMMAND,
+  TOGGLE_OL_SLASH_COMMAND,
+  WRAP_LIST_SLASH_COMMAND,
   CALLOUT_SLASH_COMMAND,
   CODE_SLASH_COMMAND,
   COPY_SLASH_COMMAND,
