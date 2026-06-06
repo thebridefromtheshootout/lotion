@@ -829,6 +829,65 @@ th.resizable-col .col-resize-handle:active {
   margin-bottom: 4px;
 }
 
+/* ── Row selection / bulk edit ─────────────────────────────────────── */
+
+.db-table th.select-cell,
+.db-table td.select-cell {
+  width: 32px;
+  text-align: center;
+  vertical-align: middle;
+  padding: 4px 0;
+}
+
+.db-table td.select-cell input[type="checkbox"],
+.db-table th.select-cell input[type="checkbox"] {
+  cursor: pointer;
+  margin: 0;
+}
+
+.db-table tr.row-selected td {
+  background: var(--vscode-list-activeSelectionBackground, rgba(100, 150, 255, 0.18));
+}
+
+.bulk-edit-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  margin-bottom: 6px;
+  background: var(--vscode-editorWidget-background, #2a2d2e);
+  border: 1px solid var(--vscode-widget-border, transparent);
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.bulk-edit-bar .bulk-edit-count {
+  font-weight: 600;
+  margin-right: auto;
+}
+
+.bulk-edit-bar .bulk-edit-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.bulk-edit-bar select,
+.bulk-edit-bar input {
+  padding: 4px 8px;
+  background: var(--vscode-input-background);
+  color: var(--vscode-input-foreground);
+  border: 1px solid var(--vscode-input-border, transparent);
+  border-radius: 3px;
+}
+
+.bulk-edit-bar button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+}
+
 /* Tag (select / multi-select) cells: badges stack one per line so the
  * column width = the widest single badge. Each badge is truncated at
  * 30ch with an ellipsis. */

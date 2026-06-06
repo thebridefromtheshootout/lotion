@@ -28,6 +28,62 @@ export function TableView({
   const [colWidths, setColWidths] = useState<ColumnWidths>(() => loadColumnWidths(dbName));
   const dragRef = useRef<DragState | null>(null);
 
+  // ── Row selection (bulk-edit) ──
+  // `selectedPaths` is keyed by entry.relativePath so the set survives
+  // re-sorts / filter changes. `anchorPath` is the most-recently clicked
+  // row — shift-click extends the range from it.
+  const [selectedPaths, setSelectedPaths] = useState<Set<string>>(new Set());
+  const [anchorPath, setAnchorPath] = useState<string | null>(null);
+
+  // Drop selections that no longer match the visible entries (e.g. after a
+  // filter change). Keeps the bulk-edit bar honest about its count.
+  useEffect(() => {
+    setSelectedPaths((prev) => {
+      const visible = new Set(entries.map((e) => e.relativePath));
+      const next = new Set<string>();
+      let changed = false;
+      for (const p of prev) {
+        if (visible.has(p)) next.add(p);
+        else changed = true;
+      }
+      return changed ? next : prev;
+    });
+  }, [entries]);
+
+  const toggleRowSelection = useCallback(
+    (relPath: string, shiftKey: boolean) => {
+      setSelectedPaths((prev) => {
+        const next = new Set(prev);
+        if (shiftKey && anchorPath && anchorPath !== relPath) {
+          const anchorIdx = entries.findIndex((e) => e.relativePath === anchorPath);
+          const targetIdx = entries.findIndex((e) => e.relativePath === relPath);
+          if (anchorIdx >= 0 && targetIdx >= 0) {
+            const [lo, hi] = anchorIdx < targetIdx ? [anchorIdx, targetIdx] : [targetIdx, anchorIdx];
+            for (let i = lo; i <= hi; i++) next.add(entries[i].relativePath);
+            return next;
+          }
+        }
+        if (next.has(relPath)) next.delete(relPath);
+        else next.add(relPath);
+        return next;
+      });
+      setAnchorPath(relPath);
+    },
+    [entries, anchorPath],
+  );
+
+  const toggleAllVisible = useCallback(() => {
+    setSelectedPaths((prev) => {
+      const allSelected = entries.length > 0 && entries.every((e) => prev.has(e.relativePath));
+      return allSelected ? new Set() : new Set(entries.map((e) => e.relativePath));
+    });
+  }, [entries]);
+
+  const clearSelection = useCallback(() => {
+    setSelectedPaths(new Set());
+    setAnchorPath(null);
+  }, []);
+
   // Hydrate again if dbName changes (rare but safe).
   useEffect(() => {
     setColWidths(loadColumnWidths(dbName));
@@ -119,10 +175,35 @@ export function TableView({
     communicator.sendCopyToClipboard(values.join("\n"), label);
   }
 
+  // Apply a single column's value to every selected row. Reuses the same
+  // updateEntryProperty message the inline editor uses, so schema
+  // validation on the extension side enforces required/range/option
+  // constraints uniformly. Optimistic local update keeps the table snappy.
+  const applyBulkEdit = useCallback(
+    (colName: string, value: string) => {
+      for (const relPath of selectedPaths) {
+        communicator.sendUpdateEntryProperty(relPath, colName, value);
+        onLocalEntryUpdate(relPath, colName, value);
+      }
+    },
+    [selectedPaths, communicator, onLocalEntryUpdate],
+  );
+
+  const allVisibleSelected = entries.length > 0 && entries.every((e) => selectedPaths.has(e.relativePath));
+
   return (
     <div className="table-wrap">
+      {selectedPaths.size > 0 && (
+        <BulkEditBar
+          schema={schema}
+          selectionCount={selectedPaths.size}
+          onApply={applyBulkEdit}
+          onClear={clearSelection}
+        />
+      )}
       <table className="db-table">
         <colgroup>
+          <col style={{ width: 32 }} />
           <col style={widthStyle("__title")} />
           {schema.map((c) => (
             <col key={c.name} style={widthStyle(c.name)} />
@@ -131,6 +212,15 @@ export function TableView({
         </colgroup>
         <thead>
           <tr>
+            <th className="select-cell">
+              <input
+                type="checkbox"
+                aria-label={allVisibleSelected ? "Clear selection" : "Select all visible rows"}
+                title={allVisibleSelected ? "Clear selection" : "Select all visible rows"}
+                checked={allVisibleSelected}
+                onChange={toggleAllVisible}
+              />
+            </th>
             <th className="resizable-col" style={widthStyle("__title")}>
               <span className="col-header-label">{titleFieldLabel}</span>
               <SortButton col="__title" />
@@ -188,6 +278,8 @@ export function TableView({
               commitEdit={commitEdit}
               setEditCell={setEditCell}
               baseUri={baseUri}
+              selected={selectedPaths.has(e.relativePath)}
+              onToggleSelect={toggleRowSelection}
             />
           ))}
         </tbody>
@@ -209,6 +301,8 @@ interface EntryRowProps {
   commitEdit: commitEditMethodType;
   setEditCell: React.Dispatch<React.SetStateAction<{ relPath: string; colName: string } | null>>;
   baseUri: string;
+  selected: boolean;
+  onToggleSelect: (relPath: string, shiftKey: boolean) => void;
 }
 
 const EntryRow = React.memo(function EntryRow({
@@ -219,9 +313,25 @@ const EntryRow = React.memo(function EntryRow({
   commitEdit,
   setEditCell,
   baseUri,
+  selected,
+  onToggleSelect,
 }: EntryRowProps) {
   return (
-    <tr>
+    <tr className={selected ? "row-selected" : undefined}>
+      <td className="select-cell">
+        <input
+          type="checkbox"
+          aria-label={selected ? "Deselect row" : "Select row"}
+          checked={selected}
+          onChange={() => {
+            /* mouse handler does the work — onChange just keeps React happy */
+          }}
+          onClick={(ev) => {
+            ev.stopPropagation();
+            onToggleSelect(entry.relativePath, ev.shiftKey);
+          }}
+        />
+      </td>
       <td className="title-cell">
         <a
           href="#"
@@ -308,3 +418,87 @@ const EntryCell = React.memo(function EntryCell({
     </td>
   );
 });
+
+// ── Bulk-edit bar ──────────────────────────────────────────────────
+//
+// Floats above the table whenever any rows are selected. The user picks
+// a column from the schema, types/selects a value, and "Apply" pushes
+// the same value into every selected row via the existing
+// updateEntryProperty message. Validation on the extension side
+// continues to enforce required / range / option / uniqueness
+// constraints per row — invalid edits are rejected per-row with a
+// warning, the rest commit normally.
+
+interface BulkEditBarProps {
+  schema: DbColumn[];
+  selectionCount: number;
+  onApply: (colName: string, value: string) => void;
+  onClear: () => void;
+}
+
+function BulkEditBar({ schema, selectionCount, onApply, onClear }: BulkEditBarProps) {
+  const [colName, setColName] = useState<string>(schema[0]?.name ?? "");
+  const [value, setValue] = useState<string>("");
+
+  const col = schema.find((c) => c.name === colName);
+
+  const handleApply = useCallback(() => {
+    if (!col) return;
+    onApply(col.name, value);
+    setValue("");
+  }, [col, value, onApply]);
+
+  return (
+    <div className="bulk-edit-bar">
+      <span className="bulk-edit-count">
+        {selectionCount} row{selectionCount === 1 ? "" : "s"} selected
+      </span>
+      <label className="bulk-edit-label">
+        Set
+        <select value={colName} onChange={(ev) => setColName(ev.target.value)}>
+          {schema.map((c) => (
+            <option key={c.name} value={c.name}>
+              {c.name}
+            </option>
+          ))}
+        </select>
+      </label>
+      <label className="bulk-edit-label">
+        to
+        {col?.type === "select" && col.options && col.options.length > 0 ? (
+          <select value={value} onChange={(ev) => setValue(ev.target.value)}>
+            <option value="">—</option>
+            {col.options.map((o) => (
+              <option key={o} value={o}>
+                {o}
+              </option>
+            ))}
+          </select>
+        ) : col?.type === "checkbox" ? (
+          <select value={value} onChange={(ev) => setValue(ev.target.value)}>
+            <option value="">—</option>
+            <option value="true">true</option>
+            <option value="false">false</option>
+          </select>
+        ) : (
+          <input
+            type={col?.type === "date" ? "date" : col?.type === "number" ? "number" : "text"}
+            value={value}
+            onChange={(ev) => setValue(ev.target.value)}
+            placeholder={col?.type === "multi-select" ? "comma-separated" : ""}
+          />
+        )}
+      </label>
+      <button
+        onClick={handleApply}
+        disabled={!col}
+        title={`Apply to ${selectionCount} row${selectionCount === 1 ? "" : "s"}`}
+      >
+        <Icon name="check" /> Apply
+      </button>
+      <button onClick={onClear} title="Clear selection">
+        <Icon name="close" /> Clear
+      </button>
+    </div>
+  );
+}
