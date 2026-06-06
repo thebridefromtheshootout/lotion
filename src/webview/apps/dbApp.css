@@ -888,6 +888,13 @@ th.resizable-col .col-resize-handle:active {
   padding: 4px 10px;
 }
 
+.bulk-edit-bar .bulk-edit-error {
+  flex-basis: 100%;
+  margin-top: 4px;
+  color: var(--vscode-errorForeground, #f48771);
+  font-size: 12px;
+}
+
 /* Tag (select / multi-select) cells: badges stack one per line so the
  * column width = the widest single badge. Each badge is truncated at
  * 30ch with an ellipsis. */

@@ -5,6 +5,7 @@ import { InlineEditor } from "./InlineEditor";
 import { ColumnValueCell } from "../ColumnValueCell";
 import { ColumnWidths, clampWidth, loadColumnWidths, saveColumnWidths } from "../../../utils/colWidths";
 import { Icon } from "../../Icon";
+import { validateColumnValue } from "../../../../contracts/dbValidate";
 
 interface DragState {
   colName: string;
@@ -437,16 +438,61 @@ interface BulkEditBarProps {
 }
 
 function BulkEditBar({ schema, selectionCount, onApply, onClear }: BulkEditBarProps) {
-  const [colName, setColName] = useState<string>(schema[0]?.name ?? "");
+  // Unique columns can't be safely bulk-edited — every selected row
+  // would get the same value, immediately violating the constraint
+  // for all but one of them. Surface this in the picker rather than
+  // letting the user dispatch N rejections.
+  const editableSchema = schema.filter((c) => !c.unique);
+  const [colName, setColName] = useState<string>(editableSchema[0]?.name ?? "");
   const [value, setValue] = useState<string>("");
+  const [error, setError] = useState<string | null>(null);
 
-  const col = schema.find((c) => c.name === colName);
+  // Snap the selected column back into the editable set if the schema
+  // changed under us (e.g. a column was just renamed).
+  useEffect(() => {
+    if (editableSchema.length === 0) {
+      setColName("");
+    } else if (!editableSchema.some((c) => c.name === colName)) {
+      setColName(editableSchema[0].name);
+    }
+  }, [editableSchema, colName]);
+
+  const col = editableSchema.find((c) => c.name === colName);
 
   const handleApply = useCallback(() => {
     if (!col) return;
+    // Validate once on the client side so a typo doesn't fire N
+    // rejection toasts plus N optimistic-then-rolled-back refreshes.
+    // The extension still re-validates per-row (covering uniqueness),
+    // so this is a fast-path check, not the only check.
+    const violation = validateColumnValue(col, value);
+    if (violation) {
+      setError(violation);
+      return;
+    }
+    setError(null);
     onApply(col.name, value);
     setValue("");
   }, [col, value, onApply]);
+
+  const onValueChange = useCallback((next: string) => {
+    setValue(next);
+    setError(null);
+  }, []);
+
+  if (editableSchema.length === 0) {
+    return (
+      <div className="bulk-edit-bar">
+        <span className="bulk-edit-count">
+          {selectionCount} row{selectionCount === 1 ? "" : "s"} selected
+        </span>
+        <span className="bulk-edit-error">No columns available to bulk-edit (every column is marked `unique`).</span>
+        <button onClick={onClear} title="Clear selection">
+          <Icon name="close" /> Clear
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="bulk-edit-bar">
@@ -456,7 +502,7 @@ function BulkEditBar({ schema, selectionCount, onApply, onClear }: BulkEditBarPr
       <label className="bulk-edit-label">
         Set
         <select value={colName} onChange={(ev) => setColName(ev.target.value)}>
-          {schema.map((c) => (
+          {editableSchema.map((c) => (
             <option key={c.name} value={c.name}>
               {c.name}
             </option>
@@ -466,7 +512,7 @@ function BulkEditBar({ schema, selectionCount, onApply, onClear }: BulkEditBarPr
       <label className="bulk-edit-label">
         to
         {col?.type === "select" && col.options && col.options.length > 0 ? (
-          <select value={value} onChange={(ev) => setValue(ev.target.value)}>
+          <select value={value} onChange={(ev) => onValueChange(ev.target.value)}>
             <option value="">—</option>
             {col.options.map((o) => (
               <option key={o} value={o}>
@@ -475,7 +521,7 @@ function BulkEditBar({ schema, selectionCount, onApply, onClear }: BulkEditBarPr
             ))}
           </select>
         ) : col?.type === "checkbox" ? (
-          <select value={value} onChange={(ev) => setValue(ev.target.value)}>
+          <select value={value} onChange={(ev) => onValueChange(ev.target.value)}>
             <option value="">—</option>
             <option value="true">true</option>
             <option value="false">false</option>
@@ -484,7 +530,7 @@ function BulkEditBar({ schema, selectionCount, onApply, onClear }: BulkEditBarPr
           <input
             type={col?.type === "date" ? "date" : col?.type === "number" ? "number" : "text"}
             value={value}
-            onChange={(ev) => setValue(ev.target.value)}
+            onChange={(ev) => onValueChange(ev.target.value)}
             placeholder={col?.type === "multi-select" ? "comma-separated" : ""}
           />
         )}
@@ -499,6 +545,7 @@ function BulkEditBar({ schema, selectionCount, onApply, onClear }: BulkEditBarPr
       <button onClick={onClear} title="Clear selection">
         <Icon name="close" /> Clear
       </button>
+      {error && <span className="bulk-edit-error">{error}</span>}
     </div>
   );
 }
