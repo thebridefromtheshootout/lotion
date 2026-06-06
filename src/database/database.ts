@@ -5,7 +5,6 @@
 // "./database" without changes.
 
 export { DbColumn, DbSchema, parseSchemaFromFile, parseSchemaFromText, serializeSchema } from "./dbSchema";
-export { SCHEMA_FENCE_START, SCHEMA_FENCE_END, extractFencedLines } from "./dbSchema";
 
 export {
   DbFilterOperator,
