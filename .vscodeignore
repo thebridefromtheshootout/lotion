@@ -7,5 +7,6 @@ src
 diagrams
 .*
 lotion-tests
+latest-vsix/**
 out/test/**
 .vscode-test.mjs

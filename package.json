@@ -974,6 +974,7 @@
   },
   "scripts": {
     "package": "npx vsce package",
+    "publish": "node scripts/publish.mjs",
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./ && node esbuild.webview.mjs && npm run docs:slash-table",
     "compile:webview": "node esbuild.webview.mjs",
