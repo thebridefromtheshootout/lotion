@@ -25,7 +25,6 @@ const LAYOUT_BUTTONS: Button[] = [
   { title: "M", command: Cmd.imgSizeM },
   { title: "L", command: Cmd.imgSizeL },
   { title: "Full", command: Cmd.imgSizeFull },
-  { title: "Caption", command: Cmd.imgCaption },
 ];
 
 export function generateImageLenses(document: TextDocument): CodeLens[] {
