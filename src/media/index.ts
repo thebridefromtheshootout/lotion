@@ -12,6 +12,7 @@ import { GIF_SLASH_COMMAND } from "./gif";
 import { GRAPH_SLASH_COMMAND, RENDER_GRAPH_SLASH_COMMAND } from "./graph";
 import { IMAGE_LAYOUT_SLASH_COMMANDS } from "./imageLayout";
 import { IMAGE_CAPTION_SLASH_COMMAND } from "./imageCaption";
+import { IMAGE_SUGAR_SLASH_COMMANDS } from "./imageSugar";
 
 export const MEDIA_SLASH_COMMANDS: SlashCommand[] = [
   IMAGE_SLASH_COMMAND,
@@ -21,4 +22,5 @@ export const MEDIA_SLASH_COMMANDS: SlashCommand[] = [
   RENDER_GRAPH_SLASH_COMMAND,
   ...IMAGE_LAYOUT_SLASH_COMMANDS,
   IMAGE_CAPTION_SLASH_COMMAND,
+  ...IMAGE_SUGAR_SLASH_COMMANDS,
 ];

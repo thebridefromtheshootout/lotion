@@ -127,6 +127,9 @@ export const Cmd = {
   imgSizeL: "lotion.imgSizeL",
   imgSizeFull: "lotion.imgSizeFull",
   imgCaption: "lotion.imgCaption",
+  imgAlt: "lotion.imgAlt",
+  imgCopyPath: "lotion.imgCopyPath",
+  imgReveal: "lotion.imgReveal",
 
   // ── Database ───────────────────────────────────────────────────────
   createDatabase: "lotion.createDatabase",
