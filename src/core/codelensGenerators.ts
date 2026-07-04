@@ -2,7 +2,7 @@
 // Stateless CodeLens generators that can be registered with createCodeLensProvider
 
 import { generateDbLenses } from "../database";
-import { generateGraphLenses } from "../media";
+import { generateGraphLenses, generateImageLenses } from "../media";
 import { generateDateLenses, generateProcessorLenses } from "../editor";
 import type { CodeLensGenerator } from "./codeLens";
 
@@ -12,6 +12,7 @@ import type { CodeLensGenerator } from "./codeLens";
  */
 export const CODELENS_GENERATORS: CodeLensGenerator[] = [
   generateGraphLenses,
+  generateImageLenses,
   generateDbLenses,
   generateDateLenses,
   generateProcessorLenses,

@@ -1,5 +1,6 @@
 // ── Media module barrel ─────────────────────────────────────────────
 export { generateGraphLenses } from "./graph";
+export { generateImageLenses } from "./imageCodeLens";
 export { createImageDropProvider } from "./imageDrop";
 export { createImagePasteProvider, isImagePasteProviderActive } from "./imagePaste";
 export { createImageHoverProvider } from "./imageHover";
