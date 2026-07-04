@@ -118,6 +118,14 @@ export const Cmd = {
   insertGraph: "lotion.insertGraph",
   renderGraph: "lotion.renderGraph",
   exportToPdf: "lotion.exportToPdf",
+  imgAlignLeft: "lotion.imgAlignLeft",
+  imgAlignRight: "lotion.imgAlignRight",
+  imgAlignCenter: "lotion.imgAlignCenter",
+  imgReset: "lotion.imgReset",
+  imgSizeS: "lotion.imgSizeS",
+  imgSizeM: "lotion.imgSizeM",
+  imgSizeL: "lotion.imgSizeL",
+  imgSizeFull: "lotion.imgSizeFull",
 
   // ── Database ───────────────────────────────────────────────────────
   createDatabase: "lotion.createDatabase",

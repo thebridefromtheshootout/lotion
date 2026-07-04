@@ -10,6 +10,7 @@ import { IMAGE_SLASH_COMMAND } from "./image";
 import { RESOURCE_SLASH_COMMAND } from "./resource";
 import { GIF_SLASH_COMMAND } from "./gif";
 import { GRAPH_SLASH_COMMAND, RENDER_GRAPH_SLASH_COMMAND } from "./graph";
+import { IMAGE_LAYOUT_SLASH_COMMANDS } from "./imageLayout";
 
 export const MEDIA_SLASH_COMMANDS: SlashCommand[] = [
   IMAGE_SLASH_COMMAND,
@@ -17,4 +18,5 @@ export const MEDIA_SLASH_COMMANDS: SlashCommand[] = [
   GIF_SLASH_COMMAND,
   GRAPH_SLASH_COMMAND,
   RENDER_GRAPH_SLASH_COMMAND,
+  ...IMAGE_LAYOUT_SLASH_COMMANDS,
 ];
