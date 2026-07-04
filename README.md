@@ -20,83 +20,94 @@ for the canonical list.
 
 <!-- BEGIN AUTO-SLASH-TABLE -->
 
-| Command             | Description                                         |
-| ------------------- | --------------------------------------------------- |
-| `/align`            | ↔️ Re-align table columns                           |
-| `/callout`          | 📢 Callout block (NOTE, TIP, WARNING...)            |
-| `/carry-forward`    | ⏩ Move unfinished tasks to next day                |
-| `/clean-list`       | 🧹 Remove empty lines/items in current list         |
-| `/code`             | 🔣 Fenced code block                                |
-| `/cols-left`        | ⬅️ Add columns to the left                          |
-| `/cols-right`       | ➡️ Add columns to the right                         |
-| `/comments`         | 💬 Show/manage comments on this page                |
-| `/commit`           | 📦 Git: stage all, commit & push                    |
-| `/copy`             | 📋 Copy code (inline span or block)                 |
-| `/copy-column`      | 📋 Copy current column                              |
-| `/csv-to-db`        | 🧾 Create a new DB from CSV file                    |
-| `/cut-column`       | ✂️ Cut current column                               |
-| `/database`         | 🗄️ Create a database (typed table)                  |
-| `/date`             | 🗓️ Insert a specific date                           |
-| `/delete-col`       | 🗑️ Delete current column                            |
-| `/delete-field`     | 🗑️ Remove a field from the schema                   |
-| `/delete-row`       | 🗑️ Delete current row                               |
-| `/divider`          | ➖ Horizontal divider — ---                         |
-| `/emoji`            | 😀 Insert an emoji                                  |
-| `/footnote`         | 📝 Insert a numbered footnote                       |
-| `/frontmatter`      | 📋 YAML front matter block                          |
-| `/gif`              | 🎬 Search for a GIF                                 |
-| `/graph`            | 📈 Insert a Graphviz diagram                        |
-| `/h1`               | 𝗛 Heading 1 — #                                     |
-| `/h2`               | 𝗛 Heading 2 — ##                                    |
-| `/h3`               | 𝗛 Heading 3 — ###                                   |
-| `/image`            | 🖼️ Insert an image                                  |
-| `/inline-math`      | 🧮 Inline math — $ ... $                            |
-| `/link`             | 🔗 Insert link to a page                            |
-| `/lock`             | 🔒 Encrypt a secret box with a password             |
-| `/math`             | 🧮 LaTeX math block — $$ ... $$                     |
-| `/mermaid`          | 🧭 Mermaid diagram block                            |
-| `/move-page`        | 📦 Move current page folder                         |
-| `/new-entry`        | ➕ Add a new database entry                         |
-| `/new-field`        | ➕ Add a new field to the schema                    |
-| `/new-view`         | 👁️ Create a saved view with sort & filter           |
-| `/openlink`         | 📂 Open the nearest page link                       |
-| `/page`             | 📄 Create a child page                              |
-| `/paste-column`     | 📥 Paste column from clipboard                      |
-| `/plan-this-week`   | 📅 Insert weekly plan for the current week          |
-| `/plan-week-of`     | 📅 Insert weekly plan — pick a week                 |
-| `/processor`        | 🔧 Insert a processor block (shell command)         |
-| `/quote`            | 💬 Blockquote — >                                   |
-| `/refresh`          | 🔄 Re-run all processor blocks in this file         |
-| `/rename-field`     | ✏️ Rename a schema field across entries             |
-| `/rename-page`      | ✏️ Rename current page folder and update links      |
-| `/render`           | ▶ Re-render graph from DOT source                   |
-| `/renumber`         | 🔢 Renumber the entire ordered list                 |
-| `/resource`         | 📎 Attach a file from disk into .rsrc               |
-| `/rows-above`       | ⬆️ Add rows above                                   |
-| `/rows-below`       | ⬇️ Add rows below                                   |
-| `/secretbox`        | 🔐 Secret box — lockable <details> block            |
-| `/section`          | 📑 Divider + section heading scaffold               |
-| `/sort`             | 🔤 Sort table by column                             |
-| `/sync-field-order` | 🔁 Sync entry field order to schema                 |
-| `/table`            | 📊 Insert a table                                   |
-| `/table-to-db`      | 📊 Create a new DB from markdown table under cursor |
-| `/th1`              | ▶ Toggle heading 1 (collapsible)                    |
-| `/th2`              | ▶ Toggle heading 2 (collapsible)                    |
-| `/th3`              | ▶ Toggle heading 3 (collapsible)                    |
-| `/tl`               | ▶ Collapsible list item (ul)                        |
-| `/to-bullets`       | • Convert numbered list to bullet list              |
-| `/to-numbered`      | 🔢 Convert bullet list to numbered list             |
-| `/toc`              | 📑 Table of contents from headings                  |
-| `/today`            | 📅 Insert today's date                              |
-| `/todo`             | ☑️ To-do checkbox — - [ ]                           |
-| `/toggle`           | ▶ Collapsible toggle block                          |
-| `/tol`              | ▶ Collapsible list item (ol)                        |
-| `/transpose`        | 🔄 Transpose table rows/cols                        |
-| `/turninto`         | 🔄 Turn heading/link into something else            |
-| `/unlock`           | 🔓 Decrypt a locked secret box                      |
-| `/update-processor` | ✏️ Change a processor's shell command               |
-| `/view-database`    | 📊 Open database webview                            |
-| `/wrap-list`        | ▶ Wrap list item + children as collapsible          |
+| Command             | Description                                                   |
+| ------------------- | ------------------------------------------------------------- |
+| `/align`            | ↔️ Re-align table columns                                     |
+| `/callout`          | 📢 Callout block (NOTE, TIP, WARNING...)                      |
+| `/carry-forward`    | ⏩ Move unfinished tasks to next day                          |
+| `/clean-list`       | 🧹 Remove empty lines/items in current list                   |
+| `/code`             | 🔣 Fenced code block                                          |
+| `/cols-left`        | ⬅️ Add columns to the left                                    |
+| `/cols-right`       | ➡️ Add columns to the right                                   |
+| `/comments`         | 💬 Show/manage comments on this page                          |
+| `/commit`           | 📦 Git: stage all, commit & push                              |
+| `/copy`             | 📋 Copy code (inline span or block)                           |
+| `/copy-column`      | 📋 Copy current column                                        |
+| `/csv-to-db`        | 🧾 Create a new DB from CSV file                              |
+| `/cut-column`       | ✂️ Cut current column                                         |
+| `/database`         | 🗄️ Create a database (typed table)                            |
+| `/date`             | 🗓️ Insert a specific date                                     |
+| `/delete-col`       | 🗑️ Delete current column                                      |
+| `/delete-field`     | 🗑️ Remove a field from the schema                             |
+| `/delete-row`       | 🗑️ Delete current row                                         |
+| `/divider`          | ➖ Horizontal divider — ---                                   |
+| `/emoji`            | 😀 Insert an emoji                                            |
+| `/footnote`         | 📝 Insert a numbered footnote                                 |
+| `/frontmatter`      | 📋 YAML front matter block                                    |
+| `/gif`              | 🎬 Search for a GIF                                           |
+| `/graph`            | 📈 Insert a Graphviz diagram                                  |
+| `/h1`               | 𝗛 Heading 1 — #                                               |
+| `/h2`               | 𝗛 Heading 2 — ##                                              |
+| `/h3`               | 𝗛 Heading 3 — ###                                             |
+| `/image`            | 🖼️ Insert an image                                            |
+| `/img-alt`          | Image: edit alt text                                          |
+| `/img-center`       | Image: center on its own line                                 |
+| `/img-copy-path`    | Image: copy src to clipboard                                  |
+| `/img-full`         | Image: full width (100%)                                      |
+| `/img-l`            | Image: large (500px)                                          |
+| `/img-left`         | Image: wrap text on the right (float left)                    |
+| `/img-m`            | Image: medium (300px)                                         |
+| `/img-reset`        | Image: strip layout (collapse back to markdown when possible) |
+| `/img-reveal`       | Image: reveal file in OS file browser                         |
+| `/img-right`        | Image: wrap text on the left (float right)                    |
+| `/img-s`            | Image: small (150px)                                          |
+| `/inline-math`      | 🧮 Inline math — $ ... $                                      |
+| `/link`             | 🔗 Insert link to a page                                      |
+| `/lock`             | 🔒 Encrypt a secret box with a password                       |
+| `/math`             | 🧮 LaTeX math block — $$ ... $$                               |
+| `/mermaid`          | 🧭 Mermaid diagram block                                      |
+| `/move-page`        | 📦 Move current page folder                                   |
+| `/new-entry`        | ➕ Add a new database entry                                   |
+| `/new-field`        | ➕ Add a new field to the schema                              |
+| `/new-view`         | 👁️ Create a saved view with sort & filter                     |
+| `/openlink`         | 📂 Open the nearest page link                                 |
+| `/page`             | 📄 Create a child page                                        |
+| `/paste-column`     | 📥 Paste column from clipboard                                |
+| `/plan-this-week`   | 📅 Insert weekly plan for the current week                    |
+| `/plan-week-of`     | 📅 Insert weekly plan — pick a week                           |
+| `/processor`        | 🔧 Insert a processor block (shell command)                   |
+| `/quote`            | 💬 Blockquote — >                                             |
+| `/refresh`          | 🔄 Re-run all processor blocks in this file                   |
+| `/rename-field`     | ✏️ Rename a schema field across entries                       |
+| `/rename-page`      | ✏️ Rename current page folder and update links                |
+| `/render`           | ▶ Re-render graph from DOT source                             |
+| `/renumber`         | 🔢 Renumber the entire ordered list                           |
+| `/resource`         | 📎 Attach a file from disk into .rsrc                         |
+| `/rows-above`       | ⬆️ Add rows above                                             |
+| `/rows-below`       | ⬇️ Add rows below                                             |
+| `/secretbox`        | 🔐 Secret box — lockable <details> block                      |
+| `/section`          | 📑 Divider + section heading scaffold                         |
+| `/sort`             | 🔤 Sort table by column                                       |
+| `/sync-field-order` | 🔁 Sync entry field order to schema                           |
+| `/table`            | 📊 Insert a table                                             |
+| `/table-to-db`      | 📊 Create a new DB from markdown table under cursor           |
+| `/th1`              | ▶ Toggle heading 1 (collapsible)                              |
+| `/th2`              | ▶ Toggle heading 2 (collapsible)                              |
+| `/th3`              | ▶ Toggle heading 3 (collapsible)                              |
+| `/tl`               | ▶ Collapsible list item (ul)                                  |
+| `/to-bullets`       | • Convert numbered list to bullet list                        |
+| `/to-numbered`      | 🔢 Convert bullet list to numbered list                       |
+| `/toc`              | 📑 Table of contents from headings                            |
+| `/today`            | 📅 Insert today's date                                        |
+| `/todo`             | ☑️ To-do checkbox — - [ ]                                     |
+| `/toggle`           | ▶ Collapsible toggle block                                    |
+| `/tol`              | ▶ Collapsible list item (ol)                                  |
+| `/transpose`        | 🔄 Transpose table rows/cols                                  |
+| `/turninto`         | 🔄 Turn heading/link into something else                      |
+| `/unlock`           | 🔓 Decrypt a locked secret box                                |
+| `/update-processor` | ✏️ Change a processor's shell command                         |
+| `/view-database`    | 📊 Open database webview                                      |
+| `/wrap-list`        | ▶ Wrap list item + children as collapsible                    |
 
 <!-- END AUTO-SLASH-TABLE -->
 
