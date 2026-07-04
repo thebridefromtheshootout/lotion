@@ -31,7 +31,6 @@ export const Cmd = {
   insertMath: "lotion.insertMath",
   insertMermaid: "lotion.insertMermaid",
   insertFrontmatter: "lotion.insertFrontmatter",
-  insertFloatingNote: "lotion.insertFloatingNote",
   insertEmoji: "lotion.insertEmoji",
   insertFootnote: "lotion.insertFootnote",
   copyCode: "lotion.copyCode",

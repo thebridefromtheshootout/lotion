@@ -56,7 +56,6 @@ import { EMOJI_SLASH_COMMAND } from "./emoji";
 import { FOOTNOTE_SLASH_COMMAND } from "./footnote";
 import { TOC_SLASH_COMMAND } from "./toc";
 import { COMMENTS_SLASH_COMMAND } from "./comments/commentPanel";
-import { FLOATING_NOTE_SLASH_COMMAND } from "./floatingNote";
 import { PROCESSOR_SLASH_COMMAND, REFRESH_SLASH_COMMAND, UPDATE_PROCESSOR_SLASH_COMMAND } from "./processor";
 
 export const EDITOR_SLASH_COMMANDS: SlashCommand[] = [
@@ -69,7 +68,6 @@ export const EDITOR_SLASH_COMMANDS: SlashCommand[] = [
   TOGGLE_OL_SLASH_COMMAND,
   WRAP_LIST_SLASH_COMMAND,
   CALLOUT_SLASH_COMMAND,
-  FLOATING_NOTE_SLASH_COMMAND,
   CODE_SLASH_COMMAND,
   COPY_SLASH_COMMAND,
   TODAY_SLASH_COMMAND,
