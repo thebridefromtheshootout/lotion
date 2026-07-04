@@ -13,6 +13,9 @@ function ctx(overrides: Partial<CursorContext> = {}): CursorContext {
     cursorInProcessor: false,
     cursorInGraph: false,
     cursorInSecretbox: false,
+    cursorInWeekBlock: false,
+    cursorInWeekDaySection: false,
+    cursorOnImage: false,
     ...overrides,
   };
 }
@@ -60,8 +63,25 @@ describe("CmdFilter — composition", () => {
 
   it("cursorNotInCode is the negation of cursorInCode", () => {
     expect(Filter().cursorNotInCode().evaluate(ctx())).toBe(true);
-    expect(Filter().cursorNotInCode().evaluate(ctx({ cursorInCode: true }))).toBe(false);
-    expect(Filter().cursorInCode().evaluate(ctx({ cursorInCode: true }))).toBe(true);
+    expect(
+      Filter()
+        .cursorNotInCode()
+        .evaluate(ctx({ cursorInCode: true })),
+    ).toBe(false);
+    expect(
+      Filter()
+        .cursorInCode()
+        .evaluate(ctx({ cursorInCode: true })),
+    ).toBe(true);
     expect(Filter().cursorInCode().evaluate(ctx())).toBe(false);
+  });
+
+  it("cursorOnImage passes only when the flag is set", () => {
+    expect(Filter().cursorOnImage().evaluate(ctx())).toBe(false);
+    expect(
+      Filter()
+        .cursorOnImage()
+        .evaluate(ctx({ cursorOnImage: true })),
+    ).toBe(true);
   });
 });

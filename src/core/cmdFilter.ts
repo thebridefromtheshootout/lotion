@@ -52,6 +52,9 @@ export class CmdFilter {
   cursorInWeekDaySection() {
     return this.add((c) => c.cursorInWeekDaySection);
   }
+  cursorOnImage() {
+    return this.add((c) => c.cursorOnImage);
+  }
 
   /**
    * True when block-level markdown insertion is meaningful at the cursor —

@@ -7,6 +7,7 @@ import { cursorInTable } from "../editor/table";
 import { cursorInProcessor } from "../editor/processor";
 import { cursorInCodeContext } from "../editor/codeContext";
 import { cursorInGraph } from "../media/graph";
+import { cursorOnImage } from "../media/imageOnLine";
 import { cursorInSecretbox } from "../blocks/lockBlock";
 import { cursorInOrderedList, cursorInUnorderedList } from "../lists/listModel";
 import { cursorInWeekBlock, cursorInWeekDaySection } from "../productivity/weeklyPlan";
@@ -24,6 +25,7 @@ export interface CursorContext {
   cursorInSecretbox: boolean;
   cursorInWeekBlock: boolean;
   cursorInWeekDaySection: boolean;
+  cursorOnImage: boolean;
 }
 
 export function computeCursorContext(doc: TextDocument, pos: Position): CursorContext {
@@ -44,5 +46,6 @@ export function computeCursorContext(doc: TextDocument, pos: Position): CursorCo
     cursorInSecretbox: cursorInSecretbox(doc, pos),
     cursorInWeekBlock: inWeekBlock,
     cursorInWeekDaySection: inWeekBlock && cursorInWeekDaySection(doc, pos),
+    cursorOnImage: cursorOnImage(doc, pos),
   };
 }
