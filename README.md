@@ -42,7 +42,6 @@ for the canonical list.
 | `/delete-row`       | 🗑️ Delete current row                                         |
 | `/divider`          | ➖ Horizontal divider — ---                                   |
 | `/emoji`            | 😀 Insert an emoji                                            |
-| `/floating-note`    | 📝 Sticky note (tilted, tape-topped)                          |
 | `/footnote`         | 📝 Insert a numbered footnote                                 |
 | `/frontmatter`      | 📋 YAML front matter block                                    |
 | `/gif`              | 🎬 Search for a GIF                                           |
